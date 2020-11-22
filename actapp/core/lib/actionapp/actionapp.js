@@ -13,8 +13,28 @@ License: MIT
 
 */
 
-//--- Global Entry Point
-var ActionAppCore = {};
+//--- Global Entry Point / Always available functionality
+var ActionAppCore = {
+
+    //--- Debounce resize / rapid firing events
+    debounce: function (func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    }
+};
+
+//--- Global Spot
+window.AACore = ActionAppCore;
 
 //--- Base module and simple module system --- --- --- --- --- --- --- --- --- --- --- --- 
 (function (ActionAppCore, $) {
@@ -365,6 +385,10 @@ var ActionAppCore = {};
         return dfd.promise();
     };
 
+    me.layoutComponentResized = function(){
+        // console.log("layoutComponentResized",arguments);
+    }
+
     me.initAppComponents = function (theOptionalTarget) {
         var tmpDDs = me.getByAttr$({ appcomp: 'dropdown' }, theOptionalTarget);
         if (tmpDDs && tmpDDs.length) {
@@ -412,8 +436,21 @@ var ActionAppCore = {};
                         //--- Using custom template
                         tmpLayoutOptions = ThisApp.layoutTemplates[tmpLayoutTemplateName];
                     }
+                    tmpLayoutOptions = tmpLayoutOptions || {};
 
-                    tmpLayoutEntry.layout(tmpLayoutOptions);
+                    //comeback
+                    //ToDo: Implement app level layout control from markup
+                    //ToDo: Create / test more than one app comp and assure both resize
+                    /*
+                    var appCtlLayoutChanged = ActionAppCore.debounce(function () {
+                        console.log('page layout resized',this, arguments);
+                        this.publish('resized', {});
+                    }, 200).bind(this);
+
+                    var tmpRet = tmpLayoutEntry.layout(tmpLayoutOptions);
+                    tmpLayoutOptions.onresize_end = appCtlLayoutChanged;
+                    console.log("initAppComponents: Layout reply",tmpRet,tmpLayoutOptions)
+                    */
                 }
 
 
@@ -1998,21 +2035,8 @@ var ActionAppCore = {};
     Used to keep the same function from running a buch of times in a row 
     due to multiple hits or types of events all being called at once.
     */
-    me.debounce = debounce;
-    function debounce(func, wait, immediate) {
-        var timeout;
-        return function() {
-            var context = this, args = arguments;
-            var later = function() {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
-            };
-            var callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
-        };
-    };
+    me.debounce = ActionAppCore.debounce;
+    
 
     function onCommonDialogHide(theEl) {
         if (typeof (commonDialogCallbackOnHide) == 'function') {
@@ -2272,7 +2296,7 @@ var ActionAppCore = {};
     me.siteLayout = null;
 
 
-    me.refreshLayouts = debounce(function (theTargetEl) {
+    me.refreshLayouts = ActionAppCore.debounce(function (theTargetEl) {
         if( ThisApp.siteLayout ){
             ThisApp.siteLayout.resizeAll();
         }
@@ -2622,7 +2646,7 @@ var ActionAppCore = {};
             if (tmpGrids && tmpGridsLen > 0) {
                 for (var iPos = 0; iPos < tmpGridsLen; iPos++) {
                     var tmpGridsEl = $(tmpGrids[iPos]);
-                    if (tmpGridsEl && tmpGridsEl.is(":visible")) {
+                    if (tmpGridsEl && (tmpOptions.force || tmpGridsEl.is(":visible"))) {
 
                         var tmpPaneEl = tmpGridsEl.first('.ui-layout-pane');
                         var tmpIW = tmpPaneEl.innerWidth();
@@ -2645,15 +2669,10 @@ var ActionAppCore = {};
 
                         
                         var tmpGridCols = tmpGridsEl.find('[gscol]');
-                        //todo: Make generic
-                        var tmpXHead = tmpGridsEl.find('[griduse="extra-header"]');
-                        if (tmpGridSize < 16) {
-                            tmpXHead.show();
-                        } else {
-                            tmpXHead.hide();
-                        }
+                        
                         var tmpToRemove = '';
                         tmpGridsEl.data = tmpGridsEl.data || {};
+                        
                         if (tmpGridsEl.data.currentCardCount) {
                             tmpToRemove = this.numLookup[tmpGridsEl.data.currentCardCount] + " wide";
                         }
@@ -2718,8 +2737,8 @@ var ActionAppCore = {};
 
         var tmpBodyEl = $('body');
         if (!(theAppConfig && theAppConfig.layout === false) && tmpBodyEl.length > 0){
-            console.log("Do layout setup");
-            me.siteLayout = tmpBodyEl.layout(tmpLOSpecs);
+            
+            me.siteLayout = tmpBodyEl.layout(tmpLOSpecs);            
         }
 
         if (theAppConfig && theAppConfig.hideHeader == true) {
@@ -3231,27 +3250,27 @@ License: MIT
             //--- Use standard border layout template if none provided
             this.layoutOptions.spotPrefix = this.layoutOptions.spotPrefix || this.pageName;
 
-            this.layoutConfig.onresize = (
-                function (thePane, theElement, theState, theOptions, theName) {
+            // this.layoutConfig.onresize_end = (
+//                 function (thePane, theElement, theState, theOptions, theName) {
+// console.log("onresize orig");
+//                     if (typeof (this._onResizeLayout) == 'function') {
+//                         if (thePane == 'center') {
+//                             this._onResizeLayout(thePane, theElement, theState, theOptions, theName);
+//                         }
+//                     }
 
-                    if (typeof (this._onResizeLayout) == 'function') {
-                        if (thePane == 'center') {
-                            this._onResizeLayout(thePane, theElement, theState, theOptions, theName);
-                        }
-                    }
-
-                    try {
-                        if (this.publish) {
-                            if (thePane == 'center') {
-                                this.publish('resizeLayout', [this, thePane, theElement, theState, theOptions, theName]);
-                            }
-                        }
-                    } catch (ex) {
-                        console.error('error on resize', ex);
-                    }
-                    return true;
-                }
-            ).bind(this);
+//                     try {
+//                         if (this.publish) {
+//                             if (thePane == 'center') {
+//                                 this.publish('resizeLayout', [this, thePane, theElement, theState, theOptions, theName]);
+//                             }
+//                         }
+//                     } catch (ex) {
+//                         console.error('error on resize', ex);
+//                     }
+//                     return true;
+//                 }
+//             ).bind(this);
 
             //--- Extend with new layout related spot functions
             this.addToRegion = function (theRegion, theContent, theOptionalTemplateName, thePrepend) {
@@ -3369,12 +3388,24 @@ License: MIT
         return theLayoutOptions;
     }
 
+    me.pubResize = function(){
+        if (typeof (this._onResizeLayout) == 'function') {
+            this._onResizeLayout();            
+        }
+        if( this.parts ){
+            for( aName in this.parts ){
+                var tmpPart = this.parts[aName];
+                if( tmpPart && tmpPart.refreshSubLayouts ){
+                    tmpPart.refreshSubLayouts();
+                }
+            }
+        }
+    };
     me.initOnFirstLoad = function () {
         var dfd = jQuery.Deferred();
         var tmpThis = this;
         this.options = this.options || {};
-        me.controls = {};
-        var tmpThis = this;
+        me.controls = {};        
 
         //--- Deprecated - backward compat functionality until apps are upgraded
         if (this.options.pageTemplates) {
@@ -3412,11 +3443,14 @@ License: MIT
 
         $.when(tmpPromRequired, tmpPromLayoutReq).then(function (theReply) {
             tmpThis.initLayout();
+            //comeback
             tmpThis.initAppComponents();
             ThisApp.delay(100).then(function (theReply) {
-                if( me.siteLayout ){
-                    ThisApp.siteLayout.resizeAll();
-                }
+                // if( me.siteLayout ){
+                //     ThisApp.siteLayout.resizeAll();                    
+                // };
+                tmpThis.publish('resized', {});
+                ThisApp.refreshLayouts();                
             })
             dfd.resolve(true);
         })
@@ -3814,10 +3848,13 @@ License: MIT
     //======================================
     //======================================
 
+    
+
+    
 
     me.init = init;
     function init(theApp) {
-
+        
         if (theApp) {
             this.app = theApp;
         }
@@ -3898,10 +3935,24 @@ License: MIT
                 this._onInit(this.app)
             };
 
+            this.layoutConfig = this.layoutConfig || {};
+            //if( !(this.layoutConfig.onresize_end)){
+            this.pageLayoutChanged = ActionAppCore.debounce(function () {
+                this.publish('resized', {});                ;
+            }, 200).bind(this);
+            
+            
+            this.layoutConfig.onresize_end = this.pageLayoutChanged;
+            
+            //}
             if (this.layoutOptions && this.layoutConfig) {
                 this.layoutSpot = ThisApp.getByAttr$({ group: ThisApp.pagesGroup, "item": this.pageName });
                 this.layout = this.layoutSpot.layout(this.layoutConfig);
+                //console.log("init page: Layout reply / config",this,this.layout,this.layoutConfig)
             };
+
+            this.pubResize = me.pubResize.bind(this);
+            this.subscribe('resized',me.pubResize.bind(this));
 
         }
     }    
@@ -5643,7 +5694,7 @@ License: MIT
                 if( ThisApp.util.isArray(theValue)){
                     theValue = theValue.join('\n');
                 }
-                console.log("tmpFieldEl",theFieldName,tmpCtl,theValue)
+                //console.log("tmpFieldEl",theFieldName,tmpCtl,theValue)
             }
 
             
@@ -6315,6 +6366,23 @@ License: MIT
     }
     meInstance.clearEvents = meInstance.destroy;
 
+    meInstance.refreshSubLayouts = function(){
+        if( this.liveIndex && this.liveIndex.layouts ){
+            for( aName in this.liveIndex.layouts){
+                var tmpLayout = this.liveIndex.layouts[aName];
+                tmpLayout.resizeAll();
+            }
+        }
+        if( this.parts ){
+            for( aName in this.parts ){
+                var tmpPart = this.parts[aName];
+                if( tmpPart && tmpPart.refreshSubLayouts ){
+                    tmpPart.refreshSubLayouts();
+                }
+            }
+        }
+    }
+
     meInstance.initControlComponents = function () {
         var dfd = jQuery.Deferred();
         var tmpEl = this.parentEl;
@@ -6386,6 +6454,8 @@ License: MIT
         var tmpLayouts = ThisApp.getByAttr$({ ctlcomp: 'layout' }, tmpEl);
 
         if (tmpLayouts.length) {
+            this.layoutElements = tmpLayouts;
+
             tmpLayouts
                 .addClass('ctl-layout-frame')
                 .css('min-height', '200px')
@@ -6393,13 +6463,19 @@ License: MIT
                 .attr('ctlcomp', '')
                 ;
             //--- Assure all the elements to the next pane are 100%
-            ThisApp.util.resizeToParent(tmpLayouts);
+            //ToDo: Verify still needed ***
+            ThisApp.util.resizeToParent(this.layoutElements);
+            //comeback2
+
 
             //--- Assure layouts index is in there
             this.liveIndex.layouts = this.liveIndex.layouts || {};
             //--- Loop to create each one, getting details if needed from el
             for (var iLayout = 0; iLayout < tmpLayouts.length; iLayout++) {
                 var tmpLayoutEntry = $(tmpLayouts.get(iLayout));
+                
+
+
                 var tmpOptions = defaultLayoutOptions;
                 var tmpLayoutTemplateName = tmpLayoutEntry.attr('template') || '';
                 var tmpLayoutOptions = defaultLayoutOptions;
@@ -6407,13 +6483,22 @@ License: MIT
                     //--- Using custom template
                     tmpLayoutOptions = StaticApp.layoutTemplates[tmpLayoutTemplateName];
                 }
-                tmpLayoutEntry.layout(tmpLayoutOptions);
+                this.controlLayoutChanged = ActionAppCore.debounce(function () {
+                    this.publish('resized',this);
+                }, 200).bind(this);
+
+                tmpLayoutOptions.onresize_end = this.controlLayoutChanged;
+                this.layoutCount = this.layoutCount || 0;
+                this.layoutCount++;
+                var tmpControlLayout = tmpLayoutEntry.layout(tmpLayoutOptions);                
+                this.liveIndex.layouts['layout-' + this.layoutCount] = tmpControlLayout;
             }
+        }
+        
+        $.whenAll(tmpDefs).then(function (theReply) {
             //--- Tell the app to resize it's layouts
             ThisApp.resizeLayouts();
-        }
-        $.whenAll(tmpDefs).then(function (theReply) {
-            dfd.resolve(true)
+            dfd.resolve(true);
         })
         return dfd.promise();
     }
@@ -6432,13 +6517,10 @@ License: MIT
         tmpThis.parentEl.html(tmpHTML);
         tmpThis.parentEl.on('change', tmpThis.onFieldChange.bind(this));
         tmpThis.parentEl.on('click', tmpThis.onItemClick.bind(this));
-        console.log("debug loadToElement tmpThis.parentEl",tmpThis.parentEl);
         var tmpDom = tmpThis.parentEl.get(0);
         if( tmpDom ){
             tmpDom.ontouchend = itemTouchEnd.bind(this);
             tmpDom.ontouchstart = ThisApp.util.itemTouchStart.bind(this);
-        //} else {
-        //    console.warn("no dom found for tmpThis.parentEl",tmpThis.parentEl)
         }
         
         tmpThis.getConfig().options = tmpThis.getConfig().options || {};
@@ -6450,7 +6532,7 @@ License: MIT
                 if (isFunc(tmpThis._onInit)) {
                     tmpThis._onInit();
                 }
-
+                
                 tmpThis.refreshControl();
                 var tmpDoc = tmpOptions.doc || tmpThis.getConfig().options.doc || false;
                 if (tmpDoc) {
