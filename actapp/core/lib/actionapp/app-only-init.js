@@ -58,16 +58,9 @@
         ThisApp.common.adaptive.resizeLayoutProcess = function (theForce) {
           try {
             //--- On layout resize ...
-            var tmpEl = ThisApp.getByAttr$({appuse:'grid-16'});
-            ThisApp.grid16.resizeGrid({
-              parent: tmpEl
-            });
-            var tmpTW = tmpEl.innerWidth();
-            this.currentWidth = tmpTW;
-        
+            ThisApp.grid16.resizeGrid();
             var tmpCardCount = 4;
-        
-            var tmpCards = ThisApp.getSpot('cards-area');
+            var tmpCards = ThisApp.getByAttr$({"auto-adapt":"cards"});
             var tmpIW = tmpCards.innerWidth();
             var tmpMin = this.minCardSizeSm;
             if (this.mode != "S") {
@@ -77,10 +70,9 @@
             if (this.mode != "S") {
               tmpMax = this.maxCardSize;
             }
-        
-        
-            this.lastTW = tmpTW;
-            this.lastIW = tmpIW;
+
+            //--- ToDo: Move to element data if used
+            //this.lastIW = tmpIW;
         
             var tmpEach = parseInt(tmpIW / tmpMin);
             tmpCardCount = tmpEach;
