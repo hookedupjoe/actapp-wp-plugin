@@ -21,7 +21,7 @@
  * Plugin Name: Action App Core
  * Plugin URI: https://github.com/hookedupjoe/actapp-plugin
  * Description: Used to provide full Action App functionality for complex development / sites.
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Joseph Francis
  * Author URI: https://www.hookedup.com
  * Donate-Link: https://www.hookedup.com/
