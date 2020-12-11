@@ -38,7 +38,12 @@ if ( !isset( $actapp_version ) ) {
  * Load core :
  */
 
+//--- utility
 require_once ACTAPP_CORE_LIB . '/class-actapp-utility.php';
+
+//--- sleekdb
+require_once ACTAPP_CORE_LIB . '/class-actapp-sleekdb.php';
+
 
 /*
 
