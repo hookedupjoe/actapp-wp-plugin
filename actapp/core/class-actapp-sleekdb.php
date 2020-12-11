@@ -27,14 +27,10 @@ if ( !defined( 'ABSPATH' ) ) {
  * SleekDB functions.
  */
 class ACTAPP_SleekDB {
+	private $rootdir = "";
 
-	public static function loadfs(){
-		include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-		include_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-		if (!class_exists('WP_Filesystem_Direct')) {
-			return false;
-		}
-		return true;
+	public function getRoot(){
+		return $this->$rootdir;
 	}
 	/**
 	 * Prepares the data area for use by creating directory and limiting access for apache
@@ -42,18 +38,38 @@ class ACTAPP_SleekDB {
 	 * @param string $dbname
 	 * @return boolean if successfully created	
 	 */
-	public static function init( $basepath = "" ){
-		$this->loadfs();
+	public function init( $basepath = "" ){
+		if( $this->$rootdir != ""){
+			return;
+		}
 		$dbroot = ($basepath == "") ? (ABSPATH . 'actappdata') : $basepath;
-		if( WP_Filesystem_Direct::exists($dbroot)){
+		$this->$rootdir = $dbroot;
+		if( file_exists($dbroot)){
 			return true;
 		}
 		if ( !wp_mkdir_p( $dbroot ) ) {
 			return false;
 		}
-		//$this->loadfs();
-		//WP_Filesystem_Direct::copy(ACTAPP_SLEEKDB_LIB . '/.htaccess', $dbroot);
+		copy(ACTAPP_SLEEKDB_LIB . '/.htaccess', $dbroot. '/.htaccess');
+		
+		//define( 'ACTAPP_SLEEKDB_ROOT', $dbroot );
 		return true;
 	}
 
+	public function getStore( $theName = "general"){
+		if ( $this->$rootdir == "" ) {
+			$actapp_sleekdb->init();
+		}
+		if ($this->$rootdir == "" ) {
+			return false;
+		}
+		return \SleekDB\SleekDB::store($theName, $this->$rootdir);
+	}
+
+
 }
+
+global $actapp_sleekdb;
+$actapp_sleekdb = new ACTAPP_SleekDB();
+
+

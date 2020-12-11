@@ -124,6 +124,9 @@ window.AACore = ActionAppCore;
     //--- return the prototype to be marged with prototype of target object
     ExtendMod.PubSub = me;
 
+    $.extend(ActionAppCore, ExtendMod.PubSub);
+    ActionAppCore.initPubSub();
+
 })(ActionAppCore, $);
 
 
@@ -592,17 +595,25 @@ window.AACore = ActionAppCore;
 
     }
 
+    // function assureRelative(theURL) {
+    //     var tmpURL = theURL;
+
+    //     if (!tmpURL.startsWith('.')) {
+    //         if (!tmpURL.startsWith('/')) {
+    //             tmpURL = './' + tmpURL;
+    //         } else {
+    //             tmpURL = '.' + tmpURL
+    //         }
+    //     }
+
+    //     return tmpURL;
+    // }
+    //--- Updated to allow hard coded root as usual
     function assureRelative(theURL) {
         var tmpURL = theURL;
-
-        if (!tmpURL.startsWith('.')) {
-            if (!tmpURL.startsWith('/')) {
+        if (!tmpURL.startsWith('.') && !tmpURL.startsWith('/')) {
                 tmpURL = './' + tmpURL;
-            } else {
-                tmpURL = '.' + tmpURL
-            }
         }
-
         return tmpURL;
     }
 
@@ -1031,6 +1042,8 @@ window.AACore = ActionAppCore;
    * getSpot$
    *  - Returns jQuery element for the spot name provided
    *  - Optionally pass a parent element as the DOM to look in
+   *  - If a jQuery element is passed as the name, it returns it
+   *    .. this is so you can hot swap any jQuery element for spot use
    * 
    * Example: 
    *   var tmpEl = ThisApp.getSpot('main:out')
@@ -1043,6 +1056,9 @@ window.AACore = ActionAppCore;
    * 
    */
     me.getSpot$ = function (theName, theOptionalParent$, theOptionalTagName) {
+        if( ThisApp.util.isjQuery(theName)){
+            return theName;
+        }
         var tmpTagName = theOptionalTagName || 'spot';
         var tmpSelector = '[' + tmpTagName + '="' + theName + '"]';
         var tmpSpot = false;
@@ -2424,11 +2440,16 @@ window.AACore = ActionAppCore;
         me.controls = me.getComponent("plugin:Controls");
 
         var tmpPromRequired = true;
+        var tmpPromConfigReqired = true;
         if (theAppConfig && theAppConfig.required) {
             tmpPromRequired = me.loadResources(theAppConfig.required);
         };
+        if (ActionAppCore.config && ActionAppCore.config.required) {
+            console.log("ActionAppCore.config.required",ActionAppCore.config.required);
+            tmpPromConfigReqired = me.loadResources(ActionAppCore.config.required);
+        };
 
-        $.when(tmpPromRequired).then(function () {
+        $.when(tmpPromRequired,tmpPromConfigReqired).then(function () {
             //--- do the rest of the app load
             dfd.resolve(true);
         })
@@ -2985,9 +3006,10 @@ window.AACore = ActionAppCore;
             }
         }
 
-
+        ActionAppCore.publish('app-loaded',[ThisApp]);
 
     }
+    
     function isStr(theItem) {
         return (typeof (theItem) == 'string')
     }
@@ -3200,7 +3222,7 @@ window.AACore = ActionAppCore;
         return (theObject instanceof Element);
     }
     function isjQuery(theObject) {
-        return (theObject instanceof jQuery);
+        return ( theObject && theObject.jquery) ? true : false;
     }
     function isArray(theObject) {
         return Array.isArray(theObject);
@@ -5567,6 +5589,16 @@ License: MIT
         return tmpRet;
     }
 
+    meInstance.submitForm = function () {
+        var tmpForm = this.getEl().find('form');
+        if( tmpForm.length == 0){
+            return false;
+        }
+        tmpForm.submit();
+        return true;
+    }
+
+
     meInstance.assureRequired = function () {
         var dfd = jQuery.Deferred();
         this.options = this.options || {};
@@ -6687,8 +6719,8 @@ License: MIT
         tmpHTML.push(getContentHTML(theControlName, tmpItems, theControlObj));
         var tmpAttr = ' segment ';
         if (tmpSpecOptions.padding === false) {
-            tmpAttr += ' nopad ';
-        } else {
+            tmpAttr = ' ';
+        } else if (tmpSpecOptions.padding === 'slim') {
             tmpAttr += '  slim ';
         }
         if (tmpSpecOptions.basic == true) {
@@ -6706,9 +6738,26 @@ License: MIT
             tmpAttr += ' loading ';
         }
 
+        var tmpTag = 'div';
+        var tmpFormAction = '';
+        var tmpFormMethod = '';
+        var tmpFormAttr = '';
+
+        if (typeof(tmpSpecOptions.form) == 'object') {
+            tmpFormAction = tmpSpecOptions.form.action || '';
+            tmpFormMethod = tmpSpecOptions.form.method || '';
+
+            tmpFormAttr = ' action="' + tmpFormAction + '"';
+            if( tmpFormMethod ){
+                tmpFormAttr += ' method="' + tmpFormMethod + '"';
+            }
+
+            tmpTag = 'form';
+        }
+
         tmpHTML = tmpHTML.join('');
         if (tmpHTML) {
-            tmpHTML = '<div class="ui ' + tmpAttr + ' ' + tmpForm + '" controls control name="' + tmpControlName + '">' + tmpHTML + '</div>';
+            tmpHTML = '<' + tmpTag + ' ' + tmpFormAttr + ' class="ui ' + tmpAttr + ' ' + tmpForm + '" controls control name="' + tmpControlName + '">' + tmpHTML + '</' + tmpTag + '>';
         }
         return tmpHTML;
     }
@@ -7398,7 +7447,8 @@ License: MIT
             } else if (isStr(tmpObject.myaction)) {
                 tmpAction = ' myaction="' + tmpObject.myaction.trim() + '" ';
             }
-            tmpHTML.push('<button ' + tmpAction + getItemAttrString(theObject) + ' class="ui button ' + tmpClasses + ' " ' + tmpStyle + '>')
+
+            tmpHTML.push('<button type="button" ' + tmpAction + getItemAttrString(theObject) + ' class="ui button ' + tmpClasses + ' " ' + tmpStyle + '>')
 
             if (tmpObject.icon && !(tmpObject.right)) {
                 tmpHTML.push('<i class="' + tmpObject.icon + ' icon"></i> ');

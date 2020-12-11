@@ -508,8 +508,11 @@ $.fn.NoSqlDataManager = (function ($) {
         var tmpTempls = [];
 
         var tmpSource = theAction.source || '';
+        
         var tmpPre = './' + tmpSource + '/';
-
+        if( tmpSource.startsWith('/' ) ){
+            tmpPre = tmpSource + '/';
+        }
         
         var tmpDataType = "json";
         if( theOptions && theOptions.dataType ){
@@ -586,7 +589,7 @@ $.fn.NoSqlDataManager = (function ($) {
         var dfd = jQuery.Deferred();
         //theAction.options = theOptions || {};
         var tmpOptions = theOptions || {};
-
+        
         if (typeof (tmpOptions.ajax) != 'object') {
             dfd.reject("No ajax object setup to handle this ajax call");
             return dfd.promise();
