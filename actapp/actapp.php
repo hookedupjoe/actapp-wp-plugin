@@ -21,7 +21,7 @@
  * Plugin Name: Action App Core
  * Plugin URI: https://github.com/hookedupjoe/actapp-plugin
  * Description: Used to provide full Action App functionality for complex development / sites.
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author: Joseph Francis
  * Author URI: https://www.hookedup.com
  * Donate-Link: https://www.hookedup.com/
@@ -47,10 +47,15 @@ if ( !defined( 'ACTAPP_CORE_LIB_URL' ) ) {
 	define( 'ACTAPP_CORE_LIB_URL', ACTAPP_CORE_URL . '/core' );
 }
 
-
 if ( !defined( 'ACTAPP_CORE_LIB' ) ) {
 	define( 'ACTAPP_CORE_LIB', ACTAPP_CORE_DIR . '/core' );
 }
 
+if ( !defined( 'ACTAPP_SLEEKDB_LIB' ) ) {
+	define( 'ACTAPP_SLEEKDB_LIB', ACTAPP_CORE_DIR . '/SleekDB' );
+}
+
 require_once ACTAPP_CORE_LIB . '/constants.php';
 require_once ACTAPP_CORE_LIB . '/wp-init.php';
+require_once ACTAPP_SLEEKDB_LIB . '/SleekDB.php';
+
