@@ -34,7 +34,7 @@ var ActionAppCore = {
 };
 
 //--- Global Spot
-window.AACore = ActionAppCore;
+window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
 //--- Base module and simple module system --- --- --- --- --- --- --- --- --- --- --- --- 
 (function (ActionAppCore, $) {
@@ -392,6 +392,15 @@ window.AACore = ActionAppCore;
         // console.log("layoutComponentResized",arguments);
     }
 
+    me.onDropDownNavChange = function(theValue, theText, theChoice){
+        if( theChoice.get(0) && theChoice.get(0).tagName){
+            var tmpURL = theChoice.attr('href');
+            if( tmpURL ){
+                window.location = tmpURL;
+            }
+        }
+    }
+
     me.initAppComponents = function (theOptionalTarget) {
         var tmpDDs = me.getByAttr$({ appcomp: 'dropdown' }, theOptionalTarget);
         if (tmpDDs && tmpDDs.length) {
@@ -399,6 +408,18 @@ window.AACore = ActionAppCore;
                 .dropdown({
                     showOnFocus: false
                 });
+        }
+        tmpDDs = me.getByAttr$({ appcomp: 'dropdownnav' }, theOptionalTarget);
+        if (tmpDDs && tmpDDs.length) {
+            tmpDDs.attr('appcomp', '');
+            tmpDDs.dropdown({
+                allowCategorySelection: true,
+                on: 'click',
+                onChange: me.onDropDownNavChange,
+                selectOnKeydown: false,
+                allowTab: true,
+                showOnFocus: true
+            });
         }
 
         var tmpCBs = me.getByAttr$({ appcomp: 'checkbox' }, theOptionalTarget);
@@ -5589,9 +5610,14 @@ License: MIT
         return tmpRet;
     }
 
-    meInstance.submitForm = function () {
+    //ToDo: 
+    //--- Can pass the url, method, etc in options
+    //--- Can call with {ajax: true} to use the form action, method, etc to post via ajax
+    //---   Note: When calling ajax, it returns the promise
+    meInstance.submitForm = function (theOptions) {
         var tmpForm = this.getEl().find('form');
         if( tmpForm.length == 0){
+            console.error('sumitForm - no form found')
             return false;
         }
         tmpForm.submit();

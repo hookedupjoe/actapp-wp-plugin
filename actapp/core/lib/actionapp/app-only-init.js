@@ -22,23 +22,22 @@
 
       var tmpSetAlert = true;
       var tmpAlertEl = $('body');
-      //--- See if we have full semantic loaded with modal function
-      //   if not, do not replace the standard alert
-      //console.log("typeof(tmpAlertEl.modal)",typeof(tmpAlertEl.modal))
       if( typeof(tmpAlertEl.modal) != 'function'){
-//        console.log("no set")
         tmpSetAlert = false;
       }
 
       //--- Items to load when the application loads
       var tmpRequired = {}
-      var tmp
+      ActionAppCore.subscribe('app-loaded', function(){
+        ThisApp.initAppComponents();
+      });
       //--- Use tmpRequiredSpecs to preload more using that example
       ThisApp.init({ setAlert: tmpSetAlert, layout: false, pages: thePages, plugins: thePlugins, required: tmpRequired }).then(function (theReply) {
         ThisApp.getByAttr$({ appuse: "app-loader" }).remove();
 
         
         window.addEventListener('resize', ThisApp.grid16.onResize );
+
 
         ThisApp.grid16.resizeLayoutProcess();
         
