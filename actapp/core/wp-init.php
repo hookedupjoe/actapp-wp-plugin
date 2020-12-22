@@ -67,16 +67,14 @@ require_once ACTAPP_CORE_LIB . '/class-actapp-capability.php';
 function actapp_load_scripts($hook) {
  
 	$tmplibloc = ACTAPP_CORE_LIB_URL . '/';
- 
-	//--- To use local designer files
-	//$tmplibloc = '//localhost:33460/';
-
+ 	//--- To use local designer files
+	//---> $tmplibloc = '//localhost:33460/';
 	//--- To use CDN repo
-	//$tmplibloc = 'http://actionapp.hookedup.com/';
+	//---> $tmplibloc = 'http://actionapp.hookedup.com/';
 	
     // create my own version codes
-			$my_js_ver  = '1.0.0';
-			$my_css_ver = '1.0.0';
+			$my_js_ver  = ACTAPP_CORE_VERSION;
+			$my_css_ver = ACTAPP_CORE_VERSION;
 
 			wp_register_style( 'support_libs_css',    $tmplibloc . 'built-lib/support-libs.css', false,   $my_css_ver );
 			wp_enqueue_style ( 'support_libs_css' );
@@ -101,10 +99,9 @@ function actapp_load_scripts($hook) {
 
 			wp_enqueue_script( 'app-only-init', $tmplibloc . 'lib/actionapp/app-only-init.js', array(), $my_js_ver, true );
 
-			//wp_enqueue_script( 'app-only-init', $tmplibloc . 'lib/actionapp/app-only-init.js', array(), $my_js_ver );
 
  
 }
 
-add_action('init', 'actapp_load_scripts');
+add_action('wp_enqueue_scripts', 'actapp_load_scripts',20);
 
