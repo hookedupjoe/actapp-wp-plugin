@@ -20,20 +20,21 @@
  *
  * Plugin Name: Action App Core
  * Plugin URI: https://github.com/hookedupjoe/actapp-plugin
- * Description: Used to provide full Action App functionality with Semantic UI and jQuery
- * Version: 1.0.12
+ * Description: Used to provide full Action App functionality with Semantic UI and jQuery * 
  * Author: Joseph Francis
  * Author URI: https://www.hookedup.com
  * Donate-Link: https://www.hookedup.com/
  * Text Domain: actapp
  * License: GPLv3
+ * 
+ * Version: 1.0.14
  */
- 
+define( 'ACTAPP_CORE_VERSION', '1.0.14' );
  
 if ( !defined( 'ABSPATH' ) ) {
 	exit;
 }
-define( 'ACTAPP_CORE_VERSION', '1.0.0' );
+
 define( 'ACTAPP_FILE', __FILE__ );
 if ( !defined( 'ACTAPP_CORE_DIR' ) ) {
 	define( 'ACTAPP_CORE_DIR', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
@@ -59,3 +60,14 @@ require_once ACTAPP_CORE_LIB . '/constants.php';
 require_once ACTAPP_CORE_LIB . '/wp-init.php';
 require_once ACTAPP_SLEEKDB_LIB . '/SleekDB.php';
 
+//ToDo: Move this
+add_action( 'wp_enqueue_scripts', 'actapp_remove_jquery', 100 );
+function actapp_remove_jquery()
+{
+    // wp_dequeue_script( 'jquery-core-js' );
+    // wp_deregister_script( 'jquery-core-js' );
+
+    // wp_dequeue_script( 'jquery-core-js' );
+    // wp_deregister_script( 'jjquery-migrate-js' );
+    // Now the parent script is completely removed
+}
