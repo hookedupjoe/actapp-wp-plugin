@@ -2466,7 +2466,6 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
             tmpPromRequired = me.loadResources(theAppConfig.required);
         };
         if (ActionAppCore.config && ActionAppCore.config.required) {
-            console.log("ActionAppCore.config.required",ActionAppCore.config.required);
             tmpPromConfigReqired = me.loadResources(ActionAppCore.config.required);
         };
 
