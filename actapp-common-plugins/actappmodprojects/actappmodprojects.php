@@ -2,7 +2,7 @@
 /*
 Plugin Name: Projects Module
 Plugin URI: http://actionapp.hookedup.com
-Version: 1.0.1
+Version: 1.0.2
 Author: Hookedup, inc.
 Author URI: http://tech.hookedup.com
 */

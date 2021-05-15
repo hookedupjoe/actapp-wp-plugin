@@ -48,20 +48,44 @@ class ActAppModProjects {
 		return $tmpRet;
 	}
 
-
 	public static function getProjectCard($theDoc) {
 		return self::getCardUI($theDoc);
 	}
+	
+	public static function processSidebarForCategory() {
+		$tmpCats = get_the_category();
+		foreach ($tmpCats as $aCat) {
+			echo self::getCategoryLink($aCat);
+		}
+		echo self::getFullListLink();
+		return true;
+	}
+	
+	public static function getCategoryLink($theCat){
+		$tmpRet = '';
+		$tmpURL = site_url( '/projects/?category_name='.$theCat->slug);
+		$tmpRet .= '<div class="ui list"><div class="item"><a href="'.$tmpURL.'" class="ui button fluid circular black rounded basic">More '.$theCat->name.'</a></div></div>';
+		return $tmpRet;
+	}
 
-	public static function processArchivePosts() {
+	public static function getFullListLink(){
+		$tmpRet = '';
+		$tmpURL = site_url( '/projects');
+		$tmpRet .= '<div class="ui list"><div class="item"><a href="'.$tmpURL.'" class="ui button fluid circular black rounded basic">See all projects</a></div></div>';
+		return $tmpRet;
+	}
+	
+	public static function getNothingFound(){
+		return ('<div class="ui message orange large">Nothing found</div>');
+	}
+
+	public static function processArchivePosts($theShowCount = 0) {
 		$tmpRet = '';
 		$tmpSummary = [];
 
 		while ( have_posts() ) :
 			the_post();
 			
-			//Get details for summary here
-			//the_category();
 			$tmpCat = get_the_category();
 			
 			foreach ($tmpCat as $aCat) {
@@ -87,14 +111,14 @@ class ActAppModProjects {
 				}
 				array_push($tmpCurr["posts"], $tmpRec);
 				$tmpSummary[$tmpCatSlug] = $tmpCurr;
-				//$tmpSummary[$tmpCatSlug] = array("name"=>$tmpCatName, "slug"=>$tmpCatSlug);
 			}
 		endwhile;
-		//var_dump($tmpSummary);
 		$tmpShowMax = 3;
-		$tmpCardsDiv = "three stackable";
+		if( $theShowCount == 0){
+			$tmpShowMax = 999;
+		}
+		$tmpCardsDiv = "three";
 		foreach($tmpSummary as $aKey => $tmpCurr) {
-			//echo('key '.$aKey);
 			$tmpURL = site_url( '/projects/?category_name='.$tmpCurr["slug"]);
 			$tmpCards = array();
 			$tmpPosts = $tmpCurr["posts"];
@@ -106,12 +130,14 @@ class ActAppModProjects {
 				$tmpShowCount = $tmpShowMax;
 			}
 
-			//echo('$tmpCount '.$tmpCount);
-			//echo('$tmpShowCount '.$tmpShowCount);
-			//echo('testing');
-			echo ('<div class="ui header blue medium">Latest '.$tmpCurr["name"].'</div>');
-			echo ('<div class="ui cards '.$tmpCardsDiv.'">');
-			//echo("cnt ".$tmpShowCount);
+			if( $theShowCount > 0){
+				echo ('<div class="ui header blue medium">');
+				echo $tmpPrefix = 'Latest '.$tmpCurr["name"];
+				echo ('</div>');
+			}
+
+			echo ('<div class="ui cards stackable '.$tmpCardsDiv.'"><div></div>'); //--- Extra div to fix first child oddity on stackable cards
+
 			for( $i = 0 ; $i < $tmpShowCount ; $i++){
 				echo self::getProjectCard($tmpPosts[$i]);
 			}
@@ -119,8 +145,6 @@ class ActAppModProjects {
 			if( $tmpShowMore == true ){
 				echo('<a class="ui fluid basic blue circular small button" href="'.$tmpURL.'">See all '.$tmpCurr["name"].'</a>');
 			}
-			
-			//var_dump($tmpCurr);
 		}
 		  
 		
