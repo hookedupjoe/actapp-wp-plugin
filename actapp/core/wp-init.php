@@ -88,6 +88,8 @@ function actapp_load_scripts($hook) {
 			wp_register_style( 'aa-resp-grid',    $tmplibloc . 'lib/css/resp-grid.css', false,   $my_css_ver );
 			wp_enqueue_style ( 'aa-resp-grid' );
 
+			wp_register_style( 'tabulator_css',    $tmplibloc . 'lib/tabulator/css/tabulator.min.css', false,   $my_css_ver );
+			wp_enqueue_style ( 'tabulator_css' );
 
 			wp_enqueue_script( 'support_libs', $tmplibloc . 'built-lib/support-libs.js', array(), $my_js_ver );
 			wp_enqueue_script( 'semantic_js', $tmplibloc . 'lib/semantic/dist/semantic.min.js', array(), $my_js_ver );
@@ -95,8 +97,10 @@ function actapp_load_scripts($hook) {
 			wp_enqueue_script( 'data-mgr-plugin', $tmplibloc . 'lib/actionapp/nosql-data-manager.js', array(), $my_js_ver );
 			wp_enqueue_script( 'obj-mgr-plugin', $tmplibloc . 'lib/actionapp/object-manager-plugin.js', array(), $my_js_ver );
 			wp_enqueue_script( 'app-module', $tmplibloc . 'lib/actionapp/app-module.js', array(), $my_js_ver );
+			wp_enqueue_script( 'tabulator', $tmplibloc . 'lib/tabulator/js/tabulator.min.js', array(), $my_js_ver );
+			wp_enqueue_script( 'tabulator_xlsx', $tmplibloc . 'lib/tabulator/addons/xlsx.full.min.js', array(), $my_js_ver );
 
-
+			
 			wp_enqueue_script( 'app-only-init', $tmplibloc . 'lib/actionapp/app-only-init.js', array(), $my_js_ver, true );
 
 

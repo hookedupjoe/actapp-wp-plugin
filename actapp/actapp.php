@@ -27,9 +27,9 @@
  * Text Domain: actapp
  * License: GPLv3
  * 
- * Version: 1.0.18
+ * Version: 1.0.20
  */
-define( 'ACTAPP_CORE_VERSION', '1.0.18' );
+define( 'ACTAPP_CORE_VERSION', '1.0.20' );
  
 if ( !defined( 'ABSPATH' ) ) {
 	exit;
