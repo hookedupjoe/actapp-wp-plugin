@@ -46,11 +46,8 @@ if( $tmpTax == "category" ){
 	if( $tmpIsFullList ){
 		$tmpSummary = [];
 			/* Start the Loop */
-	while ( have_posts() ) :
-		the_post();
-		//Get details for summary here
-		the_category();
-	endwhile;
+	
+	echo (ActAppModProjects::processArchivePosts());
 
 	} else {
 		echo('<div class="ui cards">');

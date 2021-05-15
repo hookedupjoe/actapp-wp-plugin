@@ -2,7 +2,7 @@
 /*
 Plugin Name: Projects Module
 Plugin URI: http://actionapp.hookedup.com
-Version: 1.0.0
+Version: 1.0.1
 Author: Hookedup, inc.
 Author URI: http://tech.hookedup.com
 */
@@ -65,6 +65,13 @@ class ActAppProjectsModule {
 	 */
 	public static function init() {
 		self::custom_post_project();
+        
+        /**
+         * Class with commonly used static functions
+         * 
+         * Usage: ActAppModProjects::doSomething()
+         */
+        require ACTAPP_PROJECTS_PLUGIN_DIR . '/inc/ActAppModProjects.php';
        
         add_filter( 'template_include', 'project_list_template', 99 );
         function project_list_template( $template ) {
