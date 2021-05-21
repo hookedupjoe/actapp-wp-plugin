@@ -97,18 +97,10 @@ function actapp_init_blocks($theHook) {
 	
 		actapp_load_scripts($theHook);
 
-
-
-		wp_enqueue_script(
-			'my-new-block', 
-			ACTAPP_WIDGETS_URL . '/blocks/test-block.js',
-			array('wp-blocks','wp-editor'),
-			true
-		  );
 		  wp_enqueue_script(
 			'my-new-block2', 
-			ACTAPP_WIDGETS_URL . '/blocks/test-block2.js',
-			array('wp-blocks','wp-editor','wp-element','wp-rich-text'),
+			ACTAPP_WIDGETS_URL . '/blocks/core-blocks.js',
+			array('wp-blocks','wp-editor','wp-element','wp-rich-text','wp-data','wp-server-side-render'),
 			true
 		  );
 
@@ -116,4 +108,57 @@ function actapp_init_blocks($theHook) {
 
 add_filter( 'block_categories', 'actapp_block_category', 10, 2);
 add_action('enqueue_block_editor_assets', 'actapp_init_blocks',10,2);
+
+
+
+
+
+
+
+
+
+ 
+function gutenberg_examples_dynamic_render_callback( $block_attributes, $content ) {
+   	$tmpCount = sizeof($block_attributes);
+   	if( $tmpCount == 0){
+	   return 'no attributes';
+   	}
+   	if( $block_attributes['debug'] ){
+		return 'debug ' . $block_attributes['debug'];
+	}
+
+   if( $block_attributes['message'] ){
+	   return '<div class="ui card"><b>message</b>: ' . $block_attributes['message'] . "</div>";
+   }
+   return 'unknown params';
+}
+
+
+
+
+function gutenberg_examples_dynamic() {
+    // automatically load dependencies and version
+ 
+    wp_register_script(
+        'gutenberg-examples-dynamic',
+        plugins_url( 'build/block.js', __FILE__ ),
+        array('wp-blocks', 'wp-element', 'wp-server-side-render', 'wp-i18n', 'wp-polyfill')
+    );
+ 
+    register_block_type( 'gutenberg-examples/example-dynamic', array(
+        'api_version' => 2,
+		'attributes' => array(
+			'message' => array(
+				'type' => 'string'
+			),
+			'debug' => array(
+				'type' => 'string'
+			),
+			),
+        'editor_script' => 'gutenberg-examples-dynamic',
+        'render_callback' => 'gutenberg_examples_dynamic_render_callback',
+    ) );
+ 
+}
+add_action( 'init', 'gutenberg_examples_dynamic' );
 
