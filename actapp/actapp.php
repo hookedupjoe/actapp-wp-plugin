@@ -56,18 +56,64 @@ if ( !defined( 'ACTAPP_SLEEKDB_LIB' ) ) {
 	define( 'ACTAPP_SLEEKDB_LIB', ACTAPP_CORE_DIR . '/SleekDB' );
 }
 
+if ( !defined( 'ACTAPP_WIDGETS_DIR' ) ) {
+	define( 'ACTAPP_WIDGETS_DIR', ACTAPP_CORE_DIR . '/widgets' );
+}
+if ( !defined( 'ACTAPP_WIDGETS_URL' ) ) {
+	define( 'ACTAPP_WIDGETS_URL', ACTAPP_CORE_URL . '/widgets' );
+}
+
+
+
 require_once ACTAPP_CORE_LIB . '/constants.php';
 require_once ACTAPP_CORE_LIB . '/wp-init.php';
 require_once ACTAPP_SLEEKDB_LIB . '/SleekDB.php';
 
-//ToDo: Move this
-add_action( 'wp_enqueue_scripts', 'actapp_remove_jquery', 100 );
-function actapp_remove_jquery()
-{
-    // wp_dequeue_script( 'jquery-core-js' );
-    // wp_deregister_script( 'jquery-core-js' );
+// //ToDo: Move this
+// add_action( 'wp_enqueue_scripts', 'actapp_remove_jquery', 100 );
+// function actapp_remove_jquery()
+// {
+//     // wp_dequeue_script( 'jquery-core-js' );
+//     // wp_deregister_script( 'jquery-core-js' );
 
-    // wp_dequeue_script( 'jquery-core-js' );
-    // wp_deregister_script( 'jjquery-migrate-js' );
-    // Now the parent script is completely removed
+//     // wp_dequeue_script( 'jquery-core-js' );
+//     // wp_deregister_script( 'jjquery-migrate-js' );
+//     // Now the parent script is completely removed
+// }
+
+function actapp_block_category( $categories, $post ) {
+	return array_merge(
+		array(
+			array(
+				'slug' => 'actappui',
+				'title' => __( 'UI Widgets'),
+			),
+		),
+		$categories,
+	);
 }
+
+function actapp_init_blocks($theHook) {
+	
+		actapp_load_scripts($theHook);
+
+
+
+		wp_enqueue_script(
+			'my-new-block', 
+			ACTAPP_WIDGETS_URL . '/blocks/test-block.js',
+			array('wp-blocks','wp-editor'),
+			true
+		  );
+		  wp_enqueue_script(
+			'my-new-block2', 
+			ACTAPP_WIDGETS_URL . '/blocks/test-block2.js',
+			array('wp-blocks','wp-editor','wp-element','wp-rich-text'),
+			true
+		  );
+
+}
+
+add_filter( 'block_categories', 'actapp_block_category', 10, 2);
+add_action('enqueue_block_editor_assets', 'actapp_init_blocks',10,2);
+
