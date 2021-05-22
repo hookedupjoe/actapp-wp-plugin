@@ -1,18 +1,18 @@
-// Message control from Semantic UI
+// segment control from Semantic UI
 ( function ( wp, ActionAppCore ) {
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
  
     //--- How to use a SVG for the icon
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('message');
+    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('segment');
 
-    wp.blocks.registerBlockType( 'actappui/message', {
-        title: 'Message Box',
+    wp.blocks.registerBlockType( 'actappui/segment', {
+        title: 'Content Segment',
         icon: iconEl,
         category: 'actappui',
         example: {
-            attributes: {color: 'blue'}
+            attributes: {color: 'black'}
         },
         attributes: {
             color: {
@@ -30,21 +30,9 @@
             var InspectorControls = wp.editor.InspectorControls;
             var PanelBody = wp.components.PanelBody;
           
-            //--> Demo using Setup method below
-            function onSetupClick(theEvent){
-                ThisApp.input("What is the color?", "The Color", "Set Color", props.attributes.color || '')
-                .then(function (theValue) {
-                    if (!(theValue)) { return };
-                    props.attributes.color = theValue;
-                    BlockEditor.refreshBlockEditor();
-                })
-            }
-
             return el(
                 'div',
                 useBlockProps(),
-                //--> Demo using Setup method --> el('div',{onClick: onSetupClick, className:'ui button green basic fluid'},'Setup Details'),
-                
                 el(
                     InspectorControls,
                     null,
@@ -53,13 +41,13 @@
                         initialOpen: true,                    
                     },
                         [
-                        'Box Color: ',
+                        'Segment Color: ',
                         ActionAppCore.blocks.Editor.getColorListControl(props.attributes.color,onChangeColor)
                         ]
                     )
                 ),
                
-                el('div',{className:'ui message ' + props.attributes.color},
+                el('div',{className:'ui segment ' + props.attributes.color},
                 [
                     el(wp.blockEditor.InnerBlocks),
                 ]
@@ -76,7 +64,7 @@
                 blockProps,
                 [
                     el('div'),tmpHeader,
-                        el('div',{className:'ui message ' + props.attributes.color},                        [                    
+                        el('div',{className:'ui segment ' + props.attributes.color},                        [                    
                             el( wp.blockEditor.InnerBlocks.Content )
                         ]
                     )

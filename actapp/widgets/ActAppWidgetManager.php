@@ -28,22 +28,42 @@ class ActAppWidgetManager {
 		);
 	}
 
+	
+	public static function loadStandardBlock($theName, $theFileName = '', $theDependencies = null){
+		$tmpDepDefaults = array('wp-blocks','wp-editor','wp-element');
+		//$tmpDeps = array_combine($tmpDepDefaults, $theDependencies || []);
+		$tmpFN = $theFileName;
+		if( $tmpFN == ''){
+			$tmpFN = $theName;
+		}
+		wp_enqueue_script(
+			$theName, 
+			ACTAPP_WIDGETS_URL . '/blocks/' . $tmpFN . '.js',
+			$tmpDepDefaults,
+			true
+		);
+	}
+
 	public static function actapp_init_blocks($theHook) {
 		
+			//--- Load the action app library when blocks initializes
 			actapp_load_scripts($theHook);
 
+			//--- Load the action app core components and ActionAppCore.blocks add on
 			wp_enqueue_script(
 				'actapp-core-blocks', 
 				ACTAPP_WIDGETS_URL . '/blocks/core-blocks.js',
 				array('wp-blocks','wp-editor','wp-element','wp-rich-text','wp-data','wp-server-side-render'),
 				true
 			);
-			wp_enqueue_script(
-				'message', 
-				ACTAPP_WIDGETS_URL . '/blocks/message.js',
-				array('wp-blocks','wp-editor','wp-element','wp-rich-text'),
-				true
-			);
+			//--- Load standardly created widgets;
+			$tmpWidgetList = array('message','segment','cards');
+			foreach ($tmpWidgetList as $aName) {
+				self::loadStandardBlock($aName);
+			}
+
+			//self::loadStandardBlock('message');
+			//self::loadStandardBlock('segment');
 			
 	}
 

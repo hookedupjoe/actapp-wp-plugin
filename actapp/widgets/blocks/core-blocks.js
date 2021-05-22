@@ -15,18 +15,31 @@
             wp.data.dispatch('core/editor').synchronizeTemplate();
         }
 
-        BlockEditor.getColorListControl = function(theCurrentColor, theOnChangeEvent){
-            var tmpRet = el("select", {value:theCurrentColor, onChange: theOnChangeEvent},
-                    el("option", {value: ""}, ""),
-                    el("option", {value: "blue"}, "Blue"),
-                    el("option", {value: "green"}, "Green"),
-                    el("option", {value: "red"}, "Red"),
-                    el("option", {value: "orange"}, "Orange"),
-                    el("option", {value: "violet"}, "Violet"),
-                    el("option", {value: "black"}, "Black"),
-                    el("option", {value: "gray"}, "Gray"),
-            );
-            return tmpRet;
+        BlockEditor.getSelectControl = function(theValue,theOnChange, theDropDownValues){
+            return el("select", {className:'fluid-field', value:theValue, onChange: theOnChange},theDropDownValues)
+        }
+
+        BlockEditor.getColorListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = [
+                el("option", {value: ""}, ""),
+                el("option", {value: "blue"}, "Blue"),
+                el("option", {value: "green"}, "Green"),
+                el("option", {value: "red"}, "Red"),
+                el("option", {value: "orange"}, "Orange"),
+                el("option", {value: "violet"}, "Violet"),
+                el("option", {value: "black"}, "Black"),
+                el("option", {value: "gray"}, "Gray")
+            ];
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
+        }
+
+        BlockEditor.NUMLOOKUPS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
+        BlockEditor.getColumnListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = [el("option", {value: ""}, "Auto")];
+            for( var i = 1 ; i < 17 ; i++){
+                tmpSelection.push(el("option", {value: BlockEditor.NUMLOOKUPS[i]}, i));
+            }
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
 
         BlockEditor.getControlIcon = function(theControlName){
@@ -39,6 +52,17 @@
             );
             return tmpRet;
         }
+
+        BlockEditor.getOptionLabel = function(theTitle){
+            var tmpRet = el("div", {className: 'ui label fluid black'},'' + theTitle);
+            return tmpRet;
+        }
+        BlockEditor.getOptionSep = function(){
+            var tmpRet = el("div",{className:'pad2'});
+            return tmpRet;
+        }
+        
+
     }
 
 
