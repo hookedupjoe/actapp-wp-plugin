@@ -22,6 +22,21 @@
             return el("input", {className:'fluid-field', value:theValue, onChange: theOnChange})
         }
         
+        BlockEditor.getParentAttributes = function(theBlockID){
+            var tmpParents = wp.data.select( 'core/block-editor' ).getBlockParents(theBlockID);
+            var tmpParentAttributes = {};
+            if( tmpParents && tmpParents.length > 0 ){
+                var tmpParentID = tmpParents[0];
+                var tmpParentBlock = wp.data.select('core/block-editor').getBlocksByClientId(tmpParentID);
+                if( tmpParentBlock && tmpParentBlock.length > 0 ){
+                    tmpParentAttributes = tmpParentBlock[0].attributes || {};
+                }
+            }
+            return tmpParentAttributes;
+        }
+  
+
+        
 
         BlockEditor.getColorListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [
@@ -40,7 +55,8 @@
         BlockEditor.NUMLOOKUPS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
         BlockEditor.getColumnListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [el("option", {value: ""}, "Auto")];
-            for( var i = 1 ; i < 17 ; i++){
+            var tmpMaxCards = 10; //16 is full max, 10 logical
+            for( var i = 1 ; i <= tmpMaxCards ; i++){
                 tmpSelection.push(el("option", {value: BlockEditor.NUMLOOKUPS[i]}, i));
             }
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
@@ -59,6 +75,10 @@
             var tmpRet = el("div", {className: 'ui label fluid black'},'' + theTitle);
             return tmpRet;
         }
+        BlockEditor.getOptionNote = function(theText){
+            var tmpRet = el("div", {className: 'ui label fluid basic'},'' + theText);
+            return tmpRet;
+        }
         BlockEditor.getOptionSep = function(){
             var tmpRet = el("div",{className:'pad2'});
             return tmpRet;
@@ -69,6 +89,18 @@
 
 
     ActionAppCore.subscribe('app-loaded', function(){
+
+        ThisApp.delay(3000).then(function(){
+            var tmpWarnings = $('.block-editor-warning__action > .components-button.is-primary');
+            if( tmpWarnings.length > 0){
+                tmpWarnings.click();
+                alert("The page needed a refresh due to design changes in some component(s). Review and save this document to assure the content is up to date with the latest blocks version.")
+            }
+            
+            console.log('tmpWarnings',tmpWarnings);
+        });
+        
+        //--- Can add common actions to editor
         ThisApp.actions.sampleFunction = function(){
             console.log('Ran Sample');
         }

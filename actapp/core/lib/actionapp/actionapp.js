@@ -2743,13 +2743,14 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                       }
                       //console.log('tmpCardCount2',tmpCardCount)
             
-                      if (tmpCurrCards == 4 && tmpCardCount == 3) {
-                        if (tmpIW < 800) {
-                          tmpCardCount = 2;
-                        } else {
-                          tmpCardCount = 4;
-                        }
-                      }
+                      //=== Example of a way to help with dangling single value
+                    //   if (tmpCurrCards == 4 && tmpCardCount == 3) {
+                    //     if (tmpIW < 800) {
+                    //       tmpCardCount = 2;
+                    //     } else {
+                    //       tmpCardCount = 4;
+                    //     }
+                    //   }
             
                       var tmpToRemove = '';
                       var tmpAttrVal = tmpCardsEl.attr('grid16-ccc');

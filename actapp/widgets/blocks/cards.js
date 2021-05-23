@@ -22,14 +22,28 @@
             color: {
                 type: 'string',
                 default: '',
-            }
+            },
+            maxImageHeight: {
+				type: 'number',
+                default: 0
+			}
         },
         edit: function ( props ) {
             function onChangeColor( theEvent ) {
                 props.setAttributes( { color: theEvent.target.value } );
+                BlockEditor.refreshBlockEditor();
             }
             function onChangeColumn( theEvent ) {
                 props.setAttributes( { columns: theEvent.target.value } );
+                BlockEditor.refreshBlockEditor();
+            }
+            function onChangeMaxImageHeight( theEvent ) {
+                var tmpVal = parseInt(theEvent.target.value);
+                if( !(tmpVal)){
+                    tmpVal = 0;
+                }
+                props.setAttributes( { maxImageHeight: tmpVal } );
+                BlockEditor.refreshBlockEditor();
             }
             
             var BlockEditor = ActionAppCore.blocks.Editor;
@@ -60,8 +74,15 @@
                             BlockEditor.getOptionLabel('Cards Color'),
                             BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
                             BlockEditor.getOptionSep(),
+
                             BlockEditor.getOptionLabel('Columns'),
-                            BlockEditor.getColumnListControl(props.attributes.columns,onChangeColumn)
+                            BlockEditor.getColumnListControl(props.attributes.columns,onChangeColumn),
+                            BlockEditor.getOptionSep(),
+
+                            BlockEditor.getOptionLabel('Max Image Height'),
+                            BlockEditor.getOptionNote('In pixels (use 0 for no cropping)'),
+                            BlockEditor.getTextControl(props.attributes.maxImageHeight,onChangeMaxImageHeight)
+                            
                             ])
                     )
                 ),
