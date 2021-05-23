@@ -1,20 +1,24 @@
-// segment control from Semantic UI
+// Header control from Semantic UI
 ( function ( wp, ActionAppCore ) {
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
  
     //--- How to use a SVG for the icon
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('segment');
+    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('header');
 
-    wp.blocks.registerBlockType( 'actappui/segment', {
-        title: 'Content Segment',
+    wp.blocks.registerBlockType( 'actappui/header', {
+        title: 'Header',
         icon: iconEl,
         category: 'actappui',
         example: {
-            attributes: {color: 'black'}
+            attributes: {color: 'blue',text: 'Header Text', size: 'large'}
         },
         attributes: {
+            text: {
+                type: 'string',
+                default: '',
+            },         
             color: {
                 type: 'string',
                 default: '',
@@ -24,12 +28,16 @@
             function onChangeColor( theEvent ) {
                 props.setAttributes( { color: theEvent.target.value } );
             }
-            var ThisApp = window.ThisApp;
+            function onChangeText( theEvent ) {
+                props.setAttributes( { text: theEvent.target.value } );
+            }
+            
             var BlockEditor = ActionAppCore.blocks.Editor;
 
             var InspectorControls = wp.editor.InspectorControls;
             var PanelBody = wp.components.PanelBody;
           
+
             return el(
                 'div',
                 useBlockProps(),
@@ -41,17 +49,17 @@
                         initialOpen: true,                    
                     },
                         [
-                            BlockEditor.getOptionLabel('Segment Color'),
+                            BlockEditor.getOptionLabel('Header Text'),
+                            BlockEditor.getTextControl(props.attributes.text,onChangeText),
+                            BlockEditor.getOptionSep(),
+                            BlockEditor.getOptionLabel('Header Color'),
                             BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
                         ]
                     )
                 ),
                
-                el('div',{className:'ui segment ' + props.attributes.color},
-                [
-                    el(wp.blockEditor.InnerBlocks),
-                ]
-                )
+//                el('div',{className:'ui label fluid black'},'HEADER'),
+                el('div',{className:'ui header ' + props.attributes.color},props.attributes.text)
             );
         },
  
@@ -62,15 +70,10 @@
             return el(
                 'div',                
                 blockProps,
-                [
-                    el('div'),tmpHeader,
-                        el('div',{className:'ui segment ' + props.attributes.color},                        [                    
-                            el( wp.blockEditor.InnerBlocks.Content )
-                        ]
-                    )
-                ]
+                el('div',{className:'ui header ' + props.attributes.color},props.attributes.text)
             );
         },
+
     } );
 } )( window.wp, window.ActionAppCore );
 

@@ -45,6 +45,7 @@
                 tmpHeaderMsg += " (columns auto-adjust )";
             }
             var tmpHdr = el('div',{className:'ui label fluid large ' + tmpUIColor},tmpHeaderMsg);
+            var ALLOWED_BLOCKS = ['actappui/card'];
             return el('div', {className:'ui segment ' + tmpUIColor},null, tmpHdr ,el(
                 'div',
                 useBlockProps(),
@@ -57,7 +58,7 @@
                         initialOpen: true,                    
                     },
                         el('div',{className:'ui segment basic slim'},[
-                            BlockEditor.getOptionLabel('Color'),
+                            BlockEditor.getOptionLabel('Cards Color'),
                             BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
                             BlockEditor.getOptionSep(),
                             BlockEditor.getOptionLabel('Columns'),
@@ -68,7 +69,7 @@
                
                 el('div',{className:'edit-cards' + props.attributes.color + ' ' + props.attributes.columns},
                 [
-                    el(wp.blockEditor.InnerBlocks),
+                    el(wp.blockEditor.InnerBlocks, {allowedBlocks: ALLOWED_BLOCKS}),
                 ]
                 )
             )

@@ -53,15 +53,15 @@
                         initialOpen: true,                    
                     },
                         [
-                        'Box Color: ',
-                        ActionAppCore.blocks.Editor.getColorListControl(props.attributes.color,onChangeColor)
+                            BlockEditor.getOptionLabel('Box Color'),
+                            BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
                         ]
                     )
                 ),
                
                 el('div',{className:'ui message ' + props.attributes.color},
                 [
-                    el(wp.blockEditor.InnerBlocks),
+                    el(wp.blockEditor.InnerBlocks,{className: 'ui segment'}),
                 ]
                 )
             );

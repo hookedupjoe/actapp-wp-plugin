@@ -1,20 +1,28 @@
-// segment control from Semantic UI
+// Card control from Semantic UI
 ( function ( wp, ActionAppCore ) {
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
  
     //--- How to use a SVG for the icon
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('segment');
+    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('card');
 
-    wp.blocks.registerBlockType( 'actappui/segment', {
-        title: 'Content Segment',
+    wp.blocks.registerBlockType( 'actappui/card', {
+        title: 'Card',
         icon: iconEl,
         category: 'actappui',
         example: {
-            attributes: {color: 'black'}
+            attributes: {text: 'This is some more card text',title:'What a card'}
         },
         attributes: {
+            text: {
+                type: 'string',
+                default: '',
+            },         
+            title: {
+                type: 'string',
+                default: '',
+            },         
             color: {
                 type: 'string',
                 default: '',
@@ -24,12 +32,16 @@
             function onChangeColor( theEvent ) {
                 props.setAttributes( { color: theEvent.target.value } );
             }
-            var ThisApp = window.ThisApp;
+            function onChangeText( theEvent ) {
+                props.setAttributes( { text: theEvent.target.value } );
+            }
+            
             var BlockEditor = ActionAppCore.blocks.Editor;
 
             var InspectorControls = wp.editor.InspectorControls;
             var PanelBody = wp.components.PanelBody;
           
+
             return el(
                 'div',
                 useBlockProps(),
@@ -41,36 +53,24 @@
                         initialOpen: true,                    
                     },
                         [
-                            BlockEditor.getOptionLabel('Segment Color'),
+                            BlockEditor.getOptionLabel('Card Text'),
+                            BlockEditor.getTextControl(props.attributes.text,onChangeText),
+                            BlockEditor.getOptionSep(),
+                            BlockEditor.getOptionLabel('Card Color'),
                             BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
                         ]
                     )
                 ),
                
-                el('div',{className:'ui segment ' + props.attributes.color},
-                [
-                    el(wp.blockEditor.InnerBlocks),
-                ]
-                )
+//                el('div',{className:'ui label fluid black'},'HEADER'),
+                el('div',{className:'ui card ' + props.attributes.color},props.attributes.text || '** ENTER TEXT ON SIDEBAR **')
             );
         },
  
         save: function ( props ) {
-            var blockProps = useBlockProps.save();
-            var tmpHeader = '';
-            
-            return el(
-                'div',                
-                blockProps,
-                [
-                    el('div'),tmpHeader,
-                        el('div',{className:'ui segment ' + props.attributes.color},                        [                    
-                            el( wp.blockEditor.InnerBlocks.Content )
-                        ]
-                    )
-                ]
-            );
+            return el('div',{className:'ui card ' + props.attributes.color},props.attributes.text)
         },
+
     } );
 } )( window.wp, window.ActionAppCore );
 
