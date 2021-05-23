@@ -32,12 +32,11 @@
                 props.setAttributes( { columns: theEvent.target.value } );
             }
             
-            var ThisApp = window.ThisApp;
             var BlockEditor = ActionAppCore.blocks.Editor;
 
             var InspectorControls = wp.editor.InspectorControls;
             var PanelBody = wp.components.PanelBody;
-            var tmpUIColor = props.attributes.color || 'violet';
+            var tmpUIColor = props.attributes.color || '';
             var tmpHeaderMsg = 'CARDS:';
             if( props.attributes.columns ){
                 tmpHeaderMsg += " (" + props.attributes.columns + " columns)";
