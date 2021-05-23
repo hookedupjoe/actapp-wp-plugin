@@ -7,6 +7,7 @@
     var useBlockProps = wp.blockEditor.useBlockProps;
 
 	var MediaUpload = wp.editor.MediaUpload;
+	
 
     function tmpAE(theType,theClass,theContent,theOptionalAtts){
         var tmpAtts = theOptionalAtts || {};
@@ -19,18 +20,20 @@
         return el(theType,tmpAtts);
     }
 
-    function getDisplayValue(theProps,theIsEditMode){
+    function getDisplayValue(theProps,theIsEditMode,theBlockProps){
         var tmpAtts = theProps.attributes;
         var props = theProps;
+
 
         var tmpContent = [];
         var tmpClass = 'ui card';
         var tmpTitle = '';
         var tmpAtt = props.attributes;
-        
+        //console.log('tmpAtts.parentColor',tmpAtts.parentColor);
         if( tmpAtts.parentColor != '' ){
             tmpClass += ' ' + tmpAtts.parentColor;
         } else if( tmpAtt.color ){
+            console.log('tmpAtt.color',tmpAtt.color);
             tmpClass += ' ' + tmpAtt.color;
         }
         if( tmpAtt.title ){
@@ -59,9 +62,19 @@
             tmpMainContent.push( tmpAE('div','description',tmpAtt.text) );
         }
         tmpContent.push( tmpAE('div','content',tmpMainContent) );
+        
         var tmpExtraContent = [];
 
-        return tmpAE('div',tmpClass,tmpContent);
+        if( theIsEditMode && theBlockProps){
+            tmpClass += theBlockProps.className;
+        }
+        if( tmpAtt.url && !theIsEditMode){
+            return el('a',{className:tmpClass,href:tmpAtt.url},tmpContent);
+        } else {
+            return tmpAE('div',tmpClass,tmpContent);
+        }
+
+        //return tmpAE('div',tmpClass,tmpContent);
 
     }
  
@@ -96,6 +109,10 @@
                 type: 'string',
                 default: '',
             },
+            url: {
+                type: 'string',
+                default: '',
+            },
             parentMaxImgHeight: {
                 type: 'number',
                 default: 0,
@@ -111,7 +128,8 @@
         edit: function ( props ) {
 
             var tmpParentAttributes = BlockEditor.getParentAttributes(props.clientId);
-            props.attributes.color = tmpParentAttributes.color || '';
+            console.log('tmpParentAttributes',tmpParentAttributes);
+            props.attributes.parentColor = tmpParentAttributes.color || '';
             props.attributes.parentMaxImgHeight = tmpParentAttributes.maxImageHeight || 0;
 
             //or use temp parent id
@@ -120,6 +138,7 @@
             
             //todo: Set the style based on this
             function onChangeColor( theEvent ) {
+                console.log('onChangeColor',theEvent.target.value,theEvent,theEvent.target);
                 props.setAttributes( { color: theEvent.target.value } );
             }
             
@@ -131,6 +150,9 @@
             }
             function onChangeText( theEvent ) {
                 props.setAttributes( { text: theEvent.target.value } );
+            }
+            function onChangeURL( theURL, thePost ) {
+                props.setAttributes( { url: theURL } );
             }
             
 
@@ -217,9 +239,12 @@
                             tmpParentColor ? '' : BlockEditor.getOptionLabel('Card Color'),
                             tmpParentColor ? '' : BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
                             tmpParentColor ? '' : BlockEditor.getOptionSep(),                            
-
+                            
                             el( 'div', {},
-                                el('div',{className:'ui label black fluid'},'Card Image'),
+                            
+                            el('div',{className:'ui label black fluid'},'Link URL'),
+                            el(wp.editor.URLInput, {onChange: onChangeURL, value: props.attributes.url || ''},'Browse for Link'),
+                            el('div',{className:'ui label black fluid'},'Card Image'),
                                 el( MediaUpload, {
                                     onSelect: onSelectImage,
                                     type: 'image',
@@ -253,9 +278,8 @@
         },
  
         save: function ( props ) {
-            console.log('sdave props',props);
-            var tmpEl = getDisplayValue(props,false)
-            //console.log('show',tmpEl);
+            var blockProps = useBlockProps.save();
+            var tmpEl = getDisplayValue(props,false,blockProps)
             return tmpEl;
         },
 

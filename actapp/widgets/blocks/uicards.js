@@ -5,10 +5,10 @@
     var useBlockProps = wp.blockEditor.useBlockProps;
  
     //--- How to use a SVG for the icon
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('cards');
+    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('uicards');
 
-    wp.blocks.registerBlockType( 'actappui/cards', {
-        title: 'Cards Container',
+    wp.blocks.registerBlockType( 'actappui/uicards', {
+        title: 'UI Cards Container',
         icon: iconEl,
         category: 'actappui',
         example: {
@@ -43,21 +43,14 @@
                     tmpVal = 0;
                 }
                 props.setAttributes( { maxImageHeight: tmpVal } );
-                BlockEditor.refreshBlockEditor();
+               BlockEditor.refreshBlockEditor();
             }
-            
+            var ThisApp = window.ThisApp;
             var BlockEditor = ActionAppCore.blocks.Editor;
 
             var InspectorControls = wp.editor.InspectorControls;
             var PanelBody = wp.components.PanelBody;
-            var tmpUIColor = props.attributes.color || '';
-            var tmpHeaderMsg = 'CARDS:';
-            if( props.attributes.columns ){
-                tmpHeaderMsg += " (" + props.attributes.columns + " columns)";
-            } else {
-                tmpHeaderMsg += " (columns auto-adjust )";
-            }
-            var tmpHdr = el('div',{className:'ui label fluid large ' + tmpUIColor},tmpHeaderMsg);
+          
             var ALLOWED_BLOCKS = ['actappui/card'];
             return el(
                 'div',
@@ -87,12 +80,12 @@
                     )
                 ),
                
-                el('div', {className:'ui segment ' + tmpUIColor},null, tmpHdr ,    el('div',{className:'edit-cards' + props.attributes.color + ' ' + props.attributes.columns},
+                el('div',{className:'ui segment ' + props.attributes.color},
                 [
-                    el(wp.blockEditor.InnerBlocks, {REM_BREAKS_ON_DRAG_allowedBlocks: ALLOWED_BLOCKS}),
+                    el('div',{className:'ui label fluid basic ' + props.attributes.color},'CARDS'),
+                    el(wp.blockEditor.InnerBlocks),
                 ]
-                ))
-            
+                )
             );
         },
  
@@ -101,9 +94,9 @@
             var tmpProps = {};
 
             if( props.attributes.columns == '' ){
-                tmpProps["auto-adapt"] = "cards";
+                blockProps["auto-adapt"] = "cards";
             } else {
-                tmpProps["columns"] = props.attributes.columns;
+                blockProps["columns"] = props.attributes.columns;
             }
 
 
@@ -115,14 +108,13 @@
                 tmpClasses += ' stackable ' + props.attributes.columns;
             }
 
-            tmpProps.className = tmpClasses;
+            blockProps.className += ' ' + tmpClasses;
 
             return el(
                 'div',                
-                blockProps,
-                el('div',tmpProps,
+                blockProps,                               
                 el( wp.blockEditor.InnerBlocks.Content )
-                )
+                
             );
         },
     } );
