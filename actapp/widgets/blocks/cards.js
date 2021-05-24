@@ -92,7 +92,6 @@
                     el(wp.blockEditor.InnerBlocks, {REM_BREAKS_ON_DRAG_allowedBlocks: ALLOWED_BLOCKS}),
                 ]
                 ))
-            
             );
         },
  
@@ -101,9 +100,9 @@
             var tmpProps = {};
 
             if( props.attributes.columns == '' ){
-                tmpProps["auto-adapt"] = "cards";
+                blockProps["auto-adapt"] = "cards";
             } else {
-                tmpProps["columns"] = props.attributes.columns;
+                blockProps["columns"] = props.attributes.columns;
             }
 
 
@@ -115,14 +114,13 @@
                 tmpClasses += ' stackable ' + props.attributes.columns;
             }
 
-            tmpProps.className = tmpClasses;
+            blockProps.className += ' ' + tmpClasses;
 
             return el(
                 'div',                
-                blockProps,
-                el('div',tmpProps,
+                blockProps,                               
                 el( wp.blockEditor.InnerBlocks.Content )
-                )
+                
             );
         },
     } );

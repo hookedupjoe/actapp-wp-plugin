@@ -57,7 +57,7 @@ class ActAppWidgetManager {
 				true
 			);
 			//--- Load standardly created widgets;
-			$tmpWidgetList = array('uicards', 'message','segment','cards', 'card', 'header');
+			$tmpWidgetList = array('segment','header','cards', 'card', 'message');
 			foreach ($tmpWidgetList as $aName) {
 				self::loadStandardBlock($aName);
 			}
