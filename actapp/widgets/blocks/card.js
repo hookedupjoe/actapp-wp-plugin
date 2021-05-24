@@ -20,13 +20,12 @@
         return el(theType,tmpAtts);
     }
 
-    function getDisplayValue(theProps,theIsEditMode,theBlockProps){
+    function getDisplayValue(theProps,theIsEditMode){
         var tmpAtts = theProps.attributes;
         var props = theProps;
 
-
         var tmpContent = [];
-        var tmpClass = 'ui card';
+        var tmpClass = theIsEditMode ? 'ui card' : 'ui card';
         var tmpTitle = '';
         var tmpAtt = props.attributes;
         //console.log('tmpAtts.parentColor',tmpAtts.parentColor);
@@ -65,9 +64,6 @@
         
         var tmpExtraContent = [];
 
-        if( theIsEditMode && theBlockProps){
-            tmpClass += theBlockProps.className;
-        }
         if( tmpAtt.url && !theIsEditMode){
             return el('a',{className:tmpClass,href:tmpAtt.url},tmpContent);
         } else {
@@ -278,8 +274,8 @@
         },
  
         save: function ( props ) {
-            var blockProps = useBlockProps.save();
-            var tmpEl = getDisplayValue(props,false,blockProps)
+            //var blockProps = useBlockProps.save();
+            var tmpEl = getDisplayValue(props,false)
             return tmpEl;
         },
 
