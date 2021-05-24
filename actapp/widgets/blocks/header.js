@@ -1,42 +1,42 @@
-// Header control from Semantic UI
+// Message control from Semantic UI
 ( function ( wp, ActionAppCore ) {
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
- 
-    //--- How to use a SVG for the icon
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('header');
+    var BlockEditor = ActionAppCore.blocks.Editor;
 
-    wp.blocks.registerBlockType( 'actappui/header', {
+    var info = {
+        name: 'header',
         title: 'Header',
-        icon: iconEl,
-        category: 'actappui',
         example: {
             attributes: {color: 'blue',text: 'Header Text', size: 'large'}
         },
-        attributes: {
-            text: {
-                type: 'string',
-                default: '',
-            },         
-            color: {
-                type: 'string',
-                default: '',
-            }            
-        },
+        category: 'actappui',
+        atts: {}
+    };
+    const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
+    BlockEditor.addStringAtts(info.atts,['text','color','size']);
+    
+    wp.blocks.registerBlockType( info.category + '/' + info.name, {
+        title: info.title,
+        icon: iconEl,
+        category: info.category,
+        example: info.example,
+        attributes: info.atts,
         edit: function ( props ) {
-            function onChangeColor( theEvent ) {
-                props.setAttributes( { color: theEvent.target.value } );
-            }
-            function onChangeText( theEvent ) {
-                props.setAttributes( { text: theEvent.target.value } );
-            }
-            
-            var BlockEditor = ActionAppCore.blocks.Editor;
-
             var InspectorControls = wp.editor.InspectorControls;
             var PanelBody = wp.components.PanelBody;
           
+            
+            var tmpAtts = props.attributes;
+            var tmpCN = 'ui header';
+            var tmpAtts = props.attributes;
+            if( tmpAtts.color ){
+                tmpCN += ' ' + tmpAtts.color
+            }
+            if( tmpAtts.size ){
+                tmpCN += ' ' + tmpAtts.size
+            }
 
             return el(
                 'div',
@@ -45,36 +45,54 @@
                     InspectorControls,
                     null,
                     wp.element.createElement(PanelBody, {
-                        title: 'Control Properties',
+                        title: 'Message Options',
                         initialOpen: true,                    
                     },
                         [
                             BlockEditor.getOptionLabel('Header Text'),
-                            BlockEditor.getTextControl(props.attributes.text,onChangeText),
+                            BlockEditor.getTextControl(tmpAtts.text,function ( theEvent ) {
+                                props.setAttributes( { text: theEvent.target.value } )
+                            }),
                             BlockEditor.getOptionSep(),
+
                             BlockEditor.getOptionLabel('Header Color'),
-                            BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
+                            BlockEditor.getColorListControl(tmpAtts.color, function ( theEvent ) {
+                                props.setAttributes( { color: theEvent.target.value } )
+                            }),
+                            BlockEditor.getOptionSep(),
+
+                            BlockEditor.getOptionLabel('Size'),
+                            BlockEditor.getSizeListControl(tmpAtts.size, function ( theEvent ) {
+                                props.setAttributes( { size: theEvent.target.value } )
+                            }),
+                            BlockEditor.getOptionSep(),
+
                         ]
                     )
                 ),
                
-//                el('div',{className:'ui label fluid black'},'HEADER'),
-                el('div',{className:'ui header ' + props.attributes.color},props.attributes.text)
+                el('div',{className:tmpCN},props.attributes.text),
             );
         },
  
         save: function ( props ) {
             var blockProps = useBlockProps.save();
-            var tmpHeader = '';
-            
+            var tmpCN = 'ui header';
+            var tmpAtts = props.attributes;
+            if( tmpAtts.color ){
+                tmpCN += ' ' + tmpAtts.color
+            }
+            if( tmpAtts.size ){
+                tmpCN += ' ' + tmpAtts.size
+            }
             return el(
                 'div',                
                 blockProps,
-                el('div',{className:'ui header ' + props.attributes.color},props.attributes.text)
+                [
+                    el('div',{className:tmpCN},props.attributes.text),
+                ]
             );
         },
-
     } );
 } )( window.wp, window.ActionAppCore );
-
 

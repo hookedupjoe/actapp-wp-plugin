@@ -28,11 +28,10 @@
         var tmpClass = theIsEditMode ? 'ui card' : 'ui card';
         var tmpTitle = '';
         var tmpAtt = props.attributes;
-        //console.log('tmpAtts.parentColor',tmpAtts.parentColor);
+        
         if( tmpAtts.parentColor != '' ){
             tmpClass += ' ' + tmpAtts.parentColor;
         } else if( tmpAtt.color ){
-            console.log('tmpAtt.color',tmpAtt.color);
             tmpClass += ' ' + tmpAtt.color;
         }
         if( tmpAtt.title ){
@@ -122,9 +121,7 @@
 			}
         },
         edit: function ( props ) {
-
             var tmpParentAttributes = BlockEditor.getParentAttributes(props.clientId);
-            console.log('tmpParentAttributes',tmpParentAttributes);
             props.attributes.parentColor = tmpParentAttributes.color || '';
             props.attributes.parentMaxImgHeight = tmpParentAttributes.maxImageHeight || 0;
 
@@ -134,7 +131,6 @@
             
             //todo: Set the style based on this
             function onChangeColor( theEvent ) {
-                console.log('onChangeColor',theEvent.target.value,theEvent,theEvent.target);
                 props.setAttributes( { color: theEvent.target.value } );
             }
             

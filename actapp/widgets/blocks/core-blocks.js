@@ -52,6 +52,37 @@
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
 
+        BlockEditor.getSizeListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = [
+                el("option", {value: ""}, ""),
+                el("option", {value: "huge"}, "Huge"),
+                el("option", {value: "large"}, "Large"),
+                el("option", {value: "medium"}, "Medium"),
+                el("option", {value: "small"}, "Small"),
+                el("option", {value: "tiny"}, "Tiny")
+            ];
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
+        }
+        var gInstanceAt = 0;
+        //--- This function creates a new onChangeEvent function
+        //     the needed properties are added to the function object
+        //     the function is binded to itself to pull values stored later
+        //--- Example Usage: 
+        //        BlockEditor.getColorListControl(props.attributes.color,BlockEditor.getOnChange('color',props))
+        BlockEditor.getOnChange = function( theAttName, theProps ){
+            gInstanceAt++;
+//            console.log('gInstanceAt',gInstanceAt);
+            function tmpRet( theEvent ) {
+                var tmpAtts = {};
+                tmpAtts[this.attName] = theEvent.target.value;
+                this.props.setAttributes( tmpAtts );
+            }    
+            tmpRet.attName = theAttName;
+            tmpRet.props = theProps;
+            tmpRet.bind(tmpRet);
+            return tmpRet;
+        }
+
         BlockEditor.NUMLOOKUPS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
         BlockEditor.getColumnListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [el("option", {value: ""}, "Auto")];
@@ -83,6 +114,23 @@
             var tmpRet = el("div",{className:'pad2'});
             return tmpRet;
         }
+        BlockEditor.addStringAtts = function(theAtts,theNames){
+           console.log('n',theNames);
+           for (var iPos = 0; iPos < theNames.length; iPos++) {
+               var tmpName = theNames[iPos];
+               BlockEditor.addAtt(theAtts,tmpName);       
+           }
+        }
+        BlockEditor.addAtt = function(theAtts, theAttName, theOptions){
+            var tmpOptions = theOptions;
+            if(!(tmpOptions)){
+                tmpOptions = {
+                    type: 'string',
+                    default: '',
+                }
+            }
+            theAtts[theAttName] = tmpOptions;
+        }
         
 
     }
@@ -90,14 +138,12 @@
 
     ActionAppCore.subscribe('app-loaded', function(){
 
-        ThisApp.delay(3000).then(function(){
+        ThisApp.delay(1000).then(function(){
             var tmpWarnings = $('.block-editor-warning__action > .components-button.is-primary');
             if( tmpWarnings.length > 0){
                 tmpWarnings.click();
                 alert("The page needed a refresh due to design changes in some component(s). Review and save this document to assure the content is up to date with the latest blocks version.")
             }
-            
-            console.log('tmpWarnings',tmpWarnings);
         });
         
         //--- Can add common actions to editor
@@ -111,66 +157,7 @@
 
 } )( window.wp, window.ActionAppCore );
 
-//====
 
-
-// ( function ( ws ) {
-
-    
-
-//     var el = ws.element.createElement;
-//     var InnerBlocks = ws.blockEditor.InnerBlocks;
-//     var useBlockProps = ws.blockEditor.useBlockProps;
- 
-//     ws.blocks.registerBlockType( 'actappui/segment', {
-//         title: 'Segment',
-//         category: 'actappui',
- 
-//         edit: function () {
-//             var blockProps = useBlockProps();
- 
-//             return el('div',{className:'ui segment green'},[el( 'div', blockProps, el( InnerBlocks ) )]);
-//         },
- 
-//         save: function () {
-//             var blockProps = useBlockProps.save();
-//             return el( 'div', blockProps, [el('div'),el('div',{className:'ui segment green'},[el( InnerBlocks.Content )])] );
-//         },
-//     } );
-// } )( window.wp );
-
-
-
-
-
-// ( function ( ws ) {
-//     var el = ws.element.createElement;
-//     var InnerBlocks = ws.blockEditor.InnerBlocks;
-//     var useBlockProps = ws.blockEditor.useBlockProps;
- 
-//     ws.blocks.registerBlockType( 'actapp/sem-cards', {
-//         title: 'Cards',
-//         category: 'actappui',
- 
-//         edit: function () {
-//             var blockProps = useBlockProps();
-//             return el('div',{className:'ui cards three'},[el( 'div', blockProps, el( InnerBlocks ) )]);
-//         },
- 
-//         save: function () {
-//             var blockProps = useBlockProps.save();
-//             var tmpClassName = 'ui cards';
-//             tmpClassName += ' three';
-//             return el( 'div', blockProps, [el('div'),el('div',{className:tmpClassName},[el( InnerBlocks.Content )])] );
-//         },
-//     } );
-// } )( window.wp );
-
-
-
-
-
-//===
 
 
 

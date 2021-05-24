@@ -3,63 +3,69 @@
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
- 
-    //--- How to use a SVG for the icon
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon('message');
+    var BlockEditor = ActionAppCore.blocks.Editor;
 
-    wp.blocks.registerBlockType( 'actappui/message', {
+    var info = {
+        name: 'message',
         title: 'Message Box',
-        icon: iconEl,
-        category: 'actappui',
         example: {
             attributes: {color: 'blue'}
         },
-        attributes: {
-            color: {
-                type: 'string',
-                default: '',
-            }            
-        },
-        edit: function ( props ) {
-            function onChangeColor( theEvent ) {
-                props.setAttributes( { color: theEvent.target.value } );
-            }
-            var ThisApp = window.ThisApp;
-            var BlockEditor = ActionAppCore.blocks.Editor;
+        category: 'actappui',
+        atts: {}
+    };
+    const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
 
+    BlockEditor.addStringAtts(info.atts,['color','size']);
+    
+    wp.blocks.registerBlockType( info.category + '/' + info.name, {
+        title: info.title,
+        icon: iconEl,
+        category: info.category,
+        example: info.example,
+        attributes: info.atts,
+        edit: function ( props ) {
             var InspectorControls = wp.editor.InspectorControls;
             var PanelBody = wp.components.PanelBody;
           
-            //--> Demo using Setup method below
-            function onSetupClick(theEvent){
-                ThisApp.input("What is the color?", "The Color", "Set Color", props.attributes.color || '')
-                .then(function (theValue) {
-                    if (!(theValue)) { return };
-                    props.attributes.color = theValue;
-                    BlockEditor.refreshBlockEditor();
-                })
+            
+            var tmpAtts = props.attributes;
+
+            var tmpCN = 'ui message';
+            var tmpAtts = props.attributes;
+            if( tmpAtts.color ){
+                tmpCN += ' ' + tmpAtts.color
+            }
+            if( tmpAtts.size ){
+                tmpCN += ' ' + tmpAtts.size
             }
 
             return el(
                 'div',
                 useBlockProps(),
-                //--> Demo using Setup method --> el('div',{onClick: onSetupClick, className:'ui button green basic fluid'},'Setup Details'),
-                
                 el(
                     InspectorControls,
                     null,
                     wp.element.createElement(PanelBody, {
-                        title: 'Control Properties',
+                        title: 'Message Options',
                         initialOpen: true,                    
                     },
                         [
-                            BlockEditor.getOptionLabel('Box Color'),
-                            BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
+                            BlockEditor.getOptionLabel('Message Color'),
+                            BlockEditor.getColorListControl(tmpAtts.color, function ( theEvent ) {
+                                props.setAttributes( { color: theEvent.target.value } )
+                            }),
+                            BlockEditor.getOptionSep(),
+                            BlockEditor.getOptionLabel('Size'),
+                            BlockEditor.getSizeListControl(tmpAtts.size, function ( theEvent ) {
+                                props.setAttributes( { size: theEvent.target.value } )
+                            }),
+                            BlockEditor.getOptionSep(),
                         ]
                     )
                 ),
                
-                el('div',{className:'ui message ' + props.attributes.color},
+                el('div',{className:tmpCN},
                 [
                     el(wp.blockEditor.InnerBlocks,{className: 'ui segment'}),
                 ]
@@ -69,17 +75,21 @@
  
         save: function ( props ) {
             var blockProps = useBlockProps.save();
-            var tmpHeader = '';
-            
+            var tmpCN = 'ui message';
+            var tmpAtts = props.attributes;
+            if( tmpAtts.color ){
+                tmpCN += ' ' + tmpAtts.color
+            }
+            if( tmpAtts.size ){
+                tmpCN += ' ' + tmpAtts.size
+            }
             return el(
                 'div',                
                 blockProps,
                 [
-                    el('div'),tmpHeader,
-                        el('div',{className:'ui message ' + props.attributes.color},                        [                    
-                            el( wp.blockEditor.InnerBlocks.Content )
-                        ]
-                    )
+                    el('div',{className:tmpCN},[
+                        el( wp.blockEditor.InnerBlocks.Content )
+                    ]),
                 ]
             );
         },

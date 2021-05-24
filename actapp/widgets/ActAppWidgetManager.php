@@ -62,8 +62,6 @@ class ActAppWidgetManager {
 				self::loadStandardBlock($aName);
 			}
 
-			//self::loadStandardBlock('message');
-			//self::loadStandardBlock('segment');
 			
 	}
 
