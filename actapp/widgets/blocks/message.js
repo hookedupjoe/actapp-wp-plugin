@@ -15,7 +15,7 @@
  *
  * @author Joseph Francis
  * @package actapp
- * @since actapp 1.0.21
+ * @since actapp 1.0.22
  */
 
 ( function ( wp, ActionAppCore ) {
@@ -25,29 +25,7 @@
     var BlockEditor = ActionAppCore.blocks.Editor;
     var tmpAE = BlockEditor.el;
 
-    function getDisplayValue(theProps,theIsEditMode){
-        var tmpAtts = theProps.attributes;
-        var props = theProps;
-
-        var tmpCN = 'ui message';
-        var tmpAtts = props.attributes;
-        if( tmpAtts.color ){
-            tmpCN += ' ' + tmpAtts.color
-        }
-        if( tmpAtts.size ){
-            tmpCN += ' ' + tmpAtts.size
-        }
-
-        var tmpClass = 'ui message ' + tmpCN;
-        
-
-        if( theIsEditMode ){
-            return BlockEditor.el('div', tmpClass,  [el( wp.blockEditor.InnerBlocks )]);
-        } else {
-            return BlockEditor.el('div', tmpClass, el( wp.blockEditor.InnerBlocks.Content ));
-        }
-        
-    }
+    
     var info = {
         name: 'message',
         title: 'Message Box',
@@ -59,8 +37,29 @@
     };
     const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
 
-    BlockEditor.addStringAtts(info.atts,['color','size']);
-    
+    BlockEditor.addBooleanAtts(info.atts,['floating', 'compact']);
+    BlockEditor.addStringAtts(info.atts,['color','size','attached']);
+
+    var tmpClassSpecs = {
+        boolean: ['floating','compact'],
+        string: ['color','size', 'attached']
+    }
+
+    function getClass(theProps, theIsEditMode){
+        return BlockEditor.getStandardClass( 'ui message', tmpClassSpecs, theProps, theIsEditMode);
+    }
+    function getDisplayValue(theProps,theIsEditMode){
+        var props = theProps;
+        var tmpClass = getClass(props, true);
+
+        if( theIsEditMode ){
+            return BlockEditor.el('div', tmpClass,  [el( wp.blockEditor.InnerBlocks )]);
+        } else {
+            return BlockEditor.el('div', tmpClass, el( wp.blockEditor.InnerBlocks.Content ));
+        }
+        
+    }
+
     wp.blocks.registerBlockType( info.category + '/' + info.name, {
         title: info.title,
         icon: iconEl,
@@ -73,53 +72,33 @@
             
             var tmpAtts = props.attributes;
 
+            var tmpStandardProperties = [
+                BlockEditor.getStandardProperty(props,'color', 'Header Color', 'color' ),
+                BlockEditor.getStandardProperty(props,'size', 'Size', 'size' ),
+                BlockEditor.getStandardProperty(props,'attached', 'Attached', 'attached' ),
+                BlockEditor.getStandardProperty(props,'floating', 'Floating', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'compact', 'Compact', 'checkbox' ),
+            ];
+            var tmpSidebarPanels = [
+                BlockEditor.getSidebarPanel('Message Options', tmpStandardProperties)
+            ];
+
+            var tmpSidebarControls = BlockEditor.getSidebarControls(tmpSidebarPanels);
+
+            var tmpDisplayObject = getDisplayValue(props,true);
+
             return el(
                 'div',
                 useBlockProps(),
-                el(
-                    InspectorControls,
-                    null,
-                    wp.element.createElement(PanelBody, {
-                        title: 'Message Options',
-                        initialOpen: true,                    
-                    },
-                        [
-                            BlockEditor.getOptionLabel('Message Color'),
-                            BlockEditor.getColorListControl(tmpAtts.color, function ( theEvent ) {
-                                props.setAttributes( { color: theEvent.target.value } )
-                            }),
-                            BlockEditor.getOptionSep(),
-
-                            BlockEditor.getOptionLabel('Size'),
-                            BlockEditor.getSizeListControl(tmpAtts.size, function ( theEvent ) {
-                                props.setAttributes( { size: theEvent.target.value } )
-                            }),
-                            BlockEditor.getOptionSep(),
-                        ]
-                    )
-                ),
-               
-                getDisplayValue(props,true)
+                [
+                    tmpSidebarControls,               
+                    tmpDisplayObject
+                ]
             );
         },
  
         save: function ( props ) {
-            var blockProps = useBlockProps.save();
-            var tmpCN = 'ui message';
-            var tmpAtts = props.attributes;
-            if( tmpAtts.color ){
-                tmpCN += ' ' + tmpAtts.color
-            }
-            if( tmpAtts.size ){
-                tmpCN += ' ' + tmpAtts.size
-            }
-            return el(
-                'div',                
-                blockProps,
-                [
-                    getDisplayValue(props,false)
-                ]
-            );
+            return getDisplayValue(props,false);
         },
     } );
 } )( window.wp, window.ActionAppCore );

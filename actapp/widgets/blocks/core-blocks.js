@@ -15,7 +15,7 @@
  *
  * @author Joseph Francis
  * @package actapp
- * @since actapp 1.0.21
+ * @since actapp 1.0.22
  */
 
 ( function ( ws,  ActionAppCore) {
@@ -155,7 +155,7 @@
                 BlockEditor.addAtt(theAtts,tmpName);       
             }
          }
-         BlockEditor.addBoolAtts = function(theAtts,theNames){
+         BlockEditor.addBooleanAtts = function(theAtts,theNames){
             for (var iPos = 0; iPos < theNames.length; iPos++) {
                 var tmpName = theNames[iPos];
                 theAtts[tmpName] = {type:'boolean'};
@@ -215,11 +215,20 @@
             return tmpCN;
         }
 
+        BlockEditor.getSidebarPanel = function(theTitle, theProps){
+            return wp.element.createElement(wp.components.PanelBody, {title: theTitle,initialOpen: true},theProps);
+        }
+        BlockEditor.getSidebarControls = function(theSidebarPanels){
+            return el(
+                wp.editor.InspectorControls,
+                null,
+                theSidebarPanels
+            );            
+        }
+
         BlockEditor.getStandardProperty = function(theProps, theAttName, theLabel, theControlType, theOnChange){
             var tmpAtts = theProps.attributes;
             var tmpContents = [];
-            
-            var tmpOA = {};
             
             if( theControlType !== 'checkbox' ){
                 tmpContents.push(BlockEditor.getOptionLabel(theLabel));
