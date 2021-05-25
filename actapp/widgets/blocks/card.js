@@ -9,16 +9,7 @@
 	var MediaUpload = wp.editor.MediaUpload;
 	
 
-    function tmpAE(theType,theClass,theContent,theOptionalAtts){
-        var tmpAtts = theOptionalAtts || {};
-        if( theClass ){
-            tmpAtts.className = theClass;
-        }
-        if( theContent ){
-            return el(theType,tmpAtts,theContent);
-        }
-        return el(theType,tmpAtts);
-    }
+    var tmpAE = BlockEditor.el;
 
     function getDisplayValue(theProps,theIsEditMode){
         var tmpAtts = theProps.attributes;

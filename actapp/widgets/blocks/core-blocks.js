@@ -1,15 +1,33 @@
+/**
+ * Action App Blocks - Client Side Entrypoint: core-bloack.js
+ * 
+ * Copyright (c) 2020 Joseph Francis / hookedup, inc. www.hookedup.com
+ *
+ * This code is released under the GNU General Public License.
+ * See COPYRIGHT.txt and LICENSE.txt.
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This header and all notices must be kept intact.
+ *
+ * @author Joseph Francis
+ * @package actapp
+ * @since actapp 1.0.21
+ */
+
 ( function ( ws,  ActionAppCore) {
-    var BlockManager = {};
     var BlockEditor = {};
     var el = wp.element.createElement;
 
-    function initBlockManager(){
+    function initBlockEditor(){
         
-        var tmpCommon = ActionAppCore;
-        tmpCommon.blocks = {
-            Manager: BlockManager,
+        //--- Create entry point from Action App entrypoint
+        ActionAppCore.blocks = {
             Editor: BlockEditor
-        }
+        };
         
         BlockEditor.refreshBlockEditor = function(){
             wp.data.dispatch('core/editor').synchronizeTemplate();
@@ -36,7 +54,16 @@
         }
   
 
-        
+        BlockEditor.el = function (theType,theClass,theContent,theOptionalAtts){
+            var tmpAtts = theOptionalAtts || {};
+            if( theClass ){
+                tmpAtts.className = theClass;
+            }
+            if( theContent ){
+                return el(theType,tmpAtts,theContent);
+            }
+            return el(theType,tmpAtts);
+        }
 
         BlockEditor.getColorListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [
@@ -45,13 +72,29 @@
                 el("option", {value: "green"}, "Green"),
                 el("option", {value: "red"}, "Red"),
                 el("option", {value: "orange"}, "Orange"),
+                el("option", {value: "purple"}, "Purple"),
                 el("option", {value: "violet"}, "Violet"),
+                el("option", {value: "yellow"}, "Yellow"),
+                el("option", {value: "olive"}, "Olive"),
+                el("option", {value: "pink"}, "Pink"),
+                el("option", {value: "brown"}, "Brown"),
+                el("option", {value: "teal"}, "Teal"),                
                 el("option", {value: "black"}, "Black"),
                 el("option", {value: "gray"}, "Gray")
             ];
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
+        
 
+        BlockEditor.getAttachedListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = [
+                el("option", {value: ""}, "None"),
+                el("option", {value: "attached top"}, "Top"),
+                el("option", {value: "attached"}, "Middle"),
+                el("option", {value: "attached bottom"}, "bottom"),
+            ];
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
+        }
         BlockEditor.getSizeListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [
                 el("option", {value: ""}, ""),
@@ -63,26 +106,18 @@
             ];
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
-        var gInstanceAt = 0;
-        //--- This function creates a new onChangeEvent function
-        //     the needed properties are added to the function object
-        //     the function is binded to itself to pull values stored later
-        //--- Example Usage: 
-        //        BlockEditor.getColorListControl(props.attributes.color,BlockEditor.getOnChange('color',props))
-        BlockEditor.getOnChange = function( theAttName, theProps ){
-            gInstanceAt++;
-//            console.log('gInstanceAt',gInstanceAt);
-            function tmpRet( theEvent ) {
-                var tmpAtts = {};
-                tmpAtts[this.attName] = theEvent.target.value;
-                this.props.setAttributes( tmpAtts );
-            }    
-            tmpRet.attName = theAttName;
-            tmpRet.props = theProps;
-            tmpRet.bind(tmpRet);
-            return tmpRet;
+
+        BlockEditor.getAlignmentListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = [
+                el("option", {value: ""}, "None"),
+                el("option", {value: "center aligned"}, "Center"),
+                el("option", {value: "left aligned"}, "Left"),
+                el("option", {value: "right aligned"}, "Right")
+            ];
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
 
+        
         BlockEditor.NUMLOOKUPS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
         BlockEditor.getColumnListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [el("option", {value: ""}, "Auto")];
@@ -115,13 +150,18 @@
             return tmpRet;
         }
         BlockEditor.addStringAtts = function(theAtts,theNames){
-           console.log('n',theNames);
-           for (var iPos = 0; iPos < theNames.length; iPos++) {
-               var tmpName = theNames[iPos];
-               BlockEditor.addAtt(theAtts,tmpName);       
-           }
-        }
-        BlockEditor.addAtt = function(theAtts, theAttName, theOptions){
+            for (var iPos = 0; iPos < theNames.length; iPos++) {
+                var tmpName = theNames[iPos];
+                BlockEditor.addAtt(theAtts,tmpName);       
+            }
+         }
+         BlockEditor.addBoolAtts = function(theAtts,theNames){
+            for (var iPos = 0; iPos < theNames.length; iPos++) {
+                var tmpName = theNames[iPos];
+                theAtts[tmpName] = {type:'boolean'};
+            }
+         }
+         BlockEditor.addAtt = function(theAtts, theAttName, theOptions){
             var tmpOptions = theOptions;
             if(!(tmpOptions)){
                 tmpOptions = {
@@ -132,28 +172,100 @@
             theAtts[theAttName] = tmpOptions;
         }
         
+        function getFunctionForType(theControlType){
+            var tmpCT = (theControlType||'').toLowerCase();
+            if( tmpCT == 'text' ){
+                return 'getTextControl';
+            }
+            if( tmpCT == 'color' ){
+                return 'getColorListControl';
+            }
+            if( tmpCT == 'size' ){
+                return 'getSizeListControl';
+            }            
+            if( tmpCT == 'attached' ){
+                return 'getAttachedListControl';
+            }            
+            if( tmpCT == 'alignment' ){
+                return 'getAlignmentListControl';
+            }            
+            
+            
+            return 'getTextControl';
+        }
+        BlockEditor.getStandardClass = function(theTypeClass, theSpecs, theProps, theIsEditMode){
+            var tmpAtts = theProps.attributes;
+            var tmpCN = theTypeClass;
+            var tmpSpecs = theSpecs;
+    
+            for (var iPos = 0; iPos < tmpSpecs.boolean.length; iPos++) {
+                var tmpName = tmpSpecs.boolean[iPos];
+                if( tmpAtts[tmpName] ){
+                    tmpCN += ' ' + tmpName;    
+                }
+            }
+    
+            for (var iPos = 0; iPos < tmpSpecs.string.length; iPos++) {
+                var tmpName = tmpSpecs.string[iPos];
+                if( tmpAtts[tmpName] ){
+                    tmpCN += ' ' + tmpAtts[tmpName];    
+                }
+            }
+    
+            return tmpCN;
+        }
+
+        BlockEditor.getStandardProperty = function(theProps, theAttName, theLabel, theControlType, theOnChange){
+            var tmpAtts = theProps.attributes;
+            var tmpContents = [];
+            
+            var tmpOA = {};
+            
+            if( theControlType !== 'checkbox' ){
+                tmpContents.push(BlockEditor.getOptionLabel(theLabel));
+            }
+
+            var tmpOnChange = theOnChange || function ( theEvent ) {
+                var tmpObjAtts = {};
+                tmpObjAtts[theAttName] = theEvent.target.value;
+                theProps.setAttributes( tmpObjAtts )
+            };
+
+            var tmpFunc = getFunctionForType(theControlType) || 'getDefaultControl';
+            //--- Special Property Editors Used
+            if( theControlType == 'checkbox' ){
+                var tmpFunc = function (theValue){
+                    tmpToSet = {};
+                    tmpToSet[theAttName] = theValue;
+                    theProps.setAttributes(tmpToSet);
+                }
+                var tmpIsChecked = tmpAtts[theAttName];
+                var tmpEl = el(wp.components.ToggleControl,{label: theLabel, checked: tmpIsChecked, onChange: tmpFunc});
+                tmpContents.push(tmpEl);
+            } else {
+                //--- Call the dynamic function to get the type for this property
+                tmpContents.push(BlockEditor[tmpFunc](tmpAtts[theAttName],tmpOnChange));
+            }
+
+            tmpContents.push(BlockEditor.getOptionSep());
+            return el('div',{},tmpContents);
+        }
 
     }
 
 
     ActionAppCore.subscribe('app-loaded', function(){
-
         ThisApp.delay(1000).then(function(){
             var tmpWarnings = $('.block-editor-warning__action > .components-button.is-primary');
             if( tmpWarnings.length > 0){
                 tmpWarnings.click();
-                alert("The page needed a refresh due to design changes in some component(s). Review and save this document to assure the content is up to date with the latest blocks version.")
+                alert("The page needed a refresh due to design changes in some component(s). Review and save this document to assure the content is up to date with the latest blocks version.","Review Page Content","w");
             }
         });
-        
-        //--- Can add common actions to editor
-        ThisApp.actions.sampleFunction = function(){
-            console.log('Ran Sample');
-        }
     })
 
     //--- Initialize common block functionality for the editor
-    initBlockManager();
+    initBlockEditor();
 
 } )( window.wp, window.ActionAppCore );
 

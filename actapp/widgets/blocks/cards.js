@@ -86,7 +86,6 @@
                             ])
                     )
                 ),
-               
                 el('div', {className:'ui segment ' + tmpUIColor},null, tmpHdr ,    el('div',{className:'edit-cards' + props.attributes.color + ' ' + props.attributes.columns},
                 [
                     el(wp.blockEditor.InnerBlocks, {REM_BREAKS_ON_DRAG_allowedBlocks: ALLOWED_BLOCKS}),

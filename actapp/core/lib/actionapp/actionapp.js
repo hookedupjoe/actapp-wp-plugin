@@ -4377,7 +4377,7 @@ License: MIT
         tmpHTML.push('	<div class="actions" style="clear:both;">');
         tmpHTML.push('	  <div action="_prompter:hideAlert" class="ui right blue button" style="min-width:200px">');
         tmpHTML.push('		OK');
-        tmpHTML.push('	  </div>');
+        tmpHTML.push('	  </div><div style="clear:both;"></div>');
         tmpHTML.push('	</div>');
         tmpHTML.push('</div>');
 
