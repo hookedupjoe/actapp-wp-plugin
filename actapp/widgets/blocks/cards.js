@@ -1,7 +1,7 @@
 /**
  * Block Widget: cards.js - Semantic UI Cards Container
  * 
- * Copyright (c) 2020 Joseph Francis / hookedup, inc. www.hookedup.com
+ * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
@@ -25,7 +25,7 @@
     
     var info = {
         name: 'cards',
-        title: 'Cards Container',
+        title: 'UI Card Container',
         example: {
             attributes: {color: 'green'}
         },

@@ -1,7 +1,7 @@
 /**
  * Action App Blocks - Client Side Entrypoint: core-bloack.js
  * 
- * Copyright (c) 2020 Joseph Francis / hookedup, inc. www.hookedup.com
+ * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
@@ -117,6 +117,15 @@
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
 
+        BlockEditor.getLeftRightAlignmentListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = [
+                el("option", {value: ""}, "None"),
+                el("option", {value: "left aligned"}, "Left"),
+                el("option", {value: "right aligned"}, "Right")
+            ];
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
+        }
+
         
         BlockEditor.NUMLOOKUPS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
         BlockEditor.getColumnListControl = function(theCurrentValue, theOnChangeEvent){
@@ -196,6 +205,10 @@
             if( tmpCT == 'alignment' ){
                 return 'getAlignmentListControl';
             }            
+            if( tmpCT == 'alignmentleftright' ){
+                return 'getLeftRightAlignmentListControl';
+            }            
+            
             if( tmpCT == 'columns' ){
                 return 'getColumnListControl';
             }            
@@ -339,7 +352,7 @@
             var tmpWarnings = $('.block-editor-warning__action > .components-button.is-primary');
             if( tmpWarnings.length > 0){
                 tmpWarnings.click();
-                alert("The page needed a refresh due to design changes in some component(s). Review and save this document to assure the content is up to date with the latest blocks version.","Review Page Content","w");
+                alert("Some stuff changed, review and save this document.","Review Page Content","i");
             }
         });
     })

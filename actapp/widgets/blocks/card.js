@@ -1,7 +1,7 @@
 /**
  * Block Widget: card.js - Semantic UI Card  
  * 
- * Copyright (c) 2020 Joseph Francis / hookedup, inc. www.hookedup.com
+ * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
@@ -25,7 +25,7 @@
     
     var info = {
         name: 'card',
-        title: 'Card',
+        title: 'UI Card',
         example: {
             attributes: {text: 'This is some more card text',title:'What a card'}
         },
@@ -90,7 +90,7 @@
         tmpContent.push( newEl('div','content',tmpMainContent) );
         
         var tmpExtraContent = [];
-
+        
         if( tmpAtt.url && !theIsEditMode){
             return el('a',{className:tmpClass,href:tmpAtt.url},tmpContent);
         } else {

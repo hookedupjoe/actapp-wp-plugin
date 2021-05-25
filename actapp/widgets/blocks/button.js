@@ -1,5 +1,5 @@
 /**
- * Block Widget: header.js - Semantic UI Header
+ * Block Widget: button.js - Semantic UI Button
  * 
  * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *
@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * This header and all notices must be kept intact.
+ * This button and all notices must be kept intact.
  *
  * @author Joseph Francis
  * @package actapp
@@ -25,32 +25,31 @@
     var BlockEditor = ActionAppCore.blocks.Editor;
 
     var info = {
-        name: 'header',
-        title: 'UI Header',
+        name: 'button',
+        title: 'UI Button',
         example: {
-            attributes: {color: 'blue',text: 'Header Text', size: 'large'}
+            attributes: {color: 'blue',text: 'Button Text', size: 'large'}
         },
         category: 'actappui',
         atts: {}
     };
     const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
-    BlockEditor.addStringAtts(info.atts,['text','color','size', 'subtext', 'attached', 'alignment']);
-    BlockEditor.addBooleanAtts(info.atts,['dividing','block','inverted']);
+
+    BlockEditor.addBooleanAtts(info.atts,['fluid','compact','basic','circular','urlopentab']);
+    BlockEditor.addStringAtts(info.atts,['text','color','size', 'attached', 'alignment', 'url']);
+
     var tmpClassSpecs = {
-        boolean: ['dividing','block','inverted'],
+        boolean: ['fluid','compact','basic','circular'],
         string: ['color','size', 'attached', 'alignment']
     }
     
     function getContent(theProps, theIsEditMode){
         var tmpAtts = theProps.attributes;
         var tmpContent = [];
-        if( tmpAtts.subtext != '' ){
-            tmpContent.push( BlockEditor.el('div','sub header',tmpAtts.subtext) );
-        }
         return tmpContent;
     }
     function getClass(theProps, theIsEditMode){
-        return BlockEditor.getStandardClass( 'ui header', tmpClassSpecs, theProps, theIsEditMode);
+        return BlockEditor.getStandardClass( 'ui button', tmpClassSpecs, theProps, theIsEditMode);
     }
     wp.blocks.registerBlockType( info.category + '/' + info.name, {
         title: info.title,
@@ -65,23 +64,26 @@
             var tmpContent = getContent(props, true);
             
             var tmpText = tmpAtts.text;
-            if(  (!(tmpAtts.text || tmpAtts.subtext))){
-                tmpText = 'Blank Header: Enter details on the sidebar **';
-            }
+           
            
             var tmpStandardProperties = [
-                BlockEditor.getStandardProperty(props,'text', 'Header Text'),
-                BlockEditor.getStandardProperty(props,'subtext', 'Sub Text' ),
-                BlockEditor.getStandardProperty(props,'color', 'Header Color', 'color' ),
+                BlockEditor.getStandardProperty(props,'text', 'Button Text'),
+                BlockEditor.getStandardProperty(props,'color', 'Button Color', 'color' ),
                 BlockEditor.getStandardProperty(props,'size', 'Size', 'size' ),
-                BlockEditor.getStandardProperty(props,'inverted', 'Inverted', 'checkbox' ),
-                BlockEditor.getStandardProperty(props,'dividing', 'Line at bottom', 'checkbox' ),
-                BlockEditor.getStandardProperty(props,'block', 'Show as block', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'circular', 'Circular', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'basic', 'Outlined', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'compact', 'Compact', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'fluid', 'Full width', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'url', 'Target Content or Link', 'url' ),
+                !(tmpAtts.url) ? '' : BlockEditor.getStandardProperty(props,'urlopentab', 'Open link in new tab?', 'checkbox' ),                
+            ];
+            var tmpFormatProperties = [
                 BlockEditor.getStandardProperty(props,'attached', 'Attached', 'attached' ),
-                BlockEditor.getStandardProperty(props,'alignment', 'Alignment', 'alignment' ),
+                BlockEditor.getStandardProperty(props,'alignment', 'Alignment', 'alignmentleftright' ),
             ];
             var tmpSidebarPanels = [
-                BlockEditor.getSidebarPanel('Header Options', tmpStandardProperties)
+                BlockEditor.getSidebarPanel('Button Options', tmpStandardProperties),
+                BlockEditor.getSidebarPanel('Formatting Options', tmpFormatProperties),
             ];
 
             var tmpSidebarControls = BlockEditor.getSidebarControls(tmpSidebarPanels);
@@ -99,15 +101,23 @@
         },
  
         save: function ( props ) {
-            var tmpCN = getClass(props, false);
+            var tmpClass = getClass(props, false);
             var tmpContent = getContent(props, false);
-            return el('div',
-                {className:tmpCN},
-                [
-                    props.attributes.text,
-                    tmpContent
-                ]
-            );
+            var tmpAtts = props.attributes;
+            var tmpEls = [
+                tmpAtts.text,
+                tmpContent
+            ]
+            if( tmpAtts.url ){
+                var tmpOpts = {className:tmpClass,href:tmpAtts.url};
+                if( tmpAtts.urlopentab){
+                    tmpOpts.target = "_blank";
+                }
+                return el('a',tmpOpts,tmpEls);
+            } else {
+                return el('div',{className:tmpClass},tmpEls);
+            }
+
         },
     } );
 } )( window.wp, window.ActionAppCore );

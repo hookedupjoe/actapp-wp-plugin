@@ -84,6 +84,7 @@ function actapp_load_scripts($hook) {
 
 			wp_register_style( 'aa-appframe',    $tmplibloc . 'lib/css/appframe.css', false,   $my_css_ver );
 			wp_enqueue_style ( 'aa-appframe' );
+			wp_register_style( 'aa-core-blocks_css',    $tmplibloc . 'lib/css/wp-blocks.css', false,  $my_css_ver );
 
 			wp_register_style( 'aa-resp-grid',    $tmplibloc . 'lib/css/resp-grid.css', false,   $my_css_ver );
 			wp_enqueue_style ( 'aa-resp-grid' );

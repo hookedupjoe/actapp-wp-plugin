@@ -1,9 +1,23 @@
 <?php
-/*
-Common access point and launcher for ActApp related widgets / blocks
-*/
-
-/* package: actapp */
+/**
+ * Server Side Widget Manager: ActAppWidgetManager
+ * 
+ * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
+ *
+ * This code is released under the GNU General Public License.
+ * See COPYRIGHT.txt and LICENSE.txt.
+ *
+ * This code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This header and all notices must be kept intact.
+ *
+ * @author Joseph Francis
+ * @package actapp
+ * @since actapp 1.0.22
+ */
 
 
 class ActAppWidgetManager {
@@ -31,7 +45,7 @@ class ActAppWidgetManager {
 	
 	public static function loadStandardBlock($theName, $theFileName = '', $theDependencies = null){
 		$tmpDepDefaults = array('wp-blocks','wp-editor','wp-element');
-		//$tmpDeps = array_combine($tmpDepDefaults, $theDependencies || []);
+		//$tmpDeps = array_combine($tmpDepDefaults, $theDependencies);
 		$tmpFN = $theFileName;
 		if( $tmpFN == ''){
 			$tmpFN = $theName;
@@ -42,6 +56,7 @@ class ActAppWidgetManager {
 			$tmpDepDefaults,
 			true
 		);
+		wp_enqueue_style ( 'aa-core-blocks_css' );
 	}
 
 	public static function actapp_init_blocks($theHook) {
@@ -53,11 +68,11 @@ class ActAppWidgetManager {
 			wp_enqueue_script(
 				'actapp-core-blocks', 
 				ACTAPP_WIDGETS_URL . '/blocks/core-blocks.js',
-				array('wp-blocks','wp-editor','wp-element','wp-rich-text','wp-data','wp-server-side-render'),
+				array('wp-blocks','wp-editor','wp-element'),
 				true
 			);
 			//--- Load standardly created widgets;
-			$tmpWidgetList = array('segment','header','cards', 'card', 'message');
+			$tmpWidgetList = array('segment','header','cards', 'card', 'message', 'button');
 			foreach ($tmpWidgetList as $aName) {
 				self::loadStandardBlock($aName);
 			}
@@ -66,7 +81,7 @@ class ActAppWidgetManager {
 	}
 
 	public static function init() {
-		add_filter( 'block_categories',  array('ActAppWidgetManager','actapp_block_category'), 10, 2);
+		add_filter('block_categories',  array('ActAppWidgetManager','actapp_block_category'), 10, 2);
 		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks'),10,2);
 	}
 

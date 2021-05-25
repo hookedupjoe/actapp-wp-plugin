@@ -1,7 +1,7 @@
 /**
  * Block Widget: message.js - Semantic UI Message  
  * 
- * Copyright (c) 2020 Joseph Francis / hookedup, inc. www.hookedup.com
+ * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
@@ -26,7 +26,7 @@
     
     var info = {
         name: 'message',
-        title: 'Message Box',
+        title: 'UI Message',
         example: {
             attributes: {color: 'blue'}
         },
