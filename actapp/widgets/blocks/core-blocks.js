@@ -266,12 +266,52 @@
                 }
                 var tmpEl = el(wp.editor.URLInput, {onChange: tmpFunc, value: tmpAtts[theAttName] || ''},'Browse for Link');
                 tmpContents.push(tmpEl);
+            } else if( theControlType == 'image') {
+                var onSelectImage = function( media ) {
+                    tmpToSet = {};
+                    tmpToSet[theAttName['mediaURL']] = media.url;
+                    tmpToSet[theAttName['mediaID']] = media.id;
+                    return theProps.setAttributes(tmpToSet);
+                    
+                };
+    
+                var onRemoveImage = function(){
+                    tmpToSet = {};
+                    tmpToSet[theAttName['mediaURL']] = '';
+                    tmpToSet[theAttName['mediaID']] = '';
+                    return theProps.setAttributes(tmpToSet);
+                }
+
+                var tmpMediaURL = tmpAtts[theAttName['mediaURL']];
+    
+                //var tmpEl = el('div',{className:'ui label black fluid'},'Card Image');
+              //ToDo: Remove hard coded mediaID and mediaURL references
+                var tmpMediaEl = el( wp.editor.MediaUpload, {
+                    onSelect: onSelectImage,
+                    type: 'image',
+                    value: theProps.attributes[theAttName['mediaID']],
+                    render: function( obj ) {
+                        
+                        if( !theProps.attributes.mediaID ){
+                            return el('div',{className:'pad2'},
+                                el('div', {className:'ui button blue basic', onClick: obj.open}, 'Select Image')
+                            )
+                        } else {
+                            return el('div',{className:'pad2'},
+                            el('div', {className:'ui button blue basic', onClick: obj.open}, 'Replace'),
+                            el('div', {className:'ui button blue basic', onClick: onRemoveImage}, 'Remove'),                                            
+                                el('div',{className:'pad2'}),
+                                el('img',{className:'ui image rounded fluid', src:tmpMediaURL})
+                            )
+                        }
+                    }
+                } )   
+                tmpContents.push(tmpMediaEl);
             } else {
                 //--- Call the dynamic function to get the type for this property
                 tmpContents.push(BlockEditor[tmpFunc](tmpAtts[theAttName],tmpOnChange));
                 tmpContents.push(BlockEditor.getOptionSep());
             }
-
             
             return el('div',{},tmpContents);
         }

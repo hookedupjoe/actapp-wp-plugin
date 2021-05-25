@@ -45,10 +45,8 @@
     function getClass(theProps, theIsEditMode){
         return BlockEditor.getStandardClass( 'ui card', tmpClassSpecs, theProps, theIsEditMode);
     }
-	var MediaUpload = wp.editor.MediaUpload;
 	
-
-    var tmpAE = BlockEditor.el;
+    var newEl = BlockEditor.el;
 
     function getDisplayValue(theProps,theIsEditMode){
         var tmpAtts = theProps.attributes;
@@ -73,7 +71,7 @@
                 tmpMediaAtts.style = {"max-height":tmpAtts.parentMaxImgHeight,"min-height":tmpAtts.parentMaxImgHeight,"object-fit": "cover"}
             }
              
-            tmpContent.push( tmpAE('div','image',el('img',tmpMediaAtts) )  );
+            tmpContent.push( newEl('div','image',el('img',tmpMediaAtts) )  );
         }
         if( theIsEditMode && tmpTitle == '' && tmpAtt.mediaURL == '' && tmpAtt.subtitle == ''  && tmpAtt.text == '' ){
             //EDIT ONLY
@@ -81,22 +79,22 @@
         }
         var tmpMainContent = [];
         if( tmpTitle ){
-            tmpMainContent.push( tmpAE('div','header',tmpTitle) );
+            tmpMainContent.push( newEl('div','header',tmpTitle) );
         }
         if( tmpAtt.subtitle ){
-            tmpMainContent.push( tmpAE('div','meta',tmpAtt.subtitle) );
+            tmpMainContent.push( newEl('div','meta',tmpAtt.subtitle) );
         }
         if( tmpAtt.text ){
-            tmpMainContent.push( tmpAE('div','description',tmpAtt.text) );
+            tmpMainContent.push( newEl('div','description',tmpAtt.text) );
         }
-        tmpContent.push( tmpAE('div','content',tmpMainContent) );
+        tmpContent.push( newEl('div','content',tmpMainContent) );
         
         var tmpExtraContent = [];
 
         if( tmpAtt.url && !theIsEditMode){
             return el('a',{className:tmpClass,href:tmpAtt.url},tmpContent);
         } else {
-            return tmpAE('div',tmpClass,tmpContent);
+            return newEl('div',tmpClass,tmpContent);
         }
 
 
@@ -161,28 +159,29 @@
                             // el(wp.editor.URLInput, {onChange: onChangeURL, value: props.attributes.url || ''},'Browse for Link'),
                             // BlockEditor.getOptionSep(), 
                             
-                           
-                            el('div',{className:'ui label black fluid'},'Card Image'),
-                                el( MediaUpload, {
-                                    onSelect: onSelectImage,
-                                    type: 'image',
-                                    value: props.attributes.mediaID,
-                                    render: function( obj ) {
+                            BlockEditor.getStandardProperty(props,{mediaID:'mediaID',mediaURL:'mediaURL'}, 'Card Image', 'image' ),
+                            
+                            // el('div',{className:'ui label black fluid'},'Card Image'),
+                            //     el( MediaUpload, {
+                            //         onSelect: onSelectImage,
+                            //         type: 'image',
+                            //         value: props.attributes.mediaID,
+                            //         render: function( obj ) {
                                         
-                                        if( !props.attributes.mediaID ){
-                                            return el('div',{className:'pad2'},
-                                                el('div', {className:'ui button blue basic', onClick: obj.open}, 'Set Card Image')
-                                            )
-                                        } else {
-                                            return el('div',{className:'pad2'},
-                                            el('div', {className:'ui button blue basic', onClick: obj.open}, 'Replace'),
-                                            el('div', {className:'ui button blue basic', onClick: onRemoveImage}, 'Remove'),                                            
-                                                el('div',{className:'pad2'}),
-                                                el('img',{className:'ui image rounded fluid', src:props.attributes.mediaURL})
-                                            )
-                                        }
-                                    }
-                                } )
+                            //             if( !props.attributes.mediaID ){
+                            //                 return el('div',{className:'pad2'},
+                            //                     el('div', {className:'ui button blue basic', onClick: obj.open}, 'Set Card Image')
+                            //                 )
+                            //             } else {
+                            //                 return el('div',{className:'pad2'},
+                            //                 el('div', {className:'ui button blue basic', onClick: obj.open}, 'Replace'),
+                            //                 el('div', {className:'ui button blue basic', onClick: onRemoveImage}, 'Remove'),                                            
+                            //                     el('div',{className:'pad2'}),
+                            //                     el('img',{className:'ui image rounded fluid', src:props.attributes.mediaURL})
+                            //                 )
+                            //             }
+                            //         }
+                            //     } )
 
             ];
             var tmpSidebarPanels = [
