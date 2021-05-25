@@ -23,8 +23,6 @@
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
     var BlockEditor = ActionAppCore.blocks.Editor;
-    var tmpAE = BlockEditor.el;
-
     
     var info = {
         name: 'message',
@@ -67,13 +65,9 @@
         example: info.example,
         attributes: info.atts,
         edit: function ( props ) {
-            var InspectorControls = wp.editor.InspectorControls;
-            var PanelBody = wp.components.PanelBody;
-            
-            var tmpAtts = props.attributes;
 
             var tmpStandardProperties = [
-                BlockEditor.getStandardProperty(props,'color', 'Header Color', 'color' ),
+                BlockEditor.getStandardProperty(props,'color', 'Message Color', 'color' ),
                 BlockEditor.getStandardProperty(props,'size', 'Size', 'size' ),
                 BlockEditor.getStandardProperty(props,'attached', 'Attached', 'attached' ),
                 BlockEditor.getStandardProperty(props,'floating', 'Floating', 'checkbox' ),
