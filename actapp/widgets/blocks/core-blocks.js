@@ -161,6 +161,13 @@
                 theAtts[tmpName] = {type:'boolean'};
             }
          }
+         BlockEditor.addNumberAtts = function(theAtts,theNames){
+            for (var iPos = 0; iPos < theNames.length; iPos++) {
+                var tmpName = theNames[iPos];
+                theAtts[tmpName] = {type:'number',default:0};
+            }
+         }
+         
          BlockEditor.addAtt = function(theAtts, theAttName, theOptions){
             var tmpOptions = theOptions;
             if(!(tmpOptions)){
@@ -251,12 +258,21 @@
                 var tmpIsChecked = tmpAtts[theAttName];
                 var tmpEl = el(wp.components.ToggleControl,{label: theLabel, checked: tmpIsChecked, onChange: tmpFunc});
                 tmpContents.push(tmpEl);
+            } else if( theControlType == 'url') {
+                var tmpFunc = function( theURL, thePost ) {
+                    tmpToSet = {};
+                    tmpToSet[theAttName] = theURL;
+                    theProps.setAttributes(tmpToSet);
+                }
+                var tmpEl = el(wp.editor.URLInput, {onChange: tmpFunc, value: tmpAtts[theAttName] || ''},'Browse for Link');
+                tmpContents.push(tmpEl);
             } else {
                 //--- Call the dynamic function to get the type for this property
                 tmpContents.push(BlockEditor[tmpFunc](tmpAtts[theAttName],tmpOnChange));
+                tmpContents.push(BlockEditor.getOptionSep());
             }
 
-            tmpContents.push(BlockEditor.getOptionSep());
+            
             return el('div',{},tmpContents);
         }
 
