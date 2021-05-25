@@ -181,7 +181,7 @@
         
         function getFunctionForType(theControlType){
             var tmpCT = (theControlType||'').toLowerCase();
-            if( tmpCT == 'text' ){
+            if( tmpCT == 'text'  || tmpCT == 'number' ){
                 return 'getTextControl';
             }
             if( tmpCT == 'color' ){
@@ -196,6 +196,10 @@
             if( tmpCT == 'alignment' ){
                 return 'getAlignmentListControl';
             }            
+            if( tmpCT == 'columns' ){
+                return 'getColumnListControl';
+            }            
+            
             
             
             return 'getTextControl';
@@ -243,8 +247,19 @@
 
             var tmpOnChange = theOnChange || function ( theEvent ) {
                 var tmpObjAtts = {};
-                tmpObjAtts[theAttName] = theEvent.target.value;
-                theProps.setAttributes( tmpObjAtts )
+                var tmpVal = (theEvent.target.value);
+                if( theControlType == 'number'){
+                   tmpVal = parseInt(tmpVal);
+                   if (!(tmpVal)){
+                    tmpVal = 0;
+                   }
+                }
+                tmpObjAtts[theAttName] = tmpVal;
+                theProps.setAttributes( tmpObjAtts );
+                if( theControlType == 'number' || theControlType == 'string' ){
+                    BlockEditor.refreshBlockEditor();
+                }
+               
             };
 
             var tmpFunc = getFunctionForType(theControlType) || 'getDefaultControl';
