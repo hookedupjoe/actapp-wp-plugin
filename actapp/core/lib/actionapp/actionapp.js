@@ -569,13 +569,14 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
             if (!(tmpExists)) {
 
-                var tmpURL = tmpURI.uri;
+                var tmpURL = tmpURI.uri;                
                 if (!(tmpURI.uri.endsWith('/') || (tmpURI.uri.indexOf('?') > -1) || tmpURI.uri.endsWith('.xsp'))) {
                     //--- Do not add extn to flat items
                     tmpURL += me.getExtnForType(tmpURI.type);
                 }
-                tmpURL = assureRelative(tmpURL);
-                //ThisApp.appMessage("Getting " + tmpURL);
+                if (!(tmpURI.uri.startsWith('http:') || tmpURI.uri.startsWith('https:'))) {
+                    tmpURL = assureRelative(tmpURL);
+                }
 
                 tmpRequests.push(tmpURI);
                 tmpDefs.push(
@@ -2511,7 +2512,8 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                 var tmpPageName = tmpPageNames[iPageName];
                 var tmpPage = ThisApp.getPage(tmpPageName);
                 if (!(tmpPage)) {
-                    var tmpURL = './app/pages/' + tmpPageName + '/index.js?open'
+                    var tmpPageBase = theAppConfig.pageBaseURL || './app/pages/';
+                    var tmpURL = tmpPageBase + tmpPageName + '/index.js?open'
                     tmpDefs.push($.ajax({
                         url: tmpURL,
                         dataType: "script"

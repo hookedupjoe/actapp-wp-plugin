@@ -61,10 +61,18 @@ class ActAppWidgetManager {
 
 	public static function actapp_init_blocks($theHook) {
 		
-			//--- Load the action app library when blocks initializes
-			actapp_load_scripts($theHook);
+		$tmpConfig = array(
+			'baseURL'=>self::baseURL(),
+			'catalogURL'=>self::baseURL() . '/catalog'
+		);
 
-			//--- Load the action app core components and ActionAppCore.blocks add on
+		$tmpJson = json_encode($tmpConfig);
+		$tmpScript = 'window.ActionAppCore.BlockManagerConfig = ' . $tmpJson;
+		actapp_setup_scripts($theHook);
+		wp_add_inline_script( 'app-only-preinit', $tmpScript );
+		
+			wp_register_style( 'aa-core-blocks_css',   ACTAPP_WIDGETS_URL . '/css/wp-blocks.css', false,  $my_css_ver );
+			//--- Load the action app core components and ActionAppCore.common.blocks add on
 			wp_enqueue_script(
 				'actapp-core-blocks', 
 				ACTAPP_WIDGETS_URL . '/blocks/core-blocks.js',
@@ -72,7 +80,8 @@ class ActAppWidgetManager {
 				true
 			);
 			//--- Load standardly created widgets;
-			$tmpWidgetList = array('segment','header','cards', 'card', 'message', 'button');
+			$tmpWidgetList = array('segment','header','card', 'cards', 'message', 'button');
+			//ToAdd _. , 'buttons'
 			foreach ($tmpWidgetList as $aName) {
 				self::loadStandardBlock($aName);
 			}

@@ -7,6 +7,7 @@
       return;
   } 
   var tmpPluginNames = [];
+  
   setup(false, tmpPluginNames, false);
 
   ActionAppCore = ActionAppCore || window.ActionAppCore;
@@ -28,6 +29,7 @@
 
       //--- Items to load when the application loads
       var tmpRequired = {}
+      
       ActionAppCore.subscribe('app-loaded', function(){
         ThisApp.initAppComponents();
       });
@@ -52,8 +54,6 @@
       console.error("Unexpected Error " + ex);
     }
   }
-
-
 
 
 

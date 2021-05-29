@@ -22,7 +22,7 @@
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
-    var BlockEditor = ActionAppCore.blocks.Editor;
+    var BlockEditor = ActionAppCore.common.blocks.Editor;
     
     var info = {
         name: 'message',
@@ -33,7 +33,7 @@
         category: 'actappui',
         atts: {}
     };
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
+    const iconEl = BlockEditor.getControlIcon(info.name);
 
     BlockEditor.addBooleanAtts(info.atts,['floating', 'compact']);
     BlockEditor.addStringAtts(info.atts,['color','size','attached']);

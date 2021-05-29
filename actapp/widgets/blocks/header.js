@@ -22,7 +22,7 @@
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
-    var BlockEditor = ActionAppCore.blocks.Editor;
+    var BlockEditor = ActionAppCore.common.blocks.Editor;
 
     var info = {
         name: 'header',
@@ -33,7 +33,7 @@
         category: 'actappui',
         atts: {}
     };
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
+    const iconEl = BlockEditor.getControlIcon(info.name);
     BlockEditor.addStringAtts(info.atts,['text','color','size', 'subtext', 'attached', 'alignment']);
     BlockEditor.addBooleanAtts(info.atts,['dividing','block','inverted']);
     var tmpClassSpecs = {

@@ -23,9 +23,29 @@
     var el = wp.element.createElement;
 
     function initBlockEditor(){
+        var tmpBaseURL = ActionAppCore.BlockManagerConfig.catalogURL;
+
+        var tmpRequired = {
+            panels: {
+                baseURL: tmpBaseURL + '/panels/',
+                map: {'nested.json?ver=1':'nested'}
+            },
+            templates: {
+                baseURL: tmpBaseURL + '/templates/',
+                map: {"demo1.html?ver=1":"demo1"}
+            }
+        };
+
+        ActionAppCore.config = ActionAppCore.config || {};
+        ActionAppCore.config.required = ActionAppCore.config.required || {};
         
+		ActionAppCore.config.required = tmpRequired;
+        $.extend(ActionAppCore.config.required, tmpRequired);
+
+        ActionAppCore.common = ActionAppCore.common || {};
+
         //--- Create entry point from Action App entrypoint
-        ActionAppCore.blocks = {
+        ActionAppCore.common.blocks = {
             Editor: BlockEditor
         };
         

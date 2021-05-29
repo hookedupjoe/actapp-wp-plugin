@@ -22,7 +22,7 @@
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
-    var BlockEditor = ActionAppCore.blocks.Editor;
+    var BlockEditor = ActionAppCore.common.blocks.Editor;
 
     var info = {
         name: 'segment',
@@ -33,7 +33,7 @@
         category: 'actappui',
         atts: {}
     };
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
+    const iconEl = BlockEditor.getControlIcon(info.name);
 
     BlockEditor.addStringAtts(info.atts,['color','size']);
     BlockEditor.addBooleanAtts(info.atts,['raised','stacked','vertical']);
@@ -47,11 +47,12 @@
     function getDisplayValue(theProps,theIsEditMode){
         var props = theProps;
         var tmpClass = getClass(props, true);
-
+        var tmpAtts = {className:tmpClass};
+        tmpAtts.spot = 'segmentspot';
         if( theIsEditMode ){
-            return BlockEditor.el('div', tmpClass,  [el( wp.blockEditor.InnerBlocks )]);
+            return el('div', tmpAtts,  [el( wp.blockEditor.InnerBlocks )]);
         } else {
-            return BlockEditor.el('div', tmpClass, el( wp.blockEditor.InnerBlocks.Content ));
+            return el('div', tmpAtts, el( wp.blockEditor.InnerBlocks.Content ));
         }
         
     }

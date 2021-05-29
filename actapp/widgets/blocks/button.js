@@ -22,7 +22,7 @@
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
-    var BlockEditor = ActionAppCore.blocks.Editor;
+    var BlockEditor = ActionAppCore.common.blocks.Editor;
 
     var info = {
         name: 'button',
@@ -33,7 +33,7 @@
         category: 'actappui',
         atts: {}
     };
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
+    const iconEl = BlockEditor.getControlIcon(info.name);
 
     BlockEditor.addBooleanAtts(info.atts,['fluid','compact','basic','circular','urlopentab']);
     BlockEditor.addStringAtts(info.atts,['text','color','size', 'attached', 'alignment', 'url']);
@@ -101,6 +101,7 @@
         },
  
         save: function ( props ) {
+            //not using blockProps, need clean HTML
             var tmpClass = getClass(props, false);
             var tmpContent = getContent(props, false);
             var tmpAtts = props.attributes;

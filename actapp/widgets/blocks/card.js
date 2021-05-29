@@ -21,7 +21,7 @@
     
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
-    var BlockEditor = ActionAppCore.blocks.Editor;
+    var BlockEditor = ActionAppCore.common.blocks.Editor;
     
     var info = {
         name: 'card',
@@ -32,7 +32,7 @@
         category: 'actappui',
         atts: {}
     };
-    const iconEl = ActionAppCore.blocks.Editor.getControlIcon(info.name);
+    const iconEl = BlockEditor.getControlIcon(info.name);
 
     BlockEditor.addNumberAtts(info.atts,['parentMaxImgHeight', 'mediaID']);
     BlockEditor.addBooleanAtts(info.atts,['fluid', 'raised']);
@@ -111,79 +111,17 @@
             props.attributes.parentColor = tmpParentAttributes.color || '';
             props.attributes.parentMaxImgHeight = tmpParentAttributes.maxImageHeight || 0;
 
-            //or use temp parent id
             var tmpParentColor = tmpParentAttributes.color || '';
-            
-            function onChangeURL( theURL, thePost ) {
-                props.setAttributes( { url: theURL } );
-            }
-            
 
-            var onSelectImage = function( media ) {
-				return props.setAttributes( {
-					mediaURL: media.url,
-					mediaID: media.id,
-				} );
-			};
-
-            var onRemoveImage = function(){
-                return props.setAttributes( {
-					mediaURL: '',
-					mediaID: 0,
-				} );
-            }
-
-            
-
-            
             var tmpStandardProperties = [
-                            //BlockEditor.getOptionLabel('Card Title'),
-                            // BlockEditor.getTextControl(props.attributes.title,onChangeTitle),
-                            // BlockEditor.getOptionSep(),
-                            // BlockEditor.getOptionLabel('Card Sub Title'),
-                            // BlockEditor.getTextControl(props.attributes.subtitle,onChangeSubTitle),
-                            // BlockEditor.getOptionSep(),
-                            // BlockEditor.getOptionLabel('Card Text'),
-                            // BlockEditor.getTextControl(props.attributes.text,onChangeText),
-                            // BlockEditor.getOptionSep(),
-                            // tmpParentColor ? '' : BlockEditor.getOptionLabel('Card Color'),
-                            // tmpParentColor ? '' : BlockEditor.getColorListControl(props.attributes.color,onChangeColor),
-                            // tmpParentColor ? '' : BlockEditor.getOptionSep(),                            
-                            BlockEditor.getStandardProperty(props,'title', 'Card Title'),
-                            BlockEditor.getStandardProperty(props,'subtitle', 'Subtitle' ),
-                            BlockEditor.getStandardProperty(props,'text', 'Text' ),
-                            tmpParentColor ? '' : BlockEditor.getStandardProperty(props,'color', 'Card Color', 'color' ),
-                            BlockEditor.getStandardProperty(props,'url', 'Target Content or Link', 'url' ),
-                                        
-                            // el('div',{className:'ui label black fluid'},'Link URL'),
-                            // el(wp.editor.URLInput, {onChange: onChangeURL, value: props.attributes.url || ''},'Browse for Link'),
-                            // BlockEditor.getOptionSep(), 
-                            
-                            BlockEditor.getStandardProperty(props,{mediaID:'mediaID',mediaURL:'mediaURL'}, 'Card Image', 'image' ),
-                            
-                            // el('div',{className:'ui label black fluid'},'Card Image'),
-                            //     el( MediaUpload, {
-                            //         onSelect: onSelectImage,
-                            //         type: 'image',
-                            //         value: props.attributes.mediaID,
-                            //         render: function( obj ) {
-                                        
-                            //             if( !props.attributes.mediaID ){
-                            //                 return el('div',{className:'pad2'},
-                            //                     el('div', {className:'ui button blue basic', onClick: obj.open}, 'Set Card Image')
-                            //                 )
-                            //             } else {
-                            //                 return el('div',{className:'pad2'},
-                            //                 el('div', {className:'ui button blue basic', onClick: obj.open}, 'Replace'),
-                            //                 el('div', {className:'ui button blue basic', onClick: onRemoveImage}, 'Remove'),                                            
-                            //                     el('div',{className:'pad2'}),
-                            //                     el('img',{className:'ui image rounded fluid', src:props.attributes.mediaURL})
-                            //                 )
-                            //             }
-                            //         }
-                            //     } )
-
+                BlockEditor.getStandardProperty(props,'title', 'Card Title'),
+                BlockEditor.getStandardProperty(props,'subtitle', 'Subtitle' ),
+                BlockEditor.getStandardProperty(props,'text', 'Text' ),
+                tmpParentColor ? '' : BlockEditor.getStandardProperty(props,'color', 'Card Color', 'color' ),
+                BlockEditor.getStandardProperty(props,'url', 'Target Content or Link', 'url' ),
+                BlockEditor.getStandardProperty(props,{mediaID:'mediaID',mediaURL:'mediaURL'}, 'Card Image', 'image' ),
             ];
+
             var tmpSidebarPanels = [
                 BlockEditor.getSidebarPanel('Card Options', tmpStandardProperties)
             ];
@@ -191,7 +129,6 @@
             var tmpSidebarControls = BlockEditor.getSidebarControls(tmpSidebarPanels);
 
             var tmpDisplayObject = getDisplayValue(props,true);
-
 
             return el(
                 'div',
@@ -205,7 +142,7 @@
         },
  
         save: function ( props ) {
-            //var blockProps = useBlockProps.save();
+            //not using blockProps, need clean HTML
             var tmpEl = getDisplayValue(props,false)
             return tmpEl;
         },

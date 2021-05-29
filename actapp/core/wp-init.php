@@ -64,7 +64,7 @@ require_once ACTAPP_CORE_LIB . '/class-actapp-capability.php';
 
 
 
-function actapp_load_scripts($hook) {
+function actapp_setup_scripts($hook) {
  
 	$tmplibloc = ACTAPP_CORE_LIB_URL . '/';
  	//--- To use local designer files
@@ -84,7 +84,6 @@ function actapp_load_scripts($hook) {
 
 			wp_register_style( 'aa-appframe',    $tmplibloc . 'lib/css/appframe.css', false,   $my_css_ver );
 			wp_enqueue_style ( 'aa-appframe' );
-			wp_register_style( 'aa-core-blocks_css',    $tmplibloc . 'lib/css/wp-blocks.css', false,  $my_css_ver );
 
 			wp_register_style( 'aa-resp-grid',    $tmplibloc . 'lib/css/resp-grid.css', false,   $my_css_ver );
 			wp_enqueue_style ( 'aa-resp-grid' );
@@ -102,14 +101,15 @@ function actapp_load_scripts($hook) {
 			wp_enqueue_script( 'tabulator_xlsx', $tmplibloc . 'lib/tabulator/addons/xlsx.full.min.js', array(), $my_js_ver );
 
 			
-			wp_enqueue_script( 'app-only-init', $tmplibloc . 'lib/actionapp/app-only-init.js', array(), $my_js_ver, true );
+			wp_enqueue_script( 'app-only-preinit', $tmplibloc . 'lib/actionapp/app-only-preinit.js', array(), $my_js_ver );
+			wp_enqueue_script( 'app-only-init', $tmplibloc . 'lib/actionapp/app-only-init.js', array(), $my_js_ver,true );
 
 
 			
  
 }
 
-add_action('wp_enqueue_scripts', 'actapp_load_scripts',20);
+add_action('wp_enqueue_scripts', 'actapp_setup_scripts',20);
 
 
 
