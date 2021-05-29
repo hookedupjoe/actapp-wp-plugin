@@ -59,8 +59,7 @@ class ActAppWidgetManager {
 		wp_enqueue_style ( 'aa-core-blocks_css' );
 	}
 
-	public static function actapp_init_blocks($theHook) {
-		
+	public static function actapp_init_blocks_content($theHook) {
 		$tmpConfig = array(
 			'baseURL'=>self::baseURL(),
 			'catalogURL'=>self::baseURL() . '/catalog'
@@ -71,20 +70,34 @@ class ActAppWidgetManager {
 		actapp_setup_scripts($theHook);
 		wp_add_inline_script( 'app-only-preinit', $tmpScript );
 		
-			wp_register_style( 'aa-core-blocks_css',   ACTAPP_WIDGETS_URL . '/css/wp-blocks.css', false,  $my_css_ver );
-			//--- Load the action app core components and ActionAppCore.common.blocks add on
-			wp_enqueue_script(
-				'actapp-core-blocks', 
-				ACTAPP_WIDGETS_URL . '/blocks/core-blocks.js',
-				array('wp-blocks','wp-editor','wp-element'),
-				true
-			);
-			//--- Load standardly created widgets;
-			$tmpWidgetList = array('segment','header','card', 'cards', 'message', 'button');
-			//ToAdd _. , 'buttons'
-			foreach ($tmpWidgetList as $aName) {
-				self::loadStandardBlock($aName);
-			}
+		
+		//wp_register_style( 'aa-core-blocks-content_css',   ACTAPP_WIDGETS_URL . '/css/wp-blocks-content.css', false,  $my_css_ver );
+		//--- Load the action app core components and ActionAppCore.common.blocks add on
+		wp_enqueue_script(
+			'actapp-core-blocks-content', 
+			ACTAPP_WIDGETS_URL . '/blocks/core-blocks-content.js',
+			array(),
+			true
+		);
+	}
+
+	public static function actapp_init_blocks($theHook) {
+		
+	
+		wp_register_style( 'aa-core-blocks_css',   ACTAPP_WIDGETS_URL . '/css/wp-blocks.css', false,  $my_css_ver );
+		//--- Load the action app core components and ActionAppCore.common.blocks add on
+		wp_enqueue_script(
+			'actapp-core-blocks', 
+			ACTAPP_WIDGETS_URL . '/blocks/core-blocks.js',
+			array('wp-blocks','wp-editor','wp-element'),
+			true
+		);
+		//--- Load standardly created widgets;
+		$tmpWidgetList = array('segment','header','card', 'cards', 'message', 'button');
+		//ToAdd _. , 'buttons'
+		foreach ($tmpWidgetList as $aName) {
+			self::loadStandardBlock($aName);
+		}
 
 			
 	}
@@ -92,6 +105,7 @@ class ActAppWidgetManager {
 	public static function init() {
 		add_filter('block_categories',  array('ActAppWidgetManager','actapp_block_category'), 10, 2);
 		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks'),10,2);
+		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks_content'),10,2);
 	}
 
 

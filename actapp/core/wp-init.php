@@ -103,13 +103,14 @@ function actapp_setup_scripts($hook) {
 			
 			wp_enqueue_script( 'app-only-preinit', $tmplibloc . 'lib/actionapp/app-only-preinit.js', array(), $my_js_ver );
 			wp_enqueue_script( 'app-only-init', $tmplibloc . 'lib/actionapp/app-only-init.js', array(), $my_js_ver,true );
-
+			
 
 			
  
 }
 
 add_action('wp_enqueue_scripts', 'actapp_setup_scripts',20);
+add_action('wp_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);
 
 
 

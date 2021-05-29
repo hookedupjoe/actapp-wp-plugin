@@ -45,11 +45,13 @@
 
         ActionAppCore.common = ActionAppCore.common || {};
 
+        ActionAppCore.common.blocks = ActionAppCore.common.blocks || {};
+
         //--- Create entry point from Action App entrypoint
-        ActionAppCore.common.blocks = {
-            Editor: BlockEditor
-        };
+        ActionAppCore.common.blocks.Editor = BlockEditor;
         window.ActAppBlockEditor = BlockEditor;
+
+        
         
         BlockEditor.refreshBlockEditor = function(){
             wp.data.dispatch('core/editor').synchronizeTemplate();
@@ -75,46 +77,6 @@
             return tmpParentAttributes;
         }
 
-        BlockEditor.getCatalogTemplate = function(theName){
-            var tmpMap = {};
-            tmpMap[theName] = theName;
-            return ThisApp.loadResources({
-                templates: {
-                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/templates/',
-                    map: tmpMap
-                }
-            })
-        }
-        BlockEditor.getCatalogPanel = function(theName){
-            var tmpMap = {};
-            tmpMap[theName] = theName;
-            return ThisApp.loadResources({
-                panels: {
-                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/panels/',
-                    map: tmpMap
-                }
-            })
-        }
-        BlockEditor.getCatalogControl = function(theName){
-            var tmpMap = {};
-            tmpMap[theName] = theName;
-            return ThisApp.loadResources({
-                controls: {
-                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/controls/',
-                    map: tmpMap
-                }
-            })
-        }
-        BlockEditor.getCatalogHTML = function(theName){
-            var tmpMap = {};
-            tmpMap[theName] = theName;
-            return ThisApp.loadResources({
-                html: {
-                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/html/',
-                    map: tmpMap
-                }
-            })
-        }
 
         //Todo: Review need for this ...
         BlockEditor.el = function (theType,theClass,theContent,theOptionalAtts){
