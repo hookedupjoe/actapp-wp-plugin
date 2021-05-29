@@ -2,3 +2,9 @@
     width: 100%;
     font-size: 13px;    
 }
+
+i.arrow:after {
+    z-index: auto;
+    background-color: transparent;
+    box-shadow: none;
+}

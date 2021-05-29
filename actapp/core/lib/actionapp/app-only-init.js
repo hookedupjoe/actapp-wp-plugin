@@ -3,7 +3,6 @@
 
   var tmpBody = $('body');     
   if( tmpBody.length == 0 ){
-      //console.log('App Only Init - No Body Found - Aborting Init');
       return;
   } 
   var tmpPluginNames = [];

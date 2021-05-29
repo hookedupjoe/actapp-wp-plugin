@@ -13,14 +13,14 @@
 					"size": "large",
 					"onClick": {
 						"run": "publish",
-						"event": "blueButton",
-						"validate": true
+						"event": "bluebutton",
+						"validate": false
 					},
 					"labeled": true,
 					"right": true,
 					"icon": "arrow right",
 					"name": "btn-blue",
-					"text": "Publish Blue Hit"
+					"text": "Publish bluebutton event"
 				},
 				{
 					"ctl": "button",

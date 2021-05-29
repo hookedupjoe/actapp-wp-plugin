@@ -24,15 +24,16 @@
 
     function initBlockEditor(){
         var tmpBaseURL = ActionAppCore.BlockManagerConfig.catalogURL;
-
+        //--- Load stuff we need on startup, can load dynamically as needed, 
+        //      so only use this for suff needed on startup
         var tmpRequired = {
             panels: {
                 baseURL: tmpBaseURL + '/panels/',
-                map: {'nested.json?ver=1':'nested'}
+                map: {'nested':'nested'}
             },
             templates: {
                 baseURL: tmpBaseURL + '/templates/',
-                map: {"demo1.html?ver=1":"demo1"}
+                map: {"demo1":"demo1"}
             }
         };
 
@@ -48,6 +49,7 @@
         ActionAppCore.common.blocks = {
             Editor: BlockEditor
         };
+        window.ActAppBlockEditor = BlockEditor;
         
         BlockEditor.refreshBlockEditor = function(){
             wp.data.dispatch('core/editor').synchronizeTemplate();
@@ -72,8 +74,49 @@
             }
             return tmpParentAttributes;
         }
-  
 
+        BlockEditor.getCatalogTemplate = function(theName){
+            var tmpMap = {};
+            tmpMap[theName] = theName;
+            return ThisApp.loadResources({
+                templates: {
+                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/templates/',
+                    map: tmpMap
+                }
+            })
+        }
+        BlockEditor.getCatalogPanel = function(theName){
+            var tmpMap = {};
+            tmpMap[theName] = theName;
+            return ThisApp.loadResources({
+                panels: {
+                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/panels/',
+                    map: tmpMap
+                }
+            })
+        }
+        BlockEditor.getCatalogControl = function(theName){
+            var tmpMap = {};
+            tmpMap[theName] = theName;
+            return ThisApp.loadResources({
+                controls: {
+                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/controls/',
+                    map: tmpMap
+                }
+            })
+        }
+        BlockEditor.getCatalogHTML = function(theName){
+            var tmpMap = {};
+            tmpMap[theName] = theName;
+            return ThisApp.loadResources({
+                html: {
+                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/html/',
+                    map: tmpMap
+                }
+            })
+        }
+
+        //Todo: Review need for this ...
         BlockEditor.el = function (theType,theClass,theContent,theOptionalAtts){
             var tmpAtts = theOptionalAtts || {};
             if( theClass ){

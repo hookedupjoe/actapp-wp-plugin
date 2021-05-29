@@ -553,7 +553,8 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
             var tmpExists = false;
             var tmpExisting = false;
-            if (ThisApp.resCache[tmpURI.type] && ThisApp.resCache[tmpURI.type][tmpURI.uri]) {
+            var tmpLocalExists = tmpThis.res[tmpURI.type] && tmpThis.res[tmpURI.type][(tmpURI.name)];
+            if (tmpLocalExists || ThisApp.resCache[tmpURI.type] && ThisApp.resCache[tmpURI.type][tmpURI.uri]) {
                 tmpExists = true;
                 tmpExisting = ThisApp.resCache[tmpURI.type][tmpURI.uri];
                 //--- If existing in cache, also load reference as resource name
@@ -796,14 +797,13 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
     me.addResource = function (theType, theName, theFullPath, theResourceData) {
         if (theType == 'templates') {
-            //--- Always add templates at the application level
+            //--- Always asssure templates are added at the application level
             ThisApp.addTemplate(theName, theResourceData);
-        } else {
-            this.res[theType] = this.res[theType] || {};
-            ThisApp.resCache[theType] = ThisApp.resCache[theType] || {};
-            ThisApp.resCache[theType][theFullPath] = theResourceData;
-            this.res[theType][theName] = theResourceData;
         }
+        this.res[theType] = this.res[theType] || {};
+        ThisApp.resCache[theType] = ThisApp.resCache[theType] || {};
+        ThisApp.resCache[theType][theFullPath] = theResourceData;
+        this.res[theType][theName] = theResourceData;
     }
 
     CoreApp.layoutTemplates = {
@@ -6443,6 +6443,8 @@ License: MIT
                             if (tmpIsValid) {
                                 this.publish(tmpEvent, [this, tmpPubParams, tmpTarget, theEvent])
                             }
+                        } else {
+                            this.publish(tmpEvent, [this, tmpPubParams, tmpTarget, theEvent])
                         }
                         
                     } else if (tmpToRun == 'action' || tmpToRun == 'pageaction') {
@@ -6542,6 +6544,7 @@ License: MIT
         if (tmpParams.controls && tmpParams.name) {
             var tmpFN = tmpParams.name;
             this.refreshForField(tmpFN);
+            this.publish('field-changed',[this,tmpFN]);
         }
     }
 
