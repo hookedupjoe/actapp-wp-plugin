@@ -18,9 +18,12 @@
  * @since actapp 1.0.22
  */
 
-( function ( ws,  ActionAppCore) {
+( function ( wp,  ActionAppCore) {
     var BlockEditor = {};
     var el = wp.element.createElement;
+
+    ActionAppCore.common = ActionAppCore.common || {};
+    ActionAppCore.common.blocks = ActionAppCore.common.blocks || {};
 
     function initBlockEditor(){
         var tmpBaseURL = ActionAppCore.BlockManagerConfig.catalogURL;

@@ -20,7 +20,9 @@
 
 ( function ( wp,  ActionAppCore) {
     
-    var BlocksController = {};
+    var BlocksController = {
+        parts: {}
+    };
 
     function init(){
         var tmpBaseURL = ActionAppCore.BlockManagerConfig.catalogURL;
@@ -33,47 +35,63 @@
         
         window.ActAppBlocksController = BlocksController;
 
-        
-        BlocksController.getCatalogTemplate = function(theName){
+
+        BlocksController.loadFromMarkup = function(){
+            var tmpFromMarkup = ThisApp.getByAttr$({appuse:'blockmarkup'});
+            var tmpEach = function(theIndex,theEl){
+                var tmpEachEl = $(theEl);
+                var tmpSourceType = tmpEachEl.attr('sourcetype');
+                var tmpSourceName = tmpEachEl.attr('sourcename');
+                var tmpSpotName = tmpEachEl.attr('spot');
+                var tmpSourcePartName = tmpEachEl.attr('sourcepartname') || tmpSourceName;
+                console.log('tmpSourcePartName',tmpSourcePartName);
+                
+                ActAppBlocksController.getCatalogItem(tmpSourceType, tmpSourceName).then(function(){
+                    var tmpInstance = ThisApp.getResourceForType(tmpSourceType, tmpSourceName).create('preview');
+                    tmpInstance.loadToElement(ThisApp.getSpot$(tmpSpotName).get(0)).then(function(){	
+                        if( tmpSourcePartName ){
+                            BlocksController.parts[tmpSourcePartName] = tmpInstance;
+                        }
+                        ThisApp.publish('partloaded', [this,tmpInstance]);
+                        console.log('loaded',tmpInstance);
+                    });
+
+                });
+            }
+            //tmpFromMarkup.
+            return tmpFromMarkup.each(tmpEach);
+            
+
+        }
+
+        BlocksController.getCatalogItem = function(theType, theName, theOptionalCatalogName){
+            var tmpType = theType || 'panels';
+            var tmpName = theName || '';
+            if( !(tmpName) ){
+                return false;
+            }
+            tmpBaseCatalogURL = ActionAppCore.BlockManagerConfig.catalogURL;
+            if( theOptionalCatalogName ){
+                //todo: support additional catalog locations
+            }
             var tmpMap = {};
             tmpMap[theName] = theName;
-            return ThisApp.loadResources({
-                templates: {
-                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/templates/',
-                    map: tmpMap
-                }
-            })
+            var tmpRequestedItems = {}
+            tmpRequestedItems[tmpType] = {
+                baseURL: tmpBaseCatalogURL + '/' + tmpType + '/',
+                map: tmpMap
+            }
+            return ThisApp.loadResources(tmpRequestedItems)
         }
-        BlocksController.getCatalogPanel = function(theName){
-            var tmpMap = {};
-            tmpMap[theName] = theName;
-            return ThisApp.loadResources({
-                panels: {
-                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/panels/',
-                    map: tmpMap
-                }
-            })
-        }
-        BlocksController.getCatalogControl = function(theName){
-            var tmpMap = {};
-            tmpMap[theName] = theName;
-            return ThisApp.loadResources({
-                controls: {
-                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/controls/',
-                    map: tmpMap
-                }
-            })
-        }
-        BlocksController.getCatalogHTML = function(theName){
-            var tmpMap = {};
-            tmpMap[theName] = theName;
-            return ThisApp.loadResources({
-                html: {
-                    baseURL: ActionAppCore.BlockManagerConfig.catalogURL + '/html/',
-                    map: tmpMap
-                }
-            })
-        }
+
+        ActionAppCore.subscribe('app-loaded', function(){
+            ThisApp.actions.updatePreview = function(){
+                ActAppBlocksController.loadFromMarkup();
+            }
+            ThisApp.delay(5).then(function(){
+                ActAppBlocksController.loadFromMarkup();
+            });
+        })
 
         
     }

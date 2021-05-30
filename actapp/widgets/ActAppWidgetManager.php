@@ -70,7 +70,7 @@ class ActAppWidgetManager {
 		actapp_setup_scripts($theHook);
 		wp_add_inline_script( 'app-only-preinit', $tmpScript );
 		
-		
+
 		//wp_register_style( 'aa-core-blocks-content_css',   ACTAPP_WIDGETS_URL . '/css/wp-blocks-content.css', false,  $my_css_ver );
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
@@ -104,8 +104,8 @@ class ActAppWidgetManager {
 
 	public static function init() {
 		add_filter('block_categories',  array('ActAppWidgetManager','actapp_block_category'), 10, 2);
-		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks'),10,2);
 		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks_content'),10,2);
+		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks'),10,2);
 	}
 
 
