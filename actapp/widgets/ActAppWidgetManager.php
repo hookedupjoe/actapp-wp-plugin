@@ -106,8 +106,26 @@ class ActAppWidgetManager {
 		add_filter('block_categories',  array('ActAppWidgetManager','actapp_block_category'), 10, 2);
 		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks_content'),10,2);
 		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks'),10,2);
+		self::setup_data();
 	}
 
+	// //Custom acf endpoint;
+	// public static function dev_endpoint( $request_data ) {
+	// 	return array('version'=>'V1.1.1');
+	// }
+
+	
+	public static function setup_data() {
+		
+// // register the endpoint;
+// add_action( 'rest_api_init', function () {
+// 	register_rest_route( 'aawm/v1', 'blocksdev/', array(
+// 		'methods' => 'GET',
+// 		'callback' => array('ActAppWidgetManager', 'dev_endpoint'),
+// 		)
+// 	);
+// });
+	}
 
 	
 	public static function baseDir() {
@@ -119,7 +137,51 @@ class ActAppWidgetManager {
 	
 }
 
+//--- Demo of a widget that uses server side rendering
 //require_once ACTAPP_WIDGETS_DIR . '/blocks/ActAppDynamicCard/Object.php';
 
 add_action( 'init', array( 'ActAppWidgetManager', 'init' ) );
 
+
+
+
+
+
+
+
+
+
+
+//--- Demo of json endpoint
+class Latest_Posts_Controller extends WP_REST_Controller {
+	public function register_routes() {
+	  $namespace = 'actappwm';
+	  $path = 'projects';
+	  $routeInfo = array(
+		'methods'             => 'GET',
+		'callback'            => array( $this, 'get_items' ),
+		'permission_callback' => array( $this, 'get_items_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+	}
+
+	public function get_items_permissions_check($request) {
+		return true;
+	}
+
+	public function get_items($request) {
+		$args = array(
+			'posttype' => $request['posttype'] || 'projects'
+		);
+		$posts = get_posts($args);
+		if (empty($posts)) {
+			return new WP_Error( 'empty_category', 'there is no post of this type', array( 'status' => 404 ) );
+		}
+		return new WP_REST_Response($posts, 200);
+	}
+
+  }
+  add_action('rest_api_init', function () {           
+	$tmpController = new Latest_Posts_Controller();
+	$tmpController->register_routes();
+  });

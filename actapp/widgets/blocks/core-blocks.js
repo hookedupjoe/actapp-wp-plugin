@@ -93,6 +93,15 @@
             return el(theType,tmpAtts);
         }
 
+
+        BlockEditor.getCommonBlock = function(theElementName){
+            return CommonBlocks.getBlock(theElementName);
+        }
+        BlockEditor.getCommonBlocksListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = CommonBlocks.getSelection();
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
+        }
+
         BlockEditor.getColorListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [
                 el("option", {value: ""}, ""),
@@ -387,6 +396,50 @@
 
     //--- Initialize common block functionality for the editor
     initBlockEditor();
+
+    var CommonBlocks = {
+        order: ["standard-header","small-header","blue-message"],
+        lookup: {
+            "standard-header": {
+                type: 'actappui/header', 
+                name: "Standard Header",
+                attr: {
+                    size: 'large',
+                    color: 'blue'
+                }
+            },
+            "small-header": {
+                type: 'actappui/header', 
+                name: "Small Header",
+                attr: {
+                    size: 'small',
+                    color: 'blue'
+                }
+            },
+            "blue-message": {
+                type: 'actappui/message', 
+                name: "Blue Message",
+                attr: {
+                    color: 'blue'
+                }
+            }
+        },
+        getBlock: function(theName){
+            var tmpItem = this.lookup[theName];
+            if( !(tmpItem)){
+                return false;
+            }
+            return wp.blocks.createBlock(tmpItem.type, tmpItem.attr);
+        },
+        getSelection: function(){
+            var tmpRet = [
+                el("option", {value: ""}, "Add ...")
+            ];
+            tmpRet.push(el("option", {value: "standard-header"}, "Standard Header"));
+            tmpRet.push(el("option", {value: "blue-message"}, "Blue Message"));
+            return tmpRet;
+        }
+    }
 
 } )( window.wp, window.ActionAppCore );
 

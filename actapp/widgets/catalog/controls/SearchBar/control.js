@@ -48,7 +48,7 @@ License: MIT
 		]
 	}
 
-  var ControlCode = {
+  	var ControlCode = {
 		runSearch: runSearch,
 		clearSearch: clearSearch		
 	};

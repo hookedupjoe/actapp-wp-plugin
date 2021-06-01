@@ -18,12 +18,16 @@
  * @since actapp 1.0.22
  */
 
+ 
+
 ( function ( wp, ActionAppCore ) {
-    
+    var gSelectedAddItem = '';
+    var gToolbarSelection = '';
+
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
     var BlockEditor = ActionAppCore.common.blocks.Editor;
-
+    
     var info = {
         name: 'segment',
         title: 'UI Segment',
@@ -90,6 +94,7 @@
         example: info.example,
         attributes: info.atts,
         edit: function ( props ) {
+            
             var tmpPropAtts = props.attributes;
             if( tmpPropAtts.spotname ){
 
@@ -114,17 +119,37 @@
 
             var tmpSidebarPanels = [
                 BlockEditor.getSidebarPanel('Segment Options', tmpStandardProperties),
-                BlockEditor.getSidebarPanel('Developer Options', tmpDevProperties),
+                //BlockEditor.getSidebarPanel('Developer Options', tmpDevProperties),
             ];
 
             var tmpSidebarControls = BlockEditor.getSidebarControls(tmpSidebarPanels);
 
             var tmpDisplayObject = getDisplayValue(props,true);
+           
+            var tmpOnAddSelect = function(theEvent){
+                var tmpThis = wp.data.select( 'core/block-editor' ).getSelectedBlock();
+                var tmpPos = 0;
+                if( tmpThis.innerBlocks && tmpThis.innerBlocks.length ){
+                    tmpPos = tmpThis.innerBlocks.length;
+                }
+                var tmpItemToAdd = theEvent.nativeEvent.target.value || '';
+                var tmpToAddElement = BlockEditor.getCommonBlock(tmpItemToAdd);
+                wp.data.dispatch('core/editor').insertBlocks(tmpToAddElement,tmpPos,tmpThis.clientId) 
+            }
+            var tmpToolbarAdds = el(
+                wp.blockEditor.BlockControls,
+                { key: 'controls' },
+                [
+                    gToolbarSelection
+                ]
+            );
 
+            gToolbarSelection =  BlockEditor.getCommonBlocksListControl(gSelectedAddItem,tmpOnAddSelect);
             return el(
                 'div',
                 useBlockProps(),
                 [
+                    //tmpToolbarAdds,
                     tmpSidebarControls,               
                     tmpDisplayObject
                 ]
