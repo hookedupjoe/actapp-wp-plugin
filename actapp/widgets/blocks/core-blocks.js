@@ -132,6 +132,7 @@
             ];
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
+        
         BlockEditor.getSizeListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [
                 el("option", {value: ""}, ""),
@@ -162,7 +163,6 @@
             ];
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
-
         
         BlockEditor.NUMLOOKUPS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
         BlockEditor.getColumnListControl = function(theCurrentValue, theOnChangeEvent){

@@ -65,6 +65,7 @@ class ActAppWidgetManager {
 			'catalogURL'=>self::baseURL() . '/catalog'
 		);
 
+
 		$tmpJson = json_encode($tmpConfig);
 		$tmpScript = 'window.ActionAppCore.BlockManagerConfig = ' . $tmpJson;
 		actapp_setup_scripts($theHook);
@@ -72,6 +73,7 @@ class ActAppWidgetManager {
 		
 
 		//wp_register_style( 'aa-core-blocks-content_css',   ACTAPP_WIDGETS_URL . '/css/wp-blocks-content.css', false,  $my_css_ver );
+
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
 			'actapp-core-blocks-content', 
@@ -81,6 +83,11 @@ class ActAppWidgetManager {
 		);
 	}
 
+	public static function actapp_init_admin_scripts(){
+		wp_register_style( 'aa-core-admin_css',   ACTAPP_WIDGETS_URL . '/css/wp-admin.css', false,  $my_css_ver );
+		wp_enqueue_style ( 'aa-core-admin_css' );
+	}
+	
 	public static function actapp_init_blocks($theHook) {
 		
 	
@@ -135,12 +142,32 @@ class ActAppWidgetManager {
 		return ACTAPP_WIDGETS_URL;
 	}
 	
+
+	//---- Admin Settings
+	public static function showAdminPageWidgetsSettings(){
+		esc_html_e( 'showAdminPageWidgetsSettings', 'textdomain' );
+	}
+	public static function registerAdminPageWidgetsSettings(){
+		add_menu_page( 
+			__( 'UI Widget Settings'),
+			'UI Widgets',
+			'manage_options',
+			'actappwidgetsettings',
+			array( 'ActAppWidgetManager', 'showAdminPageWidgetsSettings' ),
+			plugins_url( 'actapp/images/icon.png' ),
+			81
+		); 
+	}
+
+
+
 }
 
 //--- Demo of a widget that uses server side rendering
 //require_once ACTAPP_WIDGETS_DIR . '/blocks/ActAppDynamicCard/Object.php';
 
 add_action( 'init', array( 'ActAppWidgetManager', 'init' ) );
+
 
 
 
@@ -180,8 +207,22 @@ class Latest_Posts_Controller extends WP_REST_Controller {
 		return new WP_REST_Response($posts, 200);
 	}
 
+
   }
   add_action('rest_api_init', function () {           
 	$tmpController = new Latest_Posts_Controller();
 	$tmpController->register_routes();
   });
+
+
+
+add_action( 'admin_menu', array( 'ActAppWidgetManager', 'registerAdminPageWidgetsSettings' ) );
+ 
+/**
+ * Display a custom menu page
+ */
+function my_custom_menu_page(){
+    esc_html_e( 'Admin Page Test', 'textdomain' );  
+}
+
+
