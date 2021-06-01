@@ -119,7 +119,7 @@
 
             var tmpSidebarPanels = [
                 BlockEditor.getSidebarPanel('Segment Options', tmpStandardProperties),
-                //BlockEditor.getSidebarPanel('Developer Options', tmpDevProperties),
+                BlockEditor.getSidebarPanel('Developer Options', tmpDevProperties),
             ];
 
             var tmpSidebarControls = BlockEditor.getSidebarControls(tmpSidebarPanels);
