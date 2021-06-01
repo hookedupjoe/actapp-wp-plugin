@@ -68,15 +68,3 @@ require_once ACTAPP_CORE_LIB . '/constants.php';
 require_once ACTAPP_CORE_LIB . '/wp-init.php';
 require_once ACTAPP_SLEEKDB_LIB . '/SleekDB.php';
 
-
-
-
- 
-
-require_once ACTAPP_WIDGETS_DIR . '/ActAppWidgetManager.php';
-
-
-
-
-
-

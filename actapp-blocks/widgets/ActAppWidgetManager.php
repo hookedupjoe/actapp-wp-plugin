@@ -15,8 +15,8 @@
  * This header and all notices must be kept intact.
  *
  * @author Joseph Francis
- * @package actapp
- * @since actapp 1.0.22
+ * @package actappblocks
+ * @since actappblocks 1.0.1
  */
 
 
@@ -52,7 +52,7 @@ class ActAppWidgetManager {
 		}
 		wp_enqueue_script(
 			$theName, 
-			ACTAPP_WIDGETS_URL . '/blocks/' . $tmpFN . '.js',
+			ACTAPP_BLOCKS_WIDGETS_URL . '/blocks/' . $tmpFN . '.js',
 			$tmpDepDefaults,
 			true
 		);
@@ -72,30 +72,30 @@ class ActAppWidgetManager {
 		wp_add_inline_script( 'app-only-preinit', $tmpScript );
 		
 
-		//wp_register_style( 'aa-core-blocks-content_css',   ACTAPP_WIDGETS_URL . '/css/wp-blocks-content.css', false,  $my_css_ver );
+		//wp_register_style( 'aa-core-blocks-content_css',   ACTAPP_BLOCKS_WIDGETS_URL . '/css/wp-blocks-content.css', false,  $my_css_ver );
 
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
 			'actapp-core-blocks-content', 
-			ACTAPP_WIDGETS_URL . '/blocks/core-blocks-content.js',
+			ACTAPP_BLOCKS_WIDGETS_URL . '/blocks/core-blocks-content.js',
 			array(),
 			true
 		);
 	}
 
 	public static function actapp_init_admin_scripts(){
-		wp_register_style( 'aa-core-admin_css',   ACTAPP_WIDGETS_URL . '/css/wp-admin.css', false,  $my_css_ver );
+		wp_register_style( 'aa-core-admin_css',   ACTAPP_BLOCKS_WIDGETS_URL . '/css/wp-admin.css', false,  $my_css_ver );
 		wp_enqueue_style ( 'aa-core-admin_css' );
 	}
 	
 	public static function actapp_init_blocks($theHook) {
 		
 	
-		wp_register_style( 'aa-core-blocks_css',   ACTAPP_WIDGETS_URL . '/css/wp-blocks.css', false,  $my_css_ver );
+		wp_register_style( 'aa-core-blocks_css',   ACTAPP_BLOCKS_WIDGETS_URL . '/css/wp-blocks.css', false,  $my_css_ver );
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
 			'actapp-core-blocks', 
-			ACTAPP_WIDGETS_URL . '/blocks/core-blocks.js',
+			ACTAPP_BLOCKS_WIDGETS_URL . '/blocks/core-blocks.js',
 			array('wp-blocks','wp-editor','wp-element'),
 			true
 		);
@@ -136,10 +136,10 @@ class ActAppWidgetManager {
 
 	
 	public static function baseDir() {
-		return ACTAPP_WIDGETS_DIR;
+		return ACTAPP_BLOCKS_WIDGETS_DIR;
 	}
 	public static function baseURL() {
-		return ACTAPP_WIDGETS_URL;
+		return ACTAPP_BLOCKS_WIDGETS_URL;
 	}
 	
 
@@ -164,7 +164,7 @@ class ActAppWidgetManager {
 }
 
 //--- Demo of a widget that uses server side rendering
-//require_once ACTAPP_WIDGETS_DIR . '/blocks/ActAppDynamicCard/Object.php';
+//require_once ACTAPP_BLOCKS_WIDGETS_DIR . '/blocks/ActAppDynamicCard/Object.php';
 
 add_action( 'init', array( 'ActAppWidgetManager', 'init' ) );
 
@@ -218,11 +218,4 @@ class Latest_Posts_Controller extends WP_REST_Controller {
 
 add_action( 'admin_menu', array( 'ActAppWidgetManager', 'registerAdminPageWidgetsSettings' ) );
  
-/**
- * Display a custom menu page
- */
-function my_custom_menu_page(){
-    esc_html_e( 'Admin Page Test', 'textdomain' );  
-}
-
 

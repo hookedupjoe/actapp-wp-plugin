@@ -106,13 +106,3 @@ function actapp_setup_scripts($hook) {
 			
  
 }
-
-add_action('wp_enqueue_scripts', 'actapp_setup_scripts',20);
-add_action('wp_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);
-
-
-add_action('admin_enqueue_scripts', 'actapp_setup_scripts',20);
-add_action('admin_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);
-add_action('admin_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_admin_scripts'),20);
-
-
