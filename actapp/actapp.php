@@ -27,9 +27,9 @@
  * Text Domain: actapp
  * License: GPLv3
  * 
- * Version: 1.0.22
+ * Version: 1.0.23
  */
-define( 'ACTAPP_CORE_VERSION', '1.0.22' );
+define( 'ACTAPP_CORE_VERSION', '1.0.23' );
  
 if ( !defined( 'ABSPATH' ) ) {
 	exit;
@@ -56,15 +56,5 @@ if ( !defined( 'ACTAPP_SLEEKDB_LIB' ) ) {
 	define( 'ACTAPP_SLEEKDB_LIB', ACTAPP_CORE_DIR . '/SleekDB' );
 }
 
-if ( !defined( 'ACTAPP_WIDGETS_DIR' ) ) {
-	define( 'ACTAPP_WIDGETS_DIR', ACTAPP_CORE_DIR . '/widgets' );
-}
-if ( !defined( 'ACTAPP_WIDGETS_URL' ) ) {
-	define( 'ACTAPP_WIDGETS_URL', ACTAPP_CORE_URL . '/widgets' );
-}
-
-
-require_once ACTAPP_CORE_LIB . '/constants.php';
-require_once ACTAPP_CORE_LIB . '/wp-init.php';
+require_once ACTAPP_CORE_DIR . '/inc/ActAppCommon.php';
 require_once ACTAPP_SLEEKDB_LIB . '/SleekDB.php';
-

@@ -1,8 +1,8 @@
 <?php
 /**
- * wp-init.php
- *
- * Copyright (c) Joseph Francis www.hookedup.com
+ * Server Side Widget Manager: ActAppCommon
+ * 
+ * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
@@ -15,56 +15,22 @@
  * This header and all notices must be kept intact.
  *
  * @author Joseph Francis
- * @package actapp
- * @since actapp 1.0.0
+ * @package actappblocks
+ * @since actappblocks 1.0.1
  */
 
-if ( !defined( 'ABSPATH' ) ) {
-	exit;
-}
 
-// startup
-global $actapp_version, $actapp_admin_messages;
+class ActAppCommon {
+	private static $instance;
+	public static function get_instance() {
+		if ( null == self::$instance ) {
+			self::$instance = new ActAppCommon();
+		}
+		return self::$instance;
+	}
 
-if ( !isset( $actapp_admin_messages ) ) {
-	$actapp_admin_messages = array();
-}
-
-if ( !isset( $actapp_version ) ) {
-	$actapp_version = ACTAPP_CORE_VERSION;
-}
-
-/**
- * Load core :
- */
-
-//--- utility
-require_once ACTAPP_CORE_LIB . '/class-actapp-utility.php';
-
-//--- sleekdb
-require_once ACTAPP_CORE_LIB . '/class-actapp-sleekdb.php';
-
-
-/*
-
-// options
-require_once ACTAPP_CORE_LIB . '/class-actapp-options.php';
-
-// plugin control: activation, deactivation, ...
-require_once ACTAPP_CORE_LIB . '/class-actapp-controller.php';
-
-
-// help
-if ( is_admin() ) {
-	require_once ACTAPP_CORE_LIB . '/class-actapp-help.php';
-}
-
-require_once ACTAPP_CORE_LIB . '/class-actapp-capability.php';
-*/
-
-
-
-function actapp_setup_scripts($hook) {
+    
+public static function setup_scripts($hook) {
  
 	$tmplibloc = ACTAPP_CORE_LIB_URL . '/';
  	//--- To use local designer files
@@ -106,3 +72,33 @@ function actapp_setup_scripts($hook) {
 			
  
 }
+
+
+    protected static function assure_doc($slug, $post_type, $title, $content){
+		$author_id = 1;
+		if( !self::post_exists_by_slug( $slug, $post_type ) ) {
+            // Set the post ID
+            wp_insert_post(
+                array(
+                    'comment_status'    =>   'closed',
+                    'ping_status'       =>   'closed',
+                    'post_author'       =>   $author_id,
+                    'post_name'         =>   $slug,
+                    'post_title'        =>   $title,
+                    'post_content'      =>  $content,
+                    'post_status'       =>   'publish',
+                    'post_type'         =>   $post_type
+                )
+			);
+		}
+	}
+	
+	public static function init() {
+        
+	}
+
+
+
+
+}
+add_action( 'init', array( 'ActAppCommon', 'init' ) );

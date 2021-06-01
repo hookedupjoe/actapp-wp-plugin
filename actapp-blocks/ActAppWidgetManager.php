@@ -68,7 +68,7 @@ class ActAppWidgetManager {
 
 		$tmpJson = json_encode($tmpConfig);
 		$tmpScript = 'window.ActionAppCore.BlockManagerConfig = ' . $tmpJson;
-		actapp_setup_scripts($theHook);
+		ActAppCommon::setup_scripts($theHook);
 		wp_add_inline_script( 'app-only-preinit', $tmpScript );
 		
 
@@ -145,7 +145,15 @@ class ActAppWidgetManager {
 
 	//---- Admin Settings
 	public static function showAdminPageWidgetsSettings(){
-		esc_html_e( 'showAdminPageWidgetsSettings', 'textdomain' );
+		//include ACTAPP_BLOCKS_WIDGETS_DIR . '/tpl/widgets-settings.php';
+		//get_template_part( 'tpl/widgets-settings' );
+		//echo 'hi';
+		include(ACTAPP_BLOCKS_DIR . '/tpl/widgets-settings.php');
+		
+	}
+
+	public static function getTest(){
+		return 'testing 123';
 	}
 	public static function registerAdminPageWidgetsSettings(){
 		add_menu_page( 
@@ -154,7 +162,7 @@ class ActAppWidgetManager {
 			'manage_options',
 			'actappwidgetsettings',
 			array( 'ActAppWidgetManager', 'showAdminPageWidgetsSettings' ),
-			plugins_url( 'actapp/images/icon.png' ),
+			plugins_url( 'actapp-blocks/images/icon.png' ),
 			81
 		); 
 	}
