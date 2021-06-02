@@ -52,7 +52,7 @@ class ActAppWidgetManager {
 		}
 		wp_enqueue_script(
 			$theName, 
-			ACTAPP_BLOCKS_DESIGN_URL . '/blocks/' . $tmpFN . '.js',
+			ACTAPP_BLOCKS_URL . '/blocks/' . $tmpFN . '.js',
 			$tmpDepDefaults,
 			true
 		);
@@ -74,7 +74,7 @@ class ActAppWidgetManager {
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
 			'actapp-blocks-controller', 
-			ACTAPP_BLOCKS_DESIGN_URL . '/BlocksController.js',
+			ACTAPP_BLOCKS_URL . '/js/BlocksController.js',
 			array(),
 			true
 		);
@@ -92,7 +92,7 @@ class ActAppWidgetManager {
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
 			'actapp-blocks-editor', 
-			ACTAPP_BLOCKS_DESIGN_URL . '/BlockEditor.js',
+			ACTAPP_BLOCKS_URL . '/js/BlockEditor.js',
 			array('wp-blocks','wp-editor','wp-element'),
 			true
 		);
@@ -133,16 +133,16 @@ class ActAppWidgetManager {
 
 	
 	public static function baseDir() {
-		return ACTAPP_BLOCKS_DESIGN_DIR;
+		return ACTAPP_BLOCKS_DIR;
 	}
 	public static function baseURL() {
-		return ACTAPP_BLOCKS_DESIGN_URL;
+		return ACTAPP_BLOCKS_URL;
 	}
 	
 
 	//---- Admin Settings
 	public static function showAdminPageWidgetsSettings(){
-		//include ACTAPP_BLOCKS_DESIGN_DIR . '/tpl/widgets-settings.php';
+		//include ACTAPP_BLOCKS_DIR . '/tpl/widgets-settings.php';
 		//get_template_part( 'tpl/widgets-settings' );
 		//echo 'hi';
 		include(ACTAPP_BLOCKS_DIR . '/tpl/widgets-settings.php');
@@ -169,7 +169,7 @@ class ActAppWidgetManager {
 }
 
 //--- Demo of a widget that uses server side rendering
-//require_once ACTAPP_BLOCKS_DESIGN_DIR . '/blocks/ActAppDynamicCard/Object.php';
+//require_once ACTAPP_BLOCKS_DIR . '/blocks/ActAppDynamicCard/Object.php';
 
 add_action( 'init', array( 'ActAppWidgetManager', 'init' ) );
 

@@ -20,10 +20,13 @@
 
 ( function ( wp,  ActionAppCore) {
     var DesignerDashboard = {};
-    var el = wp.element.createElement;
 
     ActionAppCore.common = ActionAppCore.common || {};
     ActionAppCore.common.designer = ActionAppCore.common.designer || {};
+
+    DesignerDashboard.runTest = function(){
+        console.log('Test Complete');
+    }
 
     function initDesignerDashboard(){
         var tmpBaseURL = ActionAppCore.DesignerConfig.catalogURL;

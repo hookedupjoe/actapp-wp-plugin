@@ -45,21 +45,6 @@ if ( !defined( 'ACTAPP_DESIGNER_URL' ) ) {
 	define( 'ACTAPP_DESIGNER_URL', plugins_url( 'actapp-designer' ) );
 }
 
-if ( !defined( 'ACTAPP_DESIGNER_WIDGETS_DIR' ) ) {
-	define( 'ACTAPP_DESIGNER_WIDGETS_DIR', ACTAPP_DESIGNER_DIR . '/design' );
-}
 
-if ( !defined( 'ACTAPP_DESIGNER_DESIGN_URL' ) ) {
-	define( 'ACTAPP_DESIGNER_DESIGN_URL', ACTAPP_DESIGNER_URL . '/design' );
-}
-
-require_once ACTAPP_DESIGNER_WIDGETS_DIR . '/ActAppDesigner.php';
-
-// add_action('wp_enqueue_scripts', array('ActAppCommon','setup_scripts'),20);
-// add_action('wp_enqueue_scripts',  array('ActAppDesigner','actapp_init_blocks_content'),20,2);
-
-
-// add_action('admin_enqueue_scripts', array('ActAppCommon','setup_scripts'),20);
-// add_action('admin_enqueue_scripts',  array('ActAppDesigner','actapp_init_blocks_content'),20,2);
-// add_action('admin_enqueue_scripts',  array('ActAppDesigner','actapp_init_admin_scripts'),20);
+require_once ACTAPP_DESIGNER_DIR . '/cls/ActAppDesigner.php';
 

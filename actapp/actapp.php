@@ -56,5 +56,5 @@ if ( !defined( 'ACTAPP_SLEEKDB_LIB' ) ) {
 	define( 'ACTAPP_SLEEKDB_LIB', ACTAPP_CORE_DIR . '/SleekDB' );
 }
 
-require_once ACTAPP_CORE_DIR . '/inc/ActAppCommon.php';
+require_once ACTAPP_CORE_DIR . '/cls/ActAppCommon.php';
 require_once ACTAPP_SLEEKDB_LIB . '/SleekDB.php';
