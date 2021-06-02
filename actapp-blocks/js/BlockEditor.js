@@ -1,5 +1,5 @@
 /**
- * Action App Blocks - Client Side Entrypoint: core-bloack.js
+ * Action App Block Editor - Content Editor Entrypoint: BlockEditor.js
  * 
  * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *

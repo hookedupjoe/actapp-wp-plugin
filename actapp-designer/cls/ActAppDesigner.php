@@ -1,6 +1,6 @@
 <?php
 /**
- * Server Side Widget Manager: ActAppDesigner
+ * Server Side Designer Functionality: ActAppDesigner
  * 
  * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *

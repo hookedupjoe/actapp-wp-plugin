@@ -47,12 +47,3 @@ if ( !defined( 'ACTAPP_BLOCKS_URL' ) ) {
 
 
 require_once ACTAPP_BLOCKS_DIR . '/cls/ActAppWidgetManager.php';
-
-add_action('wp_enqueue_scripts', array('ActAppCommon','setup_scripts'),20);
-add_action('wp_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);
-
-
-add_action('admin_enqueue_scripts', array('ActAppCommon','setup_scripts'),20);
-add_action('admin_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);
-add_action('admin_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_admin_scripts'),20);
-

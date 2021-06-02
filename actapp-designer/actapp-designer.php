@@ -15,8 +15,8 @@
  * This header and all notices must be kept intact.
  *
  * @author Joseph Francis
- * @package actappblocks
- * @since actappblocks 1.0.1
+ * @package actappbdesigner
+ * @since actappbdesigner 1.0.1
  *
  * Plugin Name: Action App Designer
  * Plugin URI: https://github.com/hookedupjoe/actapp-plugin

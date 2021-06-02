@@ -149,7 +149,7 @@
                 'div',
                 useBlockProps(),
                 [
-                    //tmpToolbarAdds,
+                    tmpToolbarAdds,
                     tmpSidebarControls,               
                     tmpDisplayObject
                 ]

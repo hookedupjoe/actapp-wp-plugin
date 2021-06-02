@@ -1,6 +1,6 @@
 <?php
 /**
- * Server Side Widget Manager: ActAppWidgetManager
+ * Server Side Blocks / Widget Manager: ActAppWidgetManager
  * 
  * Copyright (c) 2021 Joseph Francis / hookedup, inc. 
  *
@@ -107,9 +107,20 @@ class ActAppWidgetManager {
 	}
 
 	public static function init() {
+//		add_action( 'admin_menu', array( 'ActAppWidgetManager', 'registerAdminPageWidgetsSettings' ) );
+
 		add_filter('block_categories',  array('ActAppWidgetManager','actapp_block_category'), 10, 2);
 		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks_content'),10,2);
 		add_action('enqueue_block_editor_assets',  array('ActAppWidgetManager','actapp_init_blocks'),10,2);
+		
+		add_action('wp_enqueue_scripts', array('ActAppCommon','setup_scripts'),20);
+		add_action('wp_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);
+
+		add_action('admin_enqueue_scripts', array('ActAppCommon','setup_scripts'),20);
+		add_action('admin_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);
+		add_action('admin_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_admin_scripts'),20);
+
+
 		self::setup_data();
 	}
 
@@ -149,8 +160,9 @@ class ActAppWidgetManager {
 		
 	}
 
-	public static function getTest(){
-		return 'testing 123';
+	
+	public static function getWidgetUI(){
+		return 'List UI Widget options here';
 	}
 	public static function registerAdminPageWidgetsSettings(){
 		add_menu_page( 
@@ -221,6 +233,5 @@ class Latest_Posts_Controller extends WP_REST_Controller {
 
 
 
-add_action( 'admin_menu', array( 'ActAppWidgetManager', 'registerAdminPageWidgetsSettings' ) );
  
 
