@@ -2796,14 +2796,14 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         resizeGrid: function (theOptions) {
            try {
             var tmpOptions = theOptions || {};
-            var tmpParent = tmpOptions.parent || false;
-            //todo: use tmpParent
-            var tmpGrids = tmpParent ? tmpParent : ThisApp.getByAttr$({ appuse: "grid-16" });
-            //console.log('parent',tmpParent);
-
+            // var tmpParent = tmpOptions.parent || false;
+            // console.log('tmpParent',tmpParent);
+            // was !!(tmpParent) ? tmpParent : 
+            var tmpGrids = ThisApp.getByAttr$({ appuse: "grid-16" });
+             
             var tmpGridsLen = tmpGrids.length;
             if (tmpGrids && tmpGridsLen > 0) {
-                for (var iPos = 0; iPos < tmpGridsLen; iPos++) {
+                    for (var iPos = 0; iPos < tmpGridsLen; iPos++) {
                     var tmpGridsEl = $(tmpGrids[iPos]);
                     if (tmpGridsEl && (tmpOptions.force || tmpGridsEl.is(":visible"))) {
 
@@ -2830,6 +2830,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                         var tmpGridCols = tmpGridsEl.find('[gscol]');
                         //todo: Make generic
                         var tmpXHead = tmpGridsEl.find('[griduse="extra-header"]');
+                        
                         if (tmpGridSize < 16) {
                             tmpXHead.show();
                         } else {
