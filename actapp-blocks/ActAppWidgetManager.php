@@ -52,7 +52,7 @@ class ActAppWidgetManager {
 		}
 		wp_enqueue_script(
 			$theName, 
-			ACTAPP_BLOCKS_WIDGETS_URL . '/blocks/' . $tmpFN . '.js',
+			ACTAPP_BLOCKS_DESIGN_URL . '/blocks/' . $tmpFN . '.js',
 			$tmpDepDefaults,
 			true
 		);
@@ -61,8 +61,8 @@ class ActAppWidgetManager {
 
 	public static function actapp_init_blocks_content($theHook) {
 		$tmpConfig = array(
-			'baseURL'=>self::baseURL(),
-			'catalogURL'=>self::baseURL() . '/catalog'
+			'baseURL'=> ACTAPP_BLOCKS_URL,
+			'catalogURL'=> ACTAPP_BLOCKS_URL . '/catalog'
 		);
 
 
@@ -70,32 +70,29 @@ class ActAppWidgetManager {
 		$tmpScript = 'window.ActionAppCore.BlockManagerConfig = ' . $tmpJson;
 		ActAppCommon::setup_scripts($theHook);
 		wp_add_inline_script( 'app-only-preinit', $tmpScript );
-		
-
-		//wp_register_style( 'aa-core-blocks-content_css',   ACTAPP_BLOCKS_WIDGETS_URL . '/css/wp-blocks-content.css', false,  $my_css_ver );
 
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
-			'actapp-core-blocks-content', 
-			ACTAPP_BLOCKS_WIDGETS_URL . '/blocks/core-blocks-content.js',
+			'actapp-blocks-controller', 
+			ACTAPP_BLOCKS_DESIGN_URL . '/BlocksController.js',
 			array(),
 			true
 		);
 	}
 
 	public static function actapp_init_admin_scripts(){
-		wp_register_style( 'aa-core-admin_css',   ACTAPP_BLOCKS_WIDGETS_URL . '/css/wp-admin.css', false,  $my_css_ver );
+		wp_register_style( 'aa-core-admin_css',   ACTAPP_BLOCKS_URL . '/css/wp-admin.css', false,  $my_css_ver );
 		wp_enqueue_style ( 'aa-core-admin_css' );
 	}
 	
 	public static function actapp_init_blocks($theHook) {
 		
 	
-		wp_register_style( 'aa-core-blocks_css',   ACTAPP_BLOCKS_WIDGETS_URL . '/css/wp-blocks.css', false,  $my_css_ver );
+		wp_register_style( 'aa-core-blocks_css',   ACTAPP_BLOCKS_URL . '/css/wp-blocks.css', false,  $my_css_ver );
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
-			'actapp-core-blocks', 
-			ACTAPP_BLOCKS_WIDGETS_URL . '/blocks/core-blocks.js',
+			'actapp-blocks-editor', 
+			ACTAPP_BLOCKS_DESIGN_URL . '/BlockEditor.js',
 			array('wp-blocks','wp-editor','wp-element'),
 			true
 		);
@@ -136,16 +133,16 @@ class ActAppWidgetManager {
 
 	
 	public static function baseDir() {
-		return ACTAPP_BLOCKS_WIDGETS_DIR;
+		return ACTAPP_BLOCKS_DESIGN_DIR;
 	}
 	public static function baseURL() {
-		return ACTAPP_BLOCKS_WIDGETS_URL;
+		return ACTAPP_BLOCKS_DESIGN_URL;
 	}
 	
 
 	//---- Admin Settings
 	public static function showAdminPageWidgetsSettings(){
-		//include ACTAPP_BLOCKS_WIDGETS_DIR . '/tpl/widgets-settings.php';
+		//include ACTAPP_BLOCKS_DESIGN_DIR . '/tpl/widgets-settings.php';
 		//get_template_part( 'tpl/widgets-settings' );
 		//echo 'hi';
 		include(ACTAPP_BLOCKS_DIR . '/tpl/widgets-settings.php');
@@ -172,7 +169,7 @@ class ActAppWidgetManager {
 }
 
 //--- Demo of a widget that uses server side rendering
-//require_once ACTAPP_BLOCKS_WIDGETS_DIR . '/blocks/ActAppDynamicCard/Object.php';
+//require_once ACTAPP_BLOCKS_DESIGN_DIR . '/blocks/ActAppDynamicCard/Object.php';
 
 add_action( 'init', array( 'ActAppWidgetManager', 'init' ) );
 

@@ -445,36 +445,3 @@
 
 
 
-
-
-
-
-// ( function ( wp ) {
-//     var el = wp.element.createElement,
-//         registerBlockType = wp.blocks.registerBlockType,
-//         InnerBlocks = wp.blockEditor.InnerBlocks,
-//         useBlockProps = wp.blockEditor.useBlockProps;
- 
-//     registerBlockType( 'actapp/dynocard', {
-//         apiVersion: 2,
-//         title: 'Card',
-//         icon: 'megaphone',
-//         category: 'actappui',
-//         edit: function () {
-//             var blockProps = useBlockProps();
-//             return el('div',{className:'card'},[el( 'div', blockProps, el( InnerBlocks ) )]);
-//         }
-        
-//     } );
-// } )(
-//     window.wp
-// );
-
-
-
-
-
-//-----
-
-
-
