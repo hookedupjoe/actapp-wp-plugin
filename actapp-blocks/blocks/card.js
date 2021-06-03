@@ -97,20 +97,22 @@
         
 
         var tmpExtraContent = [];
-        
+        var tmpBtnBar = '';
         if( props.isSelected ){
-            tmpClass += ' selected'
-            var tmpAddBtn = el('div',{className:'ui compact button blue fluid ',action:'beAddElement', elementname: 'cardsection'}, 'Add Section');
-            tmpContent.push(tmpAddBtn);
-            var tmpAddBottomBtn = el('div',{className:'ui compact button blue fluid ',action:'beAddElement', elementname:'button'}, 'Add Bottom Button');
-            tmpContent.push(tmpAddBottomBtn);
+            var tmpBarContent = [];
+            var tmpAddBtn = el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname: 'cardsection'}, 'Add Section');
+            tmpBarContent.push(tmpAddBtn);
+            var tmpAddBottomBtn = el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname:'button'}, 'Add Bottom Button');
+            tmpBarContent.push(tmpAddBottomBtn);
+            tmpBtnBar = el('div',{className:'ui segment raised slim'},tmpBarContent,el('div',{className:'endfloat'}));
+            tmpContent.push(tmpBtnBar);
         }
         
         tmpContent.push(tmpExtraContent);
         if( tmpAtt.url && !theIsEditMode){
             return el('a',{className:tmpClass,href:tmpAtt.url},tmpContent);
         } else {
-            return newEl('div',tmpClass,tmpContent);
+            return newEl('div',tmpClass,[tmpBtnBar,tmpContent]);
         }
 
 

@@ -59,17 +59,24 @@
             tmpHeaderMsg += " (columns auto-adjust )";
         }
         var tmpAddBtn = '';
+        var tmpBtnBar = ''
         if( props.isSelected ){
-            tmpAddBtn = el('div',{className:'ui compact button blue floated right ',action:'beAddCard'}, 'Add Card');
+            tmpAddBtn = el('div',{className:'ui compact button basic blue ',action:'beAddCard'}, 'Add Card');
+            tmpBtnBar = el('div',{className:'ui segment raised slim'},[
+                tmpAddBtn
+            ],el('div',{className:'endfloat'}));
         }
-        var tmpHdr = el('div',{className:'ui label fluid large ' + tmpUIColor},tmpHeaderMsg,tmpAddBtn);
+        var tmpHdr = el('div',{className:'ui label fluid large ' + tmpUIColor},tmpHeaderMsg);
+        
         return el('div', {className:'ui segment ' + theProps.attributes.color || ''},null, 
-        tmpHdr ,    
+        tmpHdr,tmpBtnBar,     
         el('div',{className:'edit-cards' + props.attributes.color + ' ' + props.attributes.columns},
         [
             el(wp.blockEditor.InnerBlocks,{renderAppender:false}),
         ]
-        ))
+        ),
+        tmpBtnBar
+        )
            // return BlockEditor.el('div', tmpClass,  [el( wp.blockEditor.InnerBlocks )]);
         } else {
             return BlockEditor.el('div', tmpClass, el( wp.blockEditor.InnerBlocks.Content ));

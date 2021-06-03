@@ -66,6 +66,9 @@ class ActAppWidgetManager {
 		);
 
 
+		wp_register_style( 'actapp-blocks-content_css',   ACTAPP_BLOCKS_URL . '/css/wp-blocks-content.css', false,  $my_css_ver );
+		wp_enqueue_style ( 'actapp-blocks-content_css' );
+
 		$tmpJson = json_encode($tmpConfig);
 		$tmpScript = 'window.ActionAppCore.BlockManagerConfig = ' . $tmpJson;
 		ActAppCommon::setup_scripts($theHook);
@@ -115,6 +118,8 @@ class ActAppWidgetManager {
 		
 		add_action('wp_enqueue_scripts', array('ActAppCommon','setup_scripts'),20);
 		add_action('wp_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);
+		
+		
 
 		add_action('admin_enqueue_scripts', array('ActAppCommon','setup_scripts'),20);
 		add_action('admin_enqueue_scripts',  array('ActAppWidgetManager','actapp_init_blocks_content'),20,2);

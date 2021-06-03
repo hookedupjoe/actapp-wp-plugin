@@ -9,3 +9,20 @@ i.arrow:after {
     background-color: transparent;
     box-shadow: none;
 }
+
+.wp-block-quote {
+    border-left:solid 5px;
+    margin-left:20px;
+}
+.wp-block.wp-block-quote {
+    border-left:solid 5px  !important;
+    margin-left:20px !important;
+}
+
+
+.ui.segment.blue .wp-block-quote {
+    border-left:solid 5px #2185d0 !important;
+}
+.ui.segment.green .wp-block-quote {
+    border-left:solid 5px #21ba45  !important;
+}
