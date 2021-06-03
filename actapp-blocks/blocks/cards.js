@@ -48,6 +48,7 @@
         var props = theProps;
         var tmpClass = getClass(props, true);
        
+        const ALLOWED_BLOCKS = ['actappui/card']
 
         if( theIsEditMode ){
         var tmpUIColor = props.attributes.color || '';
@@ -57,12 +58,16 @@
         } else {
             tmpHeaderMsg += " (columns auto-adjust )";
         }
-        var tmpHdr = el('div',{className:'ui label fluid large ' + tmpUIColor},tmpHeaderMsg);
+        var tmpAddBtn = '';
+        if( props.isSelected ){
+            tmpAddBtn = el('div',{className:'ui compact button blue floated right ',action:'beAddCard'}, 'Add Card');
+        }
+        var tmpHdr = el('div',{className:'ui label fluid large ' + tmpUIColor},tmpHeaderMsg,tmpAddBtn);
         return el('div', {className:'ui segment ' + theProps.attributes.color || ''},null, 
         tmpHdr ,    
         el('div',{className:'edit-cards' + props.attributes.color + ' ' + props.attributes.columns},
         [
-            el(wp.blockEditor.InnerBlocks),
+            el(wp.blockEditor.InnerBlocks,{renderAppender:false}),
         ]
         ))
            // return BlockEditor.el('div', tmpClass,  [el( wp.blockEditor.InnerBlocks )]);
@@ -71,6 +76,7 @@
         }
         
     }
+    
 
     wp.blocks.registerBlockType( 'actappui/cards', {
         title: info.title,

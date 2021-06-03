@@ -89,6 +89,13 @@
         }
         tmpContent.push( newEl('div','content',tmpMainContent) );
         
+        if( theIsEditMode ){
+            tmpContent.push( el( wp.blockEditor.InnerBlocks ));
+        } else {
+            tmpContent.push( el( wp.blockEditor.InnerBlocks.Content ));
+        }
+        
+
         var tmpExtraContent = [];
         
         if( tmpAtt.url && !theIsEditMode){
@@ -106,6 +113,10 @@
         category: info.category,
         example: info.example,
         attributes: info.atts,
+        parent: 'actappui/cards',
+        supports: {
+            inserter: false,
+        },
         edit: function ( props ) {
             var tmpParentAttributes = BlockEditor.getParentAttributes(props.clientId);
             props.attributes.parentColor = tmpParentAttributes.color || '';
