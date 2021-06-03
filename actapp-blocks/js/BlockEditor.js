@@ -25,7 +25,20 @@
     ActionAppCore.common = ActionAppCore.common || {};
     ActionAppCore.common.blocks = ActionAppCore.common.blocks || {};
 
+    BlockEditor.editors = {};
+    BlockEditor.setEditor = function(theID,theEditor){
+        this.editors[theID] = theEditor;
+    }
+    BlockEditor.getEditor = function(theID){
+        return this.editors[theID] || false;
+    }
+    BlockEditor.removeEditor = function(theID){
+        delete this.editors[theID];
+        return true;
+    }
+
     function initBlockEditor(){
+        
         var tmpBaseURL = ActionAppCore.BlockManagerConfig.catalogURL;
         //--- Load stuff we need on startup, can load dynamically as needed, 
         //      so only use this for suff needed on startup
@@ -383,9 +396,23 @@
 
     }
 
+    function addBlockEditorActions(){
+        ThisApp.actions.beAddCard = function(){
+            var tmpThis = wp.data.select( 'core/block-editor' ).getSelectedBlock();
+            var tmpPos = 0;
+            if( tmpThis.innerBlocks && tmpThis.innerBlocks.length ){
+                tmpPos = tmpThis.innerBlocks.length;
+            }
+            var tmpItemToAdd = 'card';
+            var tmpToAddElement = BlockEditor.getCommonBlock(tmpItemToAdd);
+            wp.data.dispatch('core/editor').insertBlocks(tmpToAddElement,tmpPos,tmpThis.clientId) 
+        }
+    }
 
     ActionAppCore.subscribe('app-loaded', function(){
         ThisApp.delay(1000).then(function(){
+
+            addBlockEditorActions();
             var tmpWarnings = $('.block-editor-warning__action > .components-button.is-primary');
             if( tmpWarnings.length > 0){
                 tmpWarnings.click();
@@ -400,6 +427,12 @@
     var CommonBlocks = {
         order: ["standard-header","small-header","blue-message"],
         lookup: {
+            "card": {
+                type: 'actappui/card', 
+                name: "Card",
+                attr: {
+                }
+            },
             "standard-header": {
                 type: 'actappui/header', 
                 name: "Standard Header",
