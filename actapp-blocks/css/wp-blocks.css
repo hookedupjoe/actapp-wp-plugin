@@ -10,3 +10,12 @@ i.arrow:after {
     background-color: transparent;
     box-shadow: none;
 }
+
+.actapp-block-is-selected {
+    border:dashed 5px purple;
+    min-height:80px;
+}
+.actapp-block-box {
+    border:dashed 3px gray;
+    min-height:30px;
+}

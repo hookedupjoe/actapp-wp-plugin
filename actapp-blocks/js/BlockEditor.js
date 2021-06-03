@@ -397,6 +397,7 @@
     }
 
     function addBlockEditorActions(){
+
         ThisApp.actions.beAddCard = function(){
             var tmpThis = wp.data.select( 'core/block-editor' ).getSelectedBlock();
             var tmpPos = 0;
@@ -407,6 +408,23 @@
             var tmpToAddElement = BlockEditor.getCommonBlock(tmpItemToAdd);
             wp.data.dispatch('core/editor').insertBlocks(tmpToAddElement,tmpPos,tmpThis.clientId) 
         }
+
+        ThisApp.actions.beAddElement = function(theParams, theTarget){
+            var tmpParams = ThisApp.getActionParams(theParams, theTarget, ['elementname']);
+            var tmpThis = wp.data.select( 'core/block-editor' ).getSelectedBlock();
+            var tmpPos = 0;
+            if( tmpThis.innerBlocks && tmpThis.innerBlocks.length ){
+                tmpPos = tmpThis.innerBlocks.length;
+            }
+            var tmpItemToAdd = tmpParams.elementname;
+            if( !(tmpItemToAdd) ){
+                console.error("No elementname attribute found")
+                return;
+            }
+            var tmpToAddElement = BlockEditor.getCommonBlock(tmpItemToAdd);
+            wp.data.dispatch('core/editor').insertBlocks(tmpToAddElement,tmpPos,tmpThis.clientId) 
+        }
+        
     }
 
     ActionAppCore.subscribe('app-loaded', function(){
@@ -427,11 +445,30 @@
     var CommonBlocks = {
         order: ["standard-header","small-header","blue-message"],
         lookup: {
+            "button": {
+                type: 'actappui/button', 
+                name: "Button",
+                attr: {}
+            },
+            "message": {
+                type: 'actappui/message', 
+                name: "Message",
+                attr: {}
+            },
             "card": {
                 type: 'actappui/card', 
                 name: "Card",
-                attr: {
-                }
+                attr: {}
+            },
+            "cardsection": {
+                type: 'actappui/cardsection', 
+                name: "Card Section",
+                attr: {}
+            },
+            "cardbutton": {
+                type: 'actappui/button', 
+                name: "Button",
+                attr: {attached:'bottom',color:'blue',circular:true,basic:true}
             },
             "standard-header": {
                 type: 'actappui/header', 

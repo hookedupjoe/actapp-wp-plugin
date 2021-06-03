@@ -35,7 +35,7 @@
     const iconEl = BlockEditor.getControlIcon(info.name);
 
     BlockEditor.addNumberAtts(info.atts,['parentMaxImgHeight', 'mediaID']);
-    BlockEditor.addBooleanAtts(info.atts,['fluid', 'raised']);
+    BlockEditor.addBooleanAtts(info.atts,['fluid', 'raised','urlopentab']);
     BlockEditor.addStringAtts(info.atts,['text','title', 'subtitle', 'color', 'parentColor', 'url', 'mediaURL']);
 
     var tmpClassSpecs = {
@@ -90,7 +90,7 @@
         tmpContent.push( newEl('div','content',tmpMainContent) );
         
         if( theIsEditMode ){
-            tmpContent.push( el( wp.blockEditor.InnerBlocks ));
+            tmpContent.push( el( wp.blockEditor.InnerBlocks,{renderAppender:false} ));
         } else {
             tmpContent.push( el( wp.blockEditor.InnerBlocks.Content ));
         }
@@ -98,6 +98,15 @@
 
         var tmpExtraContent = [];
         
+        if( props.isSelected ){
+            tmpClass += ' selected'
+            var tmpAddBtn = el('div',{className:'ui compact button blue fluid ',action:'beAddElement', elementname: 'cardsection'}, 'Add Section');
+            tmpContent.push(tmpAddBtn);
+            var tmpAddBottomBtn = el('div',{className:'ui compact button blue fluid ',action:'beAddElement', elementname:'button'}, 'Add Bottom Button');
+            tmpContent.push(tmpAddBottomBtn);
+        }
+        
+        tmpContent.push(tmpExtraContent);
         if( tmpAtt.url && !theIsEditMode){
             return el('a',{className:tmpClass,href:tmpAtt.url},tmpContent);
         } else {
@@ -113,11 +122,12 @@
         category: info.category,
         example: info.example,
         attributes: info.atts,
-        parent: 'actappui/cards',
+        rem_parent: 'actappui/cards',
         supports: {
-            inserter: false,
+            inserter: true,
         },
         edit: function ( props ) {
+            var tmpAtts = props.attributes;
             var tmpParentAttributes = BlockEditor.getParentAttributes(props.clientId);
             props.attributes.parentColor = tmpParentAttributes.color || '';
             props.attributes.parentMaxImgHeight = tmpParentAttributes.maxImageHeight || 0;
@@ -129,8 +139,11 @@
                 BlockEditor.getStandardProperty(props,'subtitle', 'Subtitle' ),
                 BlockEditor.getStandardProperty(props,'text', 'Text' ),
                 tmpParentColor ? '' : BlockEditor.getStandardProperty(props,'color', 'Card Color', 'color' ),
-                BlockEditor.getStandardProperty(props,'url', 'Target Content or Link', 'url' ),
                 BlockEditor.getStandardProperty(props,{mediaID:'mediaID',mediaURL:'mediaURL'}, 'Card Image', 'image' ),
+                BlockEditor.getStandardProperty(props,'url', 'Target Content or Link', 'url' ),
+                !(tmpAtts.url) ? '' : BlockEditor.getStandardProperty(props,'urlopentab', 'Open link in new tab?', 'checkbox' ),                
+                BlockEditor.getStandardProperty(props,'fluid', 'Full width', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'raised', 'Raised', 'checkbox' ),
             ];
 
             var tmpSidebarPanels = [
