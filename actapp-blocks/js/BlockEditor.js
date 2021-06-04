@@ -167,12 +167,20 @@
             ];
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
-
+        
         BlockEditor.getLeftRightAlignmentListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [
                 el("option", {value: ""}, "None"),
                 el("option", {value: "left aligned"}, "Left"),
                 el("option", {value: "right aligned"}, "Right")
+            ];
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
+        }
+        BlockEditor.getLeftRighFloatListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = [
+                el("option", {value: ""}, "None"),
+                el("option", {value: "floated left"}, "Float Left"),
+                el("option", {value: "floated right"}, "Float Right")
             ];
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
@@ -257,6 +265,9 @@
             }            
             if( tmpCT == 'alignmentleftright' ){
                 return 'getLeftRightAlignmentListControl';
+            }            
+            if( tmpCT == 'floatleftright' ){
+                return 'getLeftRighFloatListControl';
             }            
             
             if( tmpCT == 'columns' ){
@@ -450,16 +461,26 @@
                 name: "Button",
                 attr: {}
             },
+            "header": {
+                type: 'actappui/header', 
+                name: "Message",
+                attr: {}
+            },
             "message": {
                 type: 'actappui/message', 
                 name: "Message",
+                attr: {}
+            },
+            "cards": {
+                type: 'actappui/cards', 
+                name: "Card",
                 attr: {}
             },
             "card": {
                 type: 'actappui/card', 
                 name: "Card",
                 attr: {}
-            },
+            },            
             "cardsection": {
                 type: 'actappui/cardsection', 
                 name: "Card Section",
