@@ -98,21 +98,23 @@
 
         var tmpExtraContent = [];
         var tmpBtnBar = '';
-        if( props.isSelected ){
+        if( theIsEditMode && props.isSelected ){
             var tmpBarContent = [];
             var tmpAddBtn = el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname: 'cardsection'}, 'Add Section');
             tmpBarContent.push(tmpAddBtn);
             var tmpAddBottomBtn = el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname:'button'}, 'Add Bottom Button');
             tmpBarContent.push(tmpAddBottomBtn);
-            tmpBtnBar = el('div',{className:'ui segment raised slim'},tmpBarContent,el('div',{className:'endfloat'}));
-            tmpContent.push(tmpBtnBar);
+            tmpBtnBar = el('div',{},[el('div',{className:'ui fluid center aligned label blue'},'Card Control'),el('div',{className:'ui segment raised slim'},tmpBarContent,el('div',{className:'endfloat'}))]);
         }
         
         tmpContent.push(tmpExtraContent);
         if( tmpAtt.url && !theIsEditMode){
             return el('a',{className:tmpClass,href:tmpAtt.url},tmpContent);
         } else {
-            return newEl('div',tmpClass,[tmpBtnBar,tmpContent]);
+            if( theIsEditMode ){
+                return el('div',{className:'pad10'},[tmpBtnBar,newEl('div',tmpClass,[tmpContent])]);    
+            }
+            return newEl('div',tmpClass,tmpContent);
         }
 
 

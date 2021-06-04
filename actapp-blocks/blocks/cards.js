@@ -48,11 +48,9 @@
         var props = theProps;
         var tmpClass = getClass(props, true);
        
-        const ALLOWED_BLOCKS = ['actappui/card']
-
         if( theIsEditMode ){
-        var tmpUIColor = props.attributes.color || '';
-        var tmpHeaderMsg = 'CARDS CONTAINER:';
+        var tmpUIColor = ''; //was props.attributes.color || 
+        var tmpHeaderMsg = 'Cards Container';
         if( props.attributes.columns ){
             tmpHeaderMsg += " (" + props.attributes.columns + " columns)";
         } else {
@@ -65,17 +63,18 @@
             tmpBtnBar = el('div',{className:'ui segment raised slim'},[
                 tmpAddBtn
             ],el('div',{className:'endfloat'}));
+            tmpUIColor = 'blue';
         }
-        var tmpHdr = el('div',{className:'ui label fluid large ' + tmpUIColor},tmpHeaderMsg);
+        var tmpHdr = el('div',{className:'ui header top attached center aligned fluid ' + tmpUIColor},tmpHeaderMsg,tmpBtnBar);
         
         return el('div', {className:'ui segment ' + theProps.attributes.color || ''},null, 
-        tmpHdr,tmpBtnBar,     
+        tmpHdr,     
         el('div',{className:'edit-cards' + props.attributes.color + ' ' + props.attributes.columns},
         [
             el(wp.blockEditor.InnerBlocks,{renderAppender:false}),
         ]
-        ),
-        tmpBtnBar
+        )
+        
         )
            // return BlockEditor.el('div', tmpClass,  [el( wp.blockEditor.InnerBlocks )]);
         } else {
