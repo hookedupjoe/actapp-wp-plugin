@@ -69,6 +69,9 @@ class ActAppWidgetManager {
 		wp_register_style( 'actapp-blocks-content_css',   ACTAPP_BLOCKS_URL . '/css/wp-blocks-content.css', false,  $my_css_ver );
 		wp_enqueue_style ( 'actapp-blocks-content_css' );
 
+		wp_register_style( 'actapp-blocks-fonts_css',   ACTAPP_BLOCKS_URL . '/css/fonts/demo2/css/demo2.css', false,  $my_css_ver );
+		wp_enqueue_style ( 'actapp-blocks-fonts_css' );
+
 		$tmpJson = json_encode($tmpConfig);
 		$tmpScript = 'window.ActionAppCore.BlockManagerConfig = ' . $tmpJson;
 		ActAppCommon::setup_scripts($theHook);
@@ -100,7 +103,7 @@ class ActAppWidgetManager {
 			true
 		);
 		//--- Load standardly created widgets;
-		$tmpWidgetList = array('segment','header','card', 'cards', 'message', 'button', 'any', 'cardsection');
+		$tmpWidgetList = array('segment','header','card', 'cards', 'message', 'button', 'image', 'cardsection');
 		//ToAdd _. , 'buttons'
 		foreach ($tmpWidgetList as $aName) {
 			self::loadStandardBlock($aName);

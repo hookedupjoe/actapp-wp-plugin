@@ -16,6 +16,7 @@ i.arrow:after {
     min-height:80px;
 }
 .actapp-block-box {
-    border:dashed 3px gray;
-    min-height:30px;
+    border:dashed 3px gray !important;
+    min-height:30px !important;
 }
+
