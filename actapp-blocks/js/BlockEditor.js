@@ -141,7 +141,7 @@
                 el("option", {value: ""}, "None"),
                 el("option", {value: "attached top"}, "Top"),
                 el("option", {value: "attached"}, "Middle"),
-                el("option", {value: "attached bottom"}, "bottom"),
+                el("option", {value: "attached bottom"}, "Bottom"),
             ];
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
@@ -168,6 +168,15 @@
             return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
         }
         
+        BlockEditor.getVerticalAlignmentListControl = function(theCurrentValue, theOnChangeEvent){
+            var tmpSelection = [
+                el("option", {value: ""}, "None"),
+                el("option", {value: "top aligned"}, "Top"),
+                el("option", {value: "middle aligned"}, "Middle"),
+                el("option", {value: "bottom aligned"}, "Bottom")
+            ];
+            return BlockEditor.getSelectControl(theCurrentValue,theOnChangeEvent,tmpSelection);
+        }
         BlockEditor.getLeftRightAlignmentListControl = function(theCurrentValue, theOnChangeEvent){
             var tmpSelection = [
                 el("option", {value: ""}, "None"),
@@ -266,6 +275,9 @@
             if( tmpCT == 'alignmentleftright' ){
                 return 'getLeftRightAlignmentListControl';
             }            
+            if( tmpCT == 'alignmentvertical' ){
+                return 'getVerticalAlignmentListControl';
+            }                        
             if( tmpCT == 'floatleftright' ){
                 return 'getLeftRighFloatListControl';
             }            
@@ -454,7 +466,7 @@
     initBlockEditor();
 
     var CommonBlocks = {
-        order: ["standard-header","small-header","blue-message"],
+        //order: ["standard-header","small-header","blue-message"],
         lookup: {
             "button": {
                 type: 'actappui/button', 
@@ -464,6 +476,11 @@
             "header": {
                 type: 'actappui/header', 
                 name: "Message",
+                attr: {}
+            },
+            "image": {
+                type: 'actappui/image', 
+                name: "Image",
                 attr: {}
             },
             "message": {

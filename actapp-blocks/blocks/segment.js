@@ -40,11 +40,11 @@
     const iconEl = BlockEditor.getControlIcon(info.name);
 
     BlockEditor.addBooleanAtts(info.atts,['raised','stacked','vertical','clearing']);
-    BlockEditor.addStringAtts(info.atts,['color','size','attached','basic', 'spotname','spotsourcetype','spotsourcename','spotsourcepartname']);
+    BlockEditor.addStringAtts(info.atts,['color','size','attached','alignment','basic', 'spotname','spotsourcetype','spotsourcename','spotsourcepartname']);
 
     var tmpClassSpecs = {
         boolean: ['raised','stacked','vertical','basic','clearing'],
-        string: ['color','size','attached']
+        string: ['color','size','attached','alignment']
     }    
     function getClass(theProps, theIsEditMode){
         return BlockEditor.getStandardClass( 'ui segment', tmpClassSpecs, theProps, theIsEditMode);
@@ -112,20 +112,25 @@
                 BlockEditor.getStandardProperty(props,'raised', 'Raised', 'checkbox' ),
                 BlockEditor.getStandardProperty(props,'stacked', 'Stacked', 'checkbox' ),
                 BlockEditor.getStandardProperty(props,'vertical', 'Vertical', 'checkbox' ),
-                BlockEditor.getStandardProperty(props,'clearing', 'Contain Floaters', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'clearing', 'Contain Floaters', 'checkbox' )
             ];
+            var tmpFormatProperties = [
+                //(tmpAtts.alignment) ? '' : BlockEditor.getStandardProperty(props,'float', 'Float', 'floatleftright' ),
+                BlockEditor.getStandardProperty(props,'alignment', 'Alignment', 'alignment' )
+            ];
+
             var tmpDevProperties = [
                 BlockEditor.getStandardProperty(props,'spotname', 'Spot Name', 'text' ),
                 !(tmpPropAtts.spotname !='') ? '' : BlockEditor.getStandardProperty(props,'spotsourcetype', 'Spot Source Type', 'text' ),
                 !(tmpPropAtts.spotname !='') ? '' : BlockEditor.getStandardProperty(props,'spotsourcename', 'Spot Source Name', 'text' ),
                 !(tmpPropAtts.spotname !='') ? '' : BlockEditor.getStandardProperty(props,'spotsourcepartname', 'Part Name (Optional)', 'text' ),
-
-                !(tmpPropAtts.spotsourcename !='') ? '' : el('div',{className: 'ui button circular blue fluid', action:'updatePreview'},'Refresh Preview'),
+                !(tmpPropAtts.spotsourcename !='') ? '' : el('div',{className: 'ui button circular blue fluid', action:'updatePreview'},'Refresh Preview')
             ];
 
             var tmpSidebarPanels = [
                 BlockEditor.getSidebarPanel('Segment Options', tmpStandardProperties),
-                BlockEditor.getSidebarPanel('Developer Options', tmpDevProperties),
+                BlockEditor.getSidebarPanel('Formatting Options', tmpFormatProperties),                
+                BlockEditor.getSidebarPanel('Developer Options', tmpDevProperties)
             ];
 
             var tmpSidebarControls = BlockEditor.getSidebarControls(tmpSidebarPanels);
@@ -158,6 +163,7 @@
                 //tmpBarContent.push(el('div',{className:'ui fluid label blue mar5'},'UI Segment')),
                 tmpBarContent.push(el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname: 'header'}, 'Header'));
                 tmpBarContent.push(el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname:'message'}, 'Message'));
+                tmpBarContent.push(el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname:'image'}, 'Image'));
                 tmpBarContent.push(el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname:'cards'}, 'Cards'));
                 tmpBtnBar = el('div',{},[el('div',{className:'ui fluid label blue mar5'},'UI Segment'),el('div',{className:'ui segment raised slim'},tmpBarContent,el('div',{className:'endfloat'}))]);
             }

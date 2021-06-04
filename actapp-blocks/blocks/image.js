@@ -36,12 +36,12 @@
     const iconEl = BlockEditor.getControlIcon(info.name);
 
     BlockEditor.addBooleanAtts(info.atts,['fluid','avatar','rounded','circular','urlopentab','bordered','centered']);
-    BlockEditor.addStringAtts(info.atts,['text','color','size', 'attached', 'alignment', 'url', 'mediaURL','float']);
+    BlockEditor.addStringAtts(info.atts,['text','color','size', 'alignmentvertical', 'url', 'mediaURL','float']);
     BlockEditor.addNumberAtts(info.atts,['mediaID']);
 
     var tmpClassSpecs = {
         boolean: ['fluid','avatar','rounded','circular','bordered','centered'],
-        string: ['color','size', 'attached']
+        string: ['color','size', 'alignmentvertical']
     }
     
     function getContent(theProps, theIsEditMode){
@@ -66,6 +66,9 @@
                     tmpSide = 'Floating Right';
                 }
                 tmpEl = el('div',{className:'ui segment basic pad0'},el('div',{className:'ui message fluid yellow'},tmpSide),tmpEl);
+            }
+            if( !(tmpAtts.mediaURL) ){
+                tmpEl = el('div',{className:'ui message compact small orange'},'Select image on sidebar');
             }
             tmpContent.push(tmpEl)
         } else {
@@ -106,6 +109,7 @@
             var tmpFormatProperties = [
                 (tmpAtts.float) ? '' : BlockEditor.getStandardProperty(props,'centered', 'Centered', 'checkbox' ),
                 (tmpAtts.centered) ? '' : BlockEditor.getStandardProperty(props,'float', 'Float', 'floatleftright' ),
+                BlockEditor.getStandardProperty(props,'alignmentvertical', 'Veritcal Alignment', 'alignmentvertical' ),
             ];
             var tmpSidebarPanels = [
                 BlockEditor.getSidebarPanel('Image Options', tmpStandardProperties),
