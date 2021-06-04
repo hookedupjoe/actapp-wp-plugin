@@ -39,10 +39,11 @@
     };
     const iconEl = BlockEditor.getControlIcon(info.name);
 
+    BlockEditor.addBooleanAtts(info.atts,['raised','stacked','vertical','clearing']);
     BlockEditor.addStringAtts(info.atts,['color','size','attached','basic', 'spotname','spotsourcetype','spotsourcename','spotsourcepartname']);
-    BlockEditor.addBooleanAtts(info.atts,['raised','stacked','vertical']);
+
     var tmpClassSpecs = {
-        boolean: ['raised','stacked','vertical','basic'],
+        boolean: ['raised','stacked','vertical','basic','clearing'],
         string: ['color','size','attached']
     }    
     function getClass(theProps, theIsEditMode){
@@ -51,6 +52,9 @@
     function getDisplayValue(theProps,theIsEditMode){
         var props = theProps;
         var tmpClass = getClass(props, true);
+        if( theIsEditMode && !props.isSelected  ){
+            tmpClass += ' actapp-block-box';
+        }
         var tmpAtts = {className:tmpClass};
         var tmpPropAtts = theProps.attributes;
         
@@ -71,6 +75,7 @@
                 tmpSpotTopAtts.sourcepartname = tmpPropAtts.spotsourcepartname;                
             }
             
+          
     
             tmpEls.push(el('div',tmpSpotTopAtts,''));
         }
@@ -107,6 +112,7 @@
                 BlockEditor.getStandardProperty(props,'raised', 'Raised', 'checkbox' ),
                 BlockEditor.getStandardProperty(props,'stacked', 'Stacked', 'checkbox' ),
                 BlockEditor.getStandardProperty(props,'vertical', 'Vertical', 'checkbox' ),
+                BlockEditor.getStandardProperty(props,'clearing', 'Contain Floaters', 'checkbox' ),
             ];
             var tmpDevProperties = [
                 BlockEditor.getStandardProperty(props,'spotname', 'Spot Name', 'text' ),
@@ -145,11 +151,22 @@
             );
 
             gToolbarSelection =  BlockEditor.getCommonBlocksListControl(gSelectedAddItem,tmpOnAddSelect);
+
+            var tmpBtnBar = '';
+            if( props.isSelected ){
+                var tmpBarContent = [];
+                //tmpBarContent.push(el('div',{className:'ui fluid label blue mar5'},'UI Segment')),
+                tmpBarContent.push(el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname: 'header'}, 'Header'));
+                tmpBarContent.push(el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname:'message'}, 'Message'));
+                tmpBarContent.push(el('div',{className:'ui compact button blue basic ',action:'beAddElement', elementname:'cards'}, 'Cards'));
+                tmpBtnBar = el('div',{},[el('div',{className:'ui fluid label blue mar5'},'UI Segment'),el('div',{className:'ui segment raised slim'},tmpBarContent,el('div',{className:'endfloat'}))]);
+            }
+            
             return el(
                 'div',
                 useBlockProps(),
                 [
-                    tmpToolbarAdds,
+                    tmpBtnBar,
                     tmpSidebarControls,               
                     tmpDisplayObject
                 ]
