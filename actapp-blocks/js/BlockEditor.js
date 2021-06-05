@@ -514,6 +514,11 @@
                 name: "Button",
                 attr: {attached:'bottom',color:'blue',circular:true,basic:true}
             },
+            "dropindicator": {
+                type: 'actappui/dropindicator', 
+                name: "Drop Indicator",
+                attr: {}
+            },            
             "standard-header": {
                 type: 'actappui/header', 
                 name: "Standard Header",

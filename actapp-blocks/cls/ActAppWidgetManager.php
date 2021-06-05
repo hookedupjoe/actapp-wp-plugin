@@ -103,12 +103,11 @@ class ActAppWidgetManager {
 			true
 		);
 		//--- Load standardly created widgets;
-		$tmpWidgetList = array('segment','header','card', 'cards', 'message', 'button', 'image', 'cardsection');
+		$tmpWidgetList = array('segment','header','card', 'cards', 'message', 'button', 'image', 'cardsection','dropindicator');
 		//ToAdd _. , 'buttons'
 		foreach ($tmpWidgetList as $aName) {
 			self::loadStandardBlock($aName);
 		}
-
 			
 	}
 

@@ -27,6 +27,7 @@
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
     var BlockEditor = ActionAppCore.common.blocks.Editor;
+    var be = wp.data.dispatch('core/editor');
     
     var info = {
         name: 'segment',
@@ -39,7 +40,7 @@
     };
     const iconEl = BlockEditor.getControlIcon(info.name);
 
-    BlockEditor.addBooleanAtts(info.atts,['raised','stacked','vertical','clearing']);
+    BlockEditor.addBooleanAtts(info.atts,['raised','stacked','vertical','clearing','hasdropindicator']);
     BlockEditor.addStringAtts(info.atts,['color','size','attached','alignment','basic', 'spotname','spotsourcetype','spotsourcename','spotsourcepartname']);
 
     var tmpClassSpecs = {
@@ -78,11 +79,33 @@
         
         if( theIsEditMode ){
             var tmpMe = wp.data.select( 'core/block-editor' ).getBlock(props.clientId);
+            window.tmpMe = tmpMe;
             var tmpChildren = tmpMe.innerBlocks;
             if(!(tmpChildren && tmpChildren.length )){
                 //--- This assures the drag and drop feature allows a drop in a new unselected segment
-                var tmpToAddElement = BlockEditor.getCommonBlock('coreparagraph'); 
-                wp.data.dispatch('core/editor').insertBlocks(tmpToAddElement,0,props.clientId) 
+                var tmpToAddElement = BlockEditor.getCommonBlock('dropindicator'); 
+                tmpPropAtts.hasdropindicator = true;
+                be.insertBlocks(tmpToAddElement,0,props.clientId);
+            } else {
+                //Find and remove drop indicator
+                if( tmpPropAtts.hasdropindicator && tmpChildren.length > 1 ){
+                    var tmpPos = -1;
+                    for( var iPos = 0 ; iPos < tmpChildren.length ; iPos++){
+                        var tmpChild = tmpChildren[iPos];
+                        if( tmpChild.name == 'actappui/dropindicator'){
+                            tmpPos = iPos;                            
+                            break;
+                        }
+                    }
+                    if( tmpPos > -1 ){
+                        tmpMe.innerBlocks.splice(tmpPos,1);
+                        tmpPropAtts.hasdropindicator = false;
+                        ActAppBlockEditor.refreshBlockEditor();
+                    }
+
+                }
+                
+
             }
             tmpEls.push(el( wp.blockEditor.InnerBlocks ));             
         } else {

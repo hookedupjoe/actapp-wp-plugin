@@ -22,7 +22,8 @@ i.arrow:after {
 .block-editor-block-list__layout {
     min-height: 40px;
 }
-.block-editor-block-list__layout:drop {
-    border:dashed 2px blue !important;
+.actapp-be-drop-indicator {
+    /* border:dashed 2px blue !important; */
+    min-height:40px;
 }
 
