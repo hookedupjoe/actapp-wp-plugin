@@ -75,7 +75,7 @@
                 BlockEditor.getStandardProperty(props,'compact', 'Compact', 'checkbox' ),
                 BlockEditor.getStandardProperty(props,'fluid', 'Full width', 'checkbox' ),
                 BlockEditor.getStandardProperty(props,'url', 'Target Content or Link', 'url' ),
-                !(tmpAtts.url) ? '' : BlockEditor.getStandardProperty(props,'urlopentab', 'Open link in new tab?', 'checkbox' ),                
+                !(tmpAtts.url) ? '' : BlockEditor.getStandardProperty(props,'urlopentab', 'Open link in new tab?', 'checkbox' ),
             ];
             var tmpFormatProperties = [
                 BlockEditor.getStandardProperty(props,'attached', 'Attached', 'attached' ),
@@ -88,8 +88,7 @@
 
             var tmpSidebarControls = BlockEditor.getSidebarControls(tmpSidebarPanels);
 
-            var tmpDisplayObject = el('div',{className:tmpCN},[tmpText,tmpContent]);
-
+        var tmpDisplayObject = el('div',{className:tmpCN},[tmpText,tmpContent]);
             return el(
                 'div',
                 useBlockProps(),
@@ -111,8 +110,10 @@
             ]
             if( tmpAtts.url ){
                 var tmpOpts = {className:tmpClass,href:tmpAtts.url};
-                if( tmpAtts.urlopentab){
+                if( tmpAtts.urlopentab ){
                     tmpOpts.target = "_blank";
+                    //--- Important, without this it shows 
+                    tmpOpts.rel = "noopener";
                 }
                 return el('a',tmpOpts,tmpEls);
             } else {

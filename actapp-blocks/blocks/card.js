@@ -109,7 +109,13 @@
         
         tmpContent.push(tmpExtraContent);
         if( tmpAtt.url && !theIsEditMode){
-            return el('a',{className:tmpClass,href:tmpAtt.url},tmpContent);
+            var tmpOpts = {className:tmpClass,href:tmpAtts.url};
+            if( tmpAtts.urlopentab){
+                tmpOpts.target = "_blank";
+                //--- Important, without this it shows 
+                tmpOpts.rel = "noopener";
+            }
+            return el('a',tmpOpts,tmpContent);
         } else {
             if( theIsEditMode ){
                 return el('div',{className:'pad10'},[tmpBtnBar,newEl('div',tmpClass,[tmpContent])]);    

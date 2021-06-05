@@ -72,6 +72,15 @@
             }
             tmpContent.push(tmpEl)
         } else {
+            if( tmpAtts.url ){
+                var tmpOpts = {className:tmpCN,href:tmpAtts.url};
+                if( tmpAtts.urlopentab){
+                    tmpOpts.target = "_blank";
+                    //--- Important, without this it shows 
+                    tmpOpts.rel = "noopener";
+                }
+                tmpEl = el('a',tmpOpts,tmpEl);
+            }
             tmpContent  = tmpEl
         }
         //tmpContent  = tmpEl

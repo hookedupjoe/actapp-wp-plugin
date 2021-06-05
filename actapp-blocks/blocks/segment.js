@@ -52,7 +52,7 @@
     function getDisplayValue(theProps,theIsEditMode){
         var props = theProps;
         var tmpClass = getClass(props, true);
-        if( theIsEditMode && !props.isSelected  ){
+        if( theIsEditMode  ){ //&& !props.isSelected 
             tmpClass += ' actapp-block-box';
         }
         var tmpAtts = {className:tmpClass};
@@ -62,27 +62,29 @@
         if( tmpPropAtts.spotname  && tmpPropAtts.spotname != ''){
             var tmpSpotTopAtts = {spot:tmpPropAtts.spotname};
             if( tmpPropAtts.spotsourcetype ){
-                //console.log('tn',tmpPropAtts.spotsourcetype)
                 tmpSpotTopAtts.sourcetype = tmpPropAtts.spotsourcetype;
                 tmpSpotTopAtts.appuse = 'blockmarkup';
             }
             if( tmpPropAtts.spotsourcename ){
-                //console.log('ts',tmpPropAtts.spotsourcename)
                 tmpSpotTopAtts.sourcename = tmpPropAtts.spotsourcename;                
             }
             if( tmpPropAtts.spotsourcepartname ){
-                //console.log('ts',tmpPropAtts.spotsourcename)
                 tmpSpotTopAtts.sourcepartname = tmpPropAtts.spotsourcepartname;                
             }
             
-          
-    
             tmpEls.push(el('div',tmpSpotTopAtts,''));
         }
 
         
         if( theIsEditMode ){
-            tmpEls.push(el( wp.blockEditor.InnerBlocks ));
+            var tmpMe = wp.data.select( 'core/block-editor' ).getBlock(props.clientId);
+            var tmpChildren = tmpMe.innerBlocks;
+            if(!(tmpChildren && tmpChildren.length )){
+                //--- This assures the drag and drop feature allows a drop in a new unselected segment
+                var tmpToAddElement = BlockEditor.getCommonBlock('coreparagraph'); 
+                wp.data.dispatch('core/editor').insertBlocks(tmpToAddElement,0,props.clientId) 
+            }
+            tmpEls.push(el( wp.blockEditor.InnerBlocks ));             
         } else {
             tmpEls.push(el( wp.blockEditor.InnerBlocks.Content ));
         }
