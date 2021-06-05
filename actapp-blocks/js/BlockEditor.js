@@ -70,7 +70,16 @@
         
         
         BlockEditor.refreshBlockEditor = function(){
+            var tmpBlockClientId = '';
+            var tmpThis = wp.data.select( 'core/block-editor' ).getSelectedBlock();
+            if( tmpThis && tmpThis.clientId){
+                tmpBlockClientId = tmpThis.clientId;
+            }
             wp.data.dispatch('core/editor').synchronizeTemplate();
+            if( tmpBlockClientId ){
+                wp.data.dispatch( 'core/block-editor' ).selectBlock( tmpBlockClientId )
+            }
+
         }
 
         BlockEditor.getSelectControl = function(theValue,theOnChange, theDropDownValues){
@@ -343,9 +352,9 @@
                 }
                 tmpObjAtts[theAttName] = tmpVal;
                 theProps.setAttributes( tmpObjAtts );
-                if( theControlType == 'number' || theControlType == 'string' ){
+                //if( theControlType == 'number' || theControlType == 'string' ){
                     BlockEditor.refreshBlockEditor();
-                }
+                //}
                
             };
 
@@ -453,12 +462,17 @@
 
     ActionAppCore.subscribe('app-loaded', function(){
         ThisApp.delay(1000).then(function(){
-
             addBlockEditorActions();
+            //--- Open the sidebar editor automatically due to that being where our settings live
+            wp.data.dispatch( 'core/edit-post' ).openGeneralSidebar( 'edit-post/block' );
             var tmpWarnings = $('.block-editor-warning__action > .components-button.is-primary');
+            //--- Open the sidebar editor automatically due to that being where our settings live
             if( tmpWarnings.length > 0){
-                tmpWarnings.click();
-                alert("Some stuff changed, review and save this document.","Review Page Content","i");
+                ThisApp.confirm('Some stuff changed, refresh automatically?','Refresh Page?').then(function(theIsYes){
+                    if( theIsYes ){
+                        tmpWarnings.click();
+                    }
+                });
             }
         });
     })
