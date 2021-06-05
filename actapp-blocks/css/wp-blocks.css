@@ -19,4 +19,10 @@ i.arrow:after {
     border:dashed 3px gray !important;
     min-height:30px !important;
 }
+.block-editor-block-list__layout {
+    min-height: 40px;
+}
+.block-editor-block-list__layout:drop {
+    border:dashed 2px blue !important;
+}
 

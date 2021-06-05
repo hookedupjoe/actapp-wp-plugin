@@ -84,7 +84,8 @@
             var tmpParents = wp.data.select( 'core/block-editor' ).getBlockParents(theBlockID);
             var tmpParentAttributes = {};
             if( tmpParents && tmpParents.length > 0 ){
-                var tmpParentID = tmpParents[0];
+                //--- Get the direct parent ... 0 is top level
+                var tmpParentID = tmpParents[tmpParents.length-1];
                 var tmpParentBlock = wp.data.select('core/block-editor').getBlocksByClientId(tmpParentID);
                 if( tmpParentBlock && tmpParentBlock.length > 0 ){
                     tmpParentAttributes = tmpParentBlock[0].attributes || {};
@@ -468,6 +469,11 @@
     var CommonBlocks = {
         //order: ["standard-header","small-header","blue-message"],
         lookup: {
+            "coreparagraph": {
+                type: 'core/paragraph', 
+                name: "Paragraph",
+                attr: {}
+            },
             "button": {
                 type: 'actappui/button', 
                 name: "Button",
