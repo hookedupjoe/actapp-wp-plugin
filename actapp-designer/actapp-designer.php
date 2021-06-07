@@ -46,5 +46,7 @@ if ( !defined( 'ACTAPP_DESIGNER_URL' ) ) {
 }
 
 
+
+require_once ACTAPP_DESIGNER_DIR . '/cls/ActAppDesignerDataController.php';
 require_once ACTAPP_DESIGNER_DIR . '/cls/ActAppDesigner.php';
 

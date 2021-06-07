@@ -74,11 +74,32 @@ public static function setup_scripts($hook) {
 }
 
 
-    protected static function assure_doc($slug, $post_type, $title, $content){
+	 /**
+	 * post_exists_by_slug.
+	 *
+	 * @return mixed boolean false if no post exists; post ID otherwise.
+	 */
+	public static function post_exists_by_slug( $post_slug, $post_type = 'post') {
+		$args_posts = array(
+			'post_type'      => $post_type,
+			'post_status'    => 'any',
+			'name'           => $post_slug,
+			'posts_per_page' => 1,
+		);
+		$loop_posts = new WP_Query( $args_posts );
+		if ( ! $loop_posts->have_posts() ) {
+			return false;
+		} else {
+			$loop_posts->the_post();
+			return $loop_posts->post->ID;
+		}
+	}
+	
+    public static function assure_doc($slug, $post_type, $title, $content){
 		$author_id = 1;
 		if( !self::post_exists_by_slug( $slug, $post_type ) ) {
             // Set the post ID
-            wp_insert_post(
+            return wp_insert_post(
                 array(
                     'comment_status'    =>   'closed',
                     'ping_status'       =>   'closed',

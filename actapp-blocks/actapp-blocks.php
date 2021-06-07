@@ -45,5 +45,5 @@ if ( !defined( 'ACTAPP_BLOCKS_URL' ) ) {
 	define( 'ACTAPP_BLOCKS_URL', plugins_url( 'actapp-blocks' ) );
 }
 
-
 require_once ACTAPP_BLOCKS_DIR . '/cls/ActAppWidgetManager.php';
+require_once ACTAPP_BLOCKS_DIR . '/cls/ActAppWidgetManangerDataController.php';
