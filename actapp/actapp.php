@@ -27,9 +27,9 @@
  * Text Domain: actapp
  * License: GPLv3
  * 
- * Version: 1.0.23
+ * Version: 1.0.24
  */
-define( 'ACTAPP_CORE_VERSION', '1.0.23' );
+define( 'ACTAPP_CORE_VERSION', '1.0.24' );
  
 if ( !defined( 'ABSPATH' ) ) {
 	exit;
@@ -58,3 +58,22 @@ if ( !defined( 'ACTAPP_SLEEKDB_LIB' ) ) {
 
 require_once ACTAPP_CORE_DIR . '/cls/ActAppCommon.php';
 require_once ACTAPP_SLEEKDB_LIB . '/SleekDB.php';
+
+
+//---- Blocks Module
+
+define( 'ACTAPP_BLOCKS_VERSION', '1.0.3' );
+define( 'ACTAPP_BLOCKS_FILE', __FILE__ );
+
+if ( !defined( 'ACTAPP_BLOCKS_DIR' ) ) {
+	define( 'ACTAPP_BLOCKS_DIR', ACTAPP_CORE_DIR );
+}
+
+if ( !defined( 'ACTAPP_BLOCKS_URL' ) ) {
+	define( 'ACTAPP_BLOCKS_URL', ACTAPP_CORE_URL );
+}
+
+require_once ACTAPP_BLOCKS_DIR . '/cls/ActAppWidgetManager.php';
+require_once ACTAPP_BLOCKS_DIR . '/cls/ActAppWidgetManangerDataController.php';
+
+

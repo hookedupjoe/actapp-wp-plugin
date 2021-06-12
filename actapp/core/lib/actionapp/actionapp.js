@@ -19,9 +19,9 @@ var ActionAppCore = {
     //--- Debounce resize / rapid firing events
     debounce: function (func, wait, immediate) {
         var timeout;
-        return function() {
+        return function () {
             var context = this, args = arguments;
-            var later = function() {
+            var later = function () {
                 timeout = null;
                 if (!immediate) func.apply(context, args);
             };
@@ -388,14 +388,14 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         return dfd.promise();
     };
 
-    me.layoutComponentResized = function(){
-        // console.log("layoutComponentResized",arguments);
+    me.layoutComponentResized = function () {
+
     }
 
-    me.onDropDownNavChange = function(theValue, theText, theChoice){
-        if( theChoice.get(0) && theChoice.get(0).tagName){
+    me.onDropDownNavChange = function (theValue, theText, theChoice) {
+        if (theChoice.get(0) && theChoice.get(0).tagName) {
             var tmpURL = theChoice.attr('href');
-            if( tmpURL ){
+            if (tmpURL) {
                 window.location = tmpURL;
             }
         }
@@ -428,10 +428,10 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                 .checkbox();
         }
 
-        
+
 
         var tmpLayouts = me.getByAttr$({ appcomp: 'layout' }, theOptionalTarget);
-        
+
         if (tmpLayouts) {
 
 
@@ -467,13 +467,11 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                     //ToDo: Create / test more than one app comp and assure both resize
                     /*
                     var appCtlLayoutChanged = ActionAppCore.debounce(function () {
-                        console.log('page layout resized',this, arguments);
                         this.publish('resized', {});
                     }, 200).bind(this);
 
                     var tmpRet = tmpLayoutEntry.layout(tmpLayoutOptions);
                     tmpLayoutOptions.onresize_end = appCtlLayoutChanged;
-                    console.log("initAppComponents: Layout reply",tmpRet,tmpLayoutOptions)
                     */
                 }
 
@@ -484,12 +482,6 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                 ThisApp.resizeLayouts();
             }
 
-            // me.getByAttr$({ appcomp: 'layout' }, theOptionalTarget)
-            //     .addClass('ctl-layout-frame')
-            //     .attr('appcomporig', 'layout')
-            //     .attr('appcomp', '')
-            //     .layout()
-            //     ;
         }
     }
 
@@ -570,7 +562,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
             if (!(tmpExists)) {
 
-                var tmpURL = tmpURI.uri;                
+                var tmpURL = tmpURI.uri;
                 if (!(tmpURI.uri.endsWith('/') || (tmpURI.uri.indexOf('?') > -1) || tmpURI.uri.endsWith('.xsp'))) {
                     //--- Do not add extn to flat items
                     tmpURL += me.getExtnForType(tmpURI.type);
@@ -635,7 +627,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
     function assureRelative(theURL) {
         var tmpURL = theURL;
         if (!tmpURL.startsWith('.') && !tmpURL.startsWith('/')) {
-                tmpURL = './' + tmpURL;
+            tmpURL = './' + tmpURL;
         }
         return tmpURL;
     }
@@ -650,18 +642,28 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         var tmpResourceData = theControl;
         var tmpCheckPath = thePath;
         //--- If the base element (with no params) is not loaded, get the CSS and load it
-        if (!(tmpCheckPath) || (me.resourceInitFlags[tmpCheckPath] !== true)) {
-            if (tmpCheckPath) {
-                me.resourceInitFlags[tmpCheckPath] = true;
-                if (tmpResourceData.controlConfig) {
-                    tmpResourceData.controlConfig.uri = theFullPath;
-                }
-            }
-            if (tmpResourceData.controlConfig && tmpResourceData.controlConfig.options && tmpResourceData.controlConfig.options.css) {
-                var tmpCSS = tmpResourceData.controlConfig.options.css || '';
-                if (tmpCSS) {
-                    me.addCSS({ css: tmpCSS, path: tmpCheckPath })
-                }
+        // if (!(tmpCheckPath) || (me.resourceInitFlags[tmpCheckPath] !== true)) {
+        //     if (tmpCheckPath) {
+        //         console.log(tmpCheckPath);
+        //         me.resourceInitFlags[tmpCheckPath] = true;
+        //         if (tmpResourceData.controlConfig) {
+        //             console.log('added',tmpCheckPath)
+        //             tmpResourceData.controlConfig.uri = theFullPath;
+        //         }
+        //     }
+        //     if (tmpResourceData.controlConfig && tmpResourceData.controlConfig.options && tmpResourceData.controlConfig.options.css) {
+        //         var tmpCSS = tmpResourceData.controlConfig.options.css || '';
+        //         if (tmpCSS) {
+        //             me.addCSS({ css: tmpCSS, path: tmpCheckPath })
+        //         }
+        //     }
+        // }
+        //TODO: The caching cause issues - need to include params for backend dynamic, not do dynamic
+        //         ** also review above change for accessive redundant activity on load **
+        if (tmpResourceData.controlConfig && tmpResourceData.controlConfig.options && tmpResourceData.controlConfig.options.css) {
+            var tmpCSS = tmpResourceData.controlConfig.options.css || '';
+            if (tmpCSS) {
+                me.addCSS({ css: tmpCSS, path: tmpCheckPath })
             }
         }
 
@@ -912,25 +914,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
     }
 
     me.layoutTemplates = CoreApp.layoutTemplates;
-    me.waitForFinalEvent = (function () {
-        var timers = {};
-        return function (callback, ms, uniqueId) {
-            if (!uniqueId) {
-                uniqueId = "shouldUseID";
-            }
-            if (timers[uniqueId]) {
-                clearTimeout(timers[uniqueId]);
-            }
-            timers[uniqueId] = setTimeout(callback, ms);
-        };
-    })();
 
-    //--- Example usage
-    //   $(window).resize(function () {
-    //     ThisApp.waitForFinalEvent(function(){
-    //       //...
-    //     }, 500, "ThisAppResize");
-    // });
     /**
        * getUpdatedMarkupForNS
        *  - Returns HTML content that has the been prefixed with "namespace:"
@@ -1078,7 +1062,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
    * 
    */
     me.getSpot$ = function (theName, theOptionalParent$, theOptionalTagName) {
-        if( ThisApp.util.isjQuery(theName)){
+        if (ThisApp.util.isjQuery(theName)) {
             return theName;
         }
         var tmpTagName = theOptionalTagName || 'spot';
@@ -2007,11 +1991,6 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         }
     }
 
-
-
-
-
-
     //--- Internal Functionality ========== ========== ========== ========== ========== ========== ========== ========== ========== ========== 
     //--- ========  ========== ========== ========== ========== ========== ========== ========== ========== ========== ========== 
     function isFunc(theItem) {
@@ -2074,7 +2053,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
     due to multiple hits or types of events all being called at once.
     */
     me.debounce = ActionAppCore.debounce;
-    
+
 
     function onCommonDialogHide(theEl) {
         if (typeof (commonDialogCallbackOnHide) == 'function') {
@@ -2089,7 +2068,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
     function getCommonDialog() {
         if (!commonDialog) {
             commonDialog = ThisApp.getByAttr$({ appuse: 'global-dialog' })
-            if( commonDialog && commonDialog.model){
+            if (commonDialog && commonDialog.model) {
                 commonDialog.modal('setting', {
                     detachable: false,
                     allowMultiple: true,
@@ -2103,7 +2082,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                     onHidden: onCommonDialogHidden
                 });
             }
-            
+
 
             ThisApp.commonDialog = commonDialog;
         }
@@ -2211,47 +2190,29 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         var tmpHTML = '<div appuse="global-dialog" class="ui modal longer inverted"><button style="float:right;margin-top:5px;margin-right:5px;" class="icon ui basic blue button circle" action="closeCommonDialog" ><i class="close icon"></i> <span spot="site:dialog-close-text">Close</span></button><div spot="site:dialog-header" class="header"></div>  <div spot="site:dialog-content" class="content common-dialog-content"> </div> <div spot="site:dialog-footer" class="common-dialog-footer"></div> </div> ';
         me.loadSpot(commonDialogSpot, tmpHTML)
     }
-    
+
     me.initAppActions = initAppActions;
     function initAppActions() {
-        
 
-        
 
-        var tmpBody = $('body');     
-        if( tmpBody.length > 0 ){
+
+
+        var tmpBody = $('body');
+        if (tmpBody.length > 0) {
             var tmpBodyDom = tmpBody.get(0);
             tmpBody.on("click", itemClicked);
             tmpBodyDom.ontouchend = itemTouchEnd;
             tmpBodyDom.ontouchstart = ThisApp.util.itemTouchStart.bind(this);
-    
-        /*
-        } else {
-            ThisApp.delay(2000).then(function (theReply) {
-                tmpBody = $('body');     
-                console.log("tmpBody 2",tmpBody);   
-                if( tmpBody.length > 0 ){
-                    var tmpBodyDom = tmpBody.get(0);
-                    tmpBody.on("click", itemClicked);
-                    console.log("added itemClicked",itemClicked);
-                    tmpBodyDom.ontouchend = itemTouchEnd;
-                    tmpBodyDom.ontouchstart = ThisApp.util.itemTouchStart.bind(this);
-            
-                } else {
-                    console.error("Could not init App, body not loaded");
-                }
-            })
-             */
         }
     }
-    
+
     //---- Internal: Gets the action or action from the current element or the first parent element with such an entry,
     //               ... this is needed so when a child element is clicked, the proper parent action element is used.
     me.getActionFromObj = function (theObj, theOptionalTag) {
         var tmpTagName = theOptionalTag || 'action';
         var tmpObj = theObj;
         var tmpAction = $(tmpObj).attr(tmpTagName) || "";
-        
+
         if (!tmpAction) {
             var tmpParent = $(tmpObj).closest('[' + tmpTagName + ']');
             if (tmpParent.length == 1) {
@@ -2270,7 +2231,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         }
         //--- Update to not read the action of a form as an Action App action
         //JF - 10-28-20
-        if( tmpObj && tmpObj.tagName && tmpObj.tagName.toUpperCase() == 'FORM'){
+        if (tmpObj && tmpObj.tagName && tmpObj.tagName.toUpperCase() == 'FORM') {
             return false;
         }
         return { action: tmpAction, el: tmpObj };
@@ -2288,16 +2249,16 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
     function itemTouchEnd(theEvent) {
         var tmpTarget = theEvent.target || theEvent.currentTarget || theEvent.delegetTarget || {};
         var tmpBounds = tmpTarget.getBoundingClientRect();
-        if( theEvent.changedTouches && theEvent.changedTouches.length > 0){
+        if (theEvent.changedTouches && theEvent.changedTouches.length > 0) {
             var tmpTouchInfo = theEvent.changedTouches[0];
             var tmpStart = ThisApp.util._start;
             var tmpXDiff = Math.abs(tmpStart.x - tmpTouchInfo.screenX)
             var tmpYDiff = Math.abs(tmpStart.y - tmpTouchInfo.screenY)
-            if( tmpXDiff > ThisApp.util.MIN_TOUCH_DISTANCE || tmpYDiff > ThisApp.util.MIN_TOUCH_DISTANCE){
+            if (tmpXDiff > ThisApp.util.MIN_TOUCH_DISTANCE || tmpYDiff > ThisApp.util.MIN_TOUCH_DISTANCE) {
                 return;
             }
-            if( ThisApp.util.touchIsClick(tmpBounds, tmpTouchInfo.clientX, tmpTouchInfo.clientY ) ){
-               itemClicked(theEvent);
+            if (ThisApp.util.touchIsClick(tmpBounds, tmpTouchInfo.clientX, tmpTouchInfo.clientY)) {
+                itemClicked(theEvent);
             }
         }
     }
@@ -2335,7 +2296,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
 
     me.refreshLayouts = ActionAppCore.debounce(function (theTargetEl) {
-        if( ThisApp.siteLayout ){
+        if (ThisApp.siteLayout) {
             ThisApp.siteLayout.resizeAll();
         }
     }, 200);
@@ -2454,8 +2415,8 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         //--- Converts string to obj or obj to string based on what is passed
         me.json = me.util.json;
         me.clone = me.util.clone;
-        
-    
+
+
 
         //--- Add controls plugin at the app level
         // ..... as global entrypoint for controls module
@@ -2470,7 +2431,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
             tmpPromConfigReqired = me.loadResources(ActionAppCore.config.required);
         };
 
-        $.when(tmpPromRequired,tmpPromConfigReqired).then(function () {
+        $.when(tmpPromRequired, tmpPromConfigReqired).then(function () {
             //--- do the rest of the app load
             dfd.resolve(true);
         })
@@ -2486,14 +2447,14 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         var dfd = jQuery.Deferred();
 
         ThisCoreApp = this;
-        var tmpBody = $('body');     
-        if( tmpBody.length == 0 ){
+        var tmpBody = $('body');
+        if (tmpBody.length == 0) {
             dfd.resolve(false);
             return dfd.promise();
         }
         initAppMarkup();
 
-        
+
         window.addEventListener('resize', ThisApp.refreshLayouts.bind(ThisApp));
 
 
@@ -2635,7 +2596,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         var tmpIcon = tmpTR.find('td:last > i');
         //var tmpIsVis = tmpNext.is(":visible");
         var tmpIsVis = (tmpNext.css('display') != 'none');
-        
+
         if (tmpIsVis) {
             tmpNext.hide();
             tmpIcon.removeClass('minus')
@@ -2675,115 +2636,109 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         }, 200),
 
         minCardSizeSm: 245,
-        minCardSize : 350,
-        maxCardSizeSm : 365,
-        maxCardSize : 999,
-        currentCardCount : 0,
-        cutOffSmall : 668,
-        cutOffLarge : 9999,
+        minCardSize: 350,
+        maxCardSizeSm: 365,
+        maxCardSize: 999,
+        currentCardCount: 0,
+        cutOffSmall: 668,
+        cutOffLarge: 9999,
 
-        resizeLayoutProcess : function (theForce) {
+        resizeLayoutProcess: function (theForce) {
             try {
-              //--- On layout resize ...
-              this.resizeGrid();
-              var tmpCardCount = 4;
-              var tmpCards = ThisApp.getByAttr$({"auto-adapt":"cards"});
-              
-              if( tmpCards && tmpCards.length ){
-  
-                var tmpCardsLen = tmpCards.length;
-  
-                if (tmpCards && tmpCardsLen > 0) {
-                  
-                  for (var iPos = 0; iPos < tmpCardsLen; iPos++) {
-                    var tmpCardsEl = $(tmpCards[iPos]);
-                    var tmpIW = tmpCardsEl.innerWidth();
-                    var tmpMin = this.minCardSizeSm;
-                    //ToDo: Set cut off for small card sizing (xs?)
-                    // if (this.mode != "S") {
-                    //   tmpMin = this.minCardSize;
-                    // }
-                    //var tmpMax = this.maxCardSizeSm;
-                    // if (this.mode != "S") {
-                    //   tmpMax = this.maxCardSize;
-                    // }
-        
-                    //--- ToDo: Move to element data if used
-                    //this.lastIW = tmpIW;
-                
-                    var tmpEach = parseInt(tmpIW / tmpMin);
-                    tmpCardCount = tmpEach;
-                    if (tmpCardCount > 10) {
-                      tmpCardCount = 10;
-                    }
-                
-            
-                   
-                    
-                    if (tmpCardsEl && tmpCardsEl.is(":visible")) {
-                      //console.log('tmpCardsEl',tmpCardsEl)
-                      var tmpCardEntryEls = tmpCardsEl.find('.card');
-  
-                      //ToDo: Implement with cut off value
-                      // if (this.mode == 'S') {
-                      //   tmpCardEntryEls.css('max-width', this.maxCardSizeSm + 'px');
-                      // } else {
-                      //   tmpCardEntryEls.css('max-width', this.maxCardSize + 'px');
-                      // }
-                      //tmpCardEntryEls.css('max-width', this.maxCardSize + 'px');
-                      //end ToDo
-  
-                      var tmpCurrCards = tmpCardEntryEls.length;
-                      //console.log('tmpCardsLen',tmpCardsLen)
+                //--- On layout resize ...
+                this.resizeGrid();
+                var tmpCardCount = 4;
+                var tmpCards = ThisApp.getByAttr$({ "auto-adapt": "cards" });
 
-                      //console.log('tmpCurrCards',tmpCurrCards)
-                      var tmpMaxCards = tmpCurrCards;
-                      //---
-                      //console.log('tmpCardCount',tmpCardCount)
-                      if (tmpCardCount > tmpMaxCards) {
-                        tmpCardCount = tmpMaxCards;
-                      }
-                      //console.log('tmpCardCount2',tmpCardCount)
-            
-                      //=== Example of a way to help with dangling single value
-                    //   if (tmpCurrCards == 4 && tmpCardCount == 3) {
-                    //     if (tmpIW < 800) {
-                    //       tmpCardCount = 2;
-                    //     } else {
-                    //       tmpCardCount = 4;
-                    //     }
-                    //   }
-            
-                      var tmpToRemove = '';
-                      var tmpAttrVal = tmpCardsEl.attr('grid16-ccc');
-                      if (tmpAttrVal) {
-                        tmpToRemove = tmpAttrVal;
-                      }
-                      //tmpCardsEl.data.currentCardCount = tmpCardCount;
-                      var tmpToAdd = this.numLookup[tmpCardCount];
-                      tmpCardsEl.attr('grid16-ccc',tmpToAdd);
-            
-                      if (theForce || (tmpToRemove != tmpToAdd)) {
-                        if (tmpToRemove) {
-                            tmpCardsEl.removeClass(tmpToRemove);
+                if (tmpCards && tmpCards.length) {
+
+                    var tmpCardsLen = tmpCards.length;
+
+                    if (tmpCards && tmpCardsLen > 0) {
+
+                        for (var iPos = 0; iPos < tmpCardsLen; iPos++) {
+                            var tmpCardsEl = $(tmpCards[iPos]);
+                            var tmpIW = tmpCardsEl.innerWidth();
+                            var tmpMin = this.minCardSizeSm;
+                            //ToDo: Set cut off for small card sizing (xs?)
+                            // if (this.mode != "S") {
+                            //   tmpMin = this.minCardSize;
+                            // }
+                            //var tmpMax = this.maxCardSizeSm;
+                            // if (this.mode != "S") {
+                            //   tmpMax = this.maxCardSize;
+                            // }
+
+                            //--- ToDo: Move to element data if used
+                            //this.lastIW = tmpIW;
+
+                            var tmpEach = parseInt(tmpIW / tmpMin);
+                            tmpCardCount = tmpEach;
+                            if (tmpCardCount > 10) {
+                                tmpCardCount = 10;
+                            }
+
+
+
+
+                            if (tmpCardsEl && tmpCardsEl.is(":visible")) {
+                                var tmpCardEntryEls = tmpCardsEl.find('.card');
+
+                                //ToDo: Implement with cut off value
+                                // if (this.mode == 'S') {
+                                //   tmpCardEntryEls.css('max-width', this.maxCardSizeSm + 'px');
+                                // } else {
+                                //   tmpCardEntryEls.css('max-width', this.maxCardSize + 'px');
+                                // }
+                                //tmpCardEntryEls.css('max-width', this.maxCardSize + 'px');
+                                //end ToDo
+
+                                var tmpCurrCards = tmpCardEntryEls.length;
+
+                                var tmpMaxCards = tmpCurrCards;
+                                if (tmpCardCount > tmpMaxCards) {
+                                    tmpCardCount = tmpMaxCards;
+                                }
+
+                                //=== Example of a way to help with dangling single value
+                                //   if (tmpCurrCards == 4 && tmpCardCount == 3) {
+                                //     if (tmpIW < 800) {
+                                //       tmpCardCount = 2;
+                                //     } else {
+                                //       tmpCardCount = 4;
+                                //     }
+                                //   }
+
+                                var tmpToRemove = '';
+                                var tmpAttrVal = tmpCardsEl.attr('grid16-ccc');
+                                if (tmpAttrVal) {
+                                    tmpToRemove = tmpAttrVal;
+                                }
+                                //tmpCardsEl.data.currentCardCount = tmpCardCount;
+                                var tmpToAdd = this.numLookup[tmpCardCount];
+                                tmpCardsEl.attr('grid16-ccc', tmpToAdd);
+
+                                if (theForce || (tmpToRemove != tmpToAdd)) {
+                                    if (tmpToRemove) {
+                                        tmpCardsEl.removeClass(tmpToRemove);
+                                    }
+                                    if (tmpToAdd) {
+                                        tmpCardsEl.addClass(tmpToAdd);
+                                    }
+                                }
+                            }
                         }
-                        if (tmpToAdd) {
-                            tmpCardsEl.addClass(tmpToAdd);
-                        }
-                      }
                     }
-                  }
+
                 }
-  
-              }
-              //--- end layout resize
+                //--- end layout resize
             } catch (ex) {
-              console.error("Error on refresh ", ex);
+                console.error("Error on refresh ", ex);
             }
-          },
+        },
 
         sep_cards: "-----------------------------",
-        
+
         numLookup: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"],
         paramDefaults: {
             "gs-s-at": 330,
@@ -2794,71 +2749,70 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         },
 
         resizeGrid: function (theOptions) {
-           try {
-            var tmpOptions = theOptions || {};
-            // var tmpParent = tmpOptions.parent || false;
-            // console.log('tmpParent',tmpParent);
-            // was !!(tmpParent) ? tmpParent : 
-            var tmpGrids = ThisApp.getByAttr$({ appuse: "grid-16" });
-             
-            var tmpGridsLen = tmpGrids.length;
-            if (tmpGrids && tmpGridsLen > 0) {
+            try {
+                var tmpOptions = theOptions || {};
+                // var tmpParent = tmpOptions.parent || false;
+                // was !!(tmpParent) ? tmpParent : 
+                var tmpGrids = ThisApp.getByAttr$({ appuse: "grid-16" });
+
+                var tmpGridsLen = tmpGrids.length;
+                if (tmpGrids && tmpGridsLen > 0) {
                     for (var iPos = 0; iPos < tmpGridsLen; iPos++) {
-                    var tmpGridsEl = $(tmpGrids[iPos]);
-                    if (tmpGridsEl && (tmpOptions.force || tmpGridsEl.is(":visible"))) {
+                        var tmpGridsEl = $(tmpGrids[iPos]);
+                        if (tmpGridsEl && (tmpOptions.force || tmpGridsEl.is(":visible"))) {
 
-                        var tmpPaneEl = tmpGridsEl.first('.ui-layout-pane');
-                        var tmpIW = tmpPaneEl.innerWidth();
-                        var tmpGridParams = ThisApp.getAttrs(tmpGridsEl, ["gs-s-at", "gs-m-at", "gs-s", "gs-m", "gs-l"])
-                        for (var aName in tmpGridParams) {
-                            try {
-                                tmpGridParams[aName] = parseInt(tmpGridParams[aName]);
-                            } catch (ex) {
-    
+                            var tmpPaneEl = tmpGridsEl.first('.ui-layout-pane');
+                            var tmpIW = tmpPaneEl.innerWidth();
+                            var tmpGridParams = ThisApp.getAttrs(tmpGridsEl, ["gs-s-at", "gs-m-at", "gs-s", "gs-m", "gs-l"])
+                            for (var aName in tmpGridParams) {
+                                try {
+                                    tmpGridParams[aName] = parseInt(tmpGridParams[aName]);
+                                } catch (ex) {
+
+                                }
                             }
-                        }
-                        tmpGridParams = $.extend({}, this.paramDefaults, tmpGridParams);
-    
-                        var tmpGridSize = tmpGridParams["gs-l"];
-                        if (tmpIW <= tmpGridParams["gs-s-at"]) {
-                            tmpGridSize = tmpGridParams["gs-s"];
-                        } else if (tmpIW <= tmpGridParams["gs-m-at"]) {
-                            tmpGridSize = tmpGridParams["gs-m"];
-                        }
+                            tmpGridParams = $.extend({}, this.paramDefaults, tmpGridParams);
 
-                        
-                        var tmpGridCols = tmpGridsEl.find('[gscol]');
-                        //todo: Make generic
-                        var tmpXHead = tmpGridsEl.find('[griduse="extra-header"]');
-                        
-                        if (tmpGridSize < 16) {
-                            tmpXHead.show();
-                        } else {
-                            tmpXHead.hide();
-                        }
-                        
-                        var tmpToRemove = '';
-                        tmpGridsEl.data = tmpGridsEl.data || {};
-                        
-                        if (tmpGridsEl.data.currentCardCount) {
-                            tmpToRemove = this.numLookup[tmpGridsEl.data.currentCardCount] + " wide";
-                        }
-                        tmpGridsEl.data.currentCardCount = tmpGridSize;
-                        var tmpToAdd = this.numLookup[tmpGridsEl.data.currentCardCount] + " wide";
+                            var tmpGridSize = tmpGridParams["gs-l"];
+                            if (tmpIW <= tmpGridParams["gs-s-at"]) {
+                                tmpGridSize = tmpGridParams["gs-s"];
+                            } else if (tmpIW <= tmpGridParams["gs-m-at"]) {
+                                tmpGridSize = tmpGridParams["gs-m"];
+                            }
 
-                        if (tmpToRemove) {
-                            tmpGridCols.removeClass(tmpToRemove);
-                        }
-                        if (tmpToAdd) {
-                            tmpGridCols.addClass(tmpToAdd);
-                        }
 
+                            var tmpGridCols = tmpGridsEl.find('[gscol]');
+                            //todo: Make generic
+                            var tmpXHead = tmpGridsEl.find('[griduse="extra-header"]');
+
+                            if (tmpGridSize < 16) {
+                                tmpXHead.show();
+                            } else {
+                                tmpXHead.hide();
+                            }
+
+                            var tmpToRemove = '';
+                            tmpGridsEl.data = tmpGridsEl.data || {};
+
+                            if (tmpGridsEl.data.currentCardCount) {
+                                tmpToRemove = this.numLookup[tmpGridsEl.data.currentCardCount] + " wide";
+                            }
+                            tmpGridsEl.data.currentCardCount = tmpGridSize;
+                            var tmpToAdd = this.numLookup[tmpGridsEl.data.currentCardCount] + " wide";
+
+                            if (tmpToRemove) {
+                                tmpGridCols.removeClass(tmpToRemove);
+                            }
+                            if (tmpToAdd) {
+                                tmpGridCols.addClass(tmpToAdd);
+                            }
+
+                        }
                     }
                 }
+            } catch (ex) {
+                console.warn("Error during resize ", ex.toString(), ex)
             }
-           } catch (ex) {
-             console.warn("Error during resize ", ex.toString(), ex)  
-           }
         }
 
 
@@ -2903,22 +2857,18 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         }
 
         var tmpBodyEl = $('body');
-        if (!(theAppConfig && theAppConfig.layout === false) && tmpBodyEl.length > 0){
-            
-            me.siteLayout = tmpBodyEl.layout(tmpLOSpecs);            
+        if (!(theAppConfig && theAppConfig.layout === false) && tmpBodyEl.length > 0) {
+            me.siteLayout = tmpBodyEl.layout(tmpLOSpecs);
         }
 
         if (theAppConfig && theAppConfig.hideHeader == true) {
-            if( me.siteLayout ){
+            if (me.siteLayout) {
                 me.siteLayout.toggle('north');
             }
         }
         if (theAppConfig && theAppConfig.hidePagesMenu == true) {
             me.getByAttr$({ semaction: "showsidebar" }).hide();
-
         }
-
-
 
         me.config = me.config || {};
         if (theAppConfig) {
@@ -2932,19 +2882,19 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         me.selectMe = showSubPage
 
         //--- Allows a div to work like a link
-        me.openhref = function(theParams, theTarget){
+        me.openhref = function (theParams, theTarget) {
             var tmpParams = ThisApp.getActionParams(theParams, theTarget, ['href']);
             var tmpURL = tmpParams.href;
-            if( tmpURL ){
+            if (tmpURL) {
                 window.location = tmpURL;
             }
         }
 
         me.$appPageContainer = $(me.config.container || '[appuse="main-page-container"]');
-        if( me.$appPageContainer.length == 0){
+        if (me.$appPageContainer.length == 0) {
             me.$appPageContainer = false;
         }
-        
+
 
         for (var aName in me.components) {
             var tmpController = me.components[aName];
@@ -2953,7 +2903,6 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                 tmpController.init(this);
             }
         }
-
 
         var tmpNavHTML = '{{#each navlinks}} {{#if isTopLink}}<a appuse="tablinks" group="app:pages" item="{{name}}" action="showPage" class="item blue">{{title}}</a>{{/if}} {{/each}}';
         var tmpSideLinksHTML = '{{#each navlinks}} {{#if isSideLink}}<a appuse="tablinks" group="app:pages" item="{{name}}" action="showPage" class="item">{{{iconHTML}}}{{title}}</a>{{/if}} {{/each}}';
@@ -3039,10 +2988,10 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
             }
         }
 
-        ActionAppCore.publish('app-loaded',[ThisApp]);
+        ActionAppCore.publish('app-loaded', [ThisApp]);
 
     }
-    
+
     function isStr(theItem) {
         return (typeof (theItem) == 'string')
     }
@@ -3071,19 +3020,19 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
     function getUrlParameter(sParam) {
         var sPageURL = window.location.search.substring(1),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
-      
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
         for (i = 0; i < sURLVariables.length; i++) {
-          sParameterName = sURLVariables[i].split('=');
-      
-          if (sParameterName[0] === sParam) {
-            return sParameterName[1] === undefined ? true: decodeURIComponent(sParameterName[1]);
-          }
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
         }
-      };
-      
+    };
+
 
 
 
@@ -3255,7 +3204,7 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         return (theObject instanceof Element);
     }
     function isjQuery(theObject) {
-        return ( theObject && theObject.jquery) ? true : false;
+        return (theObject && theObject.jquery) ? true : false;
     }
     function isArray(theObject) {
         return Array.isArray(theObject);
@@ -3288,24 +3237,23 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
     function itemTouchStart(theEvent) {
         //var tmpTarget = theEvent.target || theEvent.currentTarget || theEvent.delegetTarget || {};
-        if( theEvent.targetTouches && theEvent.targetTouches.length > 0){
+        if (theEvent.targetTouches && theEvent.targetTouches.length > 0) {
             var tmpTouchInfo = theEvent.targetTouches[0];
             ThisApp.util._start = {
-                x:tmpTouchInfo.screenX, 
+                x: tmpTouchInfo.screenX,
                 y: tmpTouchInfo.screenY
             }
         }
     }
     function touchIsClick(theRect, theX, theY) {
-        
+
         // var tmpFarX = Math.abs(theRect.x + theRect.width - theX);
         // var tmpFarY = Math.abs(theRect.y - theY);
         // if( tmpFarX > this.MIN_TOUCH_DISTANCE || tmpFarY > this.MIN_TOUCH_DISTANCE){
-        //     console.log( 'touchIsClick too far');
         //     return false;
         // }        
         return theRect.x <= theX && theX <= theRect.x + theRect.width &&
-        theRect.y <= theY && theY <= theRect.y + theRect.height;
+            theRect.y <= theY && theY <= theRect.y + theRect.height;
     }
 
     //ThisApp.util...
@@ -3428,26 +3376,25 @@ License: MIT
             this.layoutOptions.spotPrefix = this.layoutOptions.spotPrefix || this.pageName;
 
             // this.layoutConfig.onresize_end = (
-//                 function (thePane, theElement, theState, theOptions, theName) {
-// console.log("onresize orig");
-//                     if (typeof (this._onResizeLayout) == 'function') {
-//                         if (thePane == 'center') {
-//                             this._onResizeLayout(thePane, theElement, theState, theOptions, theName);
-//                         }
-//                     }
+            //                 function (thePane, theElement, theState, theOptions, theName) {
+            //                     if (typeof (this._onResizeLayout) == 'function') {
+            //                         if (thePane == 'center') {
+            //                             this._onResizeLayout(thePane, theElement, theState, theOptions, theName);
+            //                         }
+            //                     }
 
-//                     try {
-//                         if (this.publish) {
-//                             if (thePane == 'center') {
-//                                 this.publish('resizeLayout', [this, thePane, theElement, theState, theOptions, theName]);
-//                             }
-//                         }
-//                     } catch (ex) {
-//                         console.error('error on resize', ex);
-//                     }
-//                     return true;
-//                 }
-//             ).bind(this);
+            //                     try {
+            //                         if (this.publish) {
+            //                             if (thePane == 'center') {
+            //                                 this.publish('resizeLayout', [this, thePane, theElement, theState, theOptions, theName]);
+            //                             }
+            //                         }
+            //                     } catch (ex) {
+            //                         console.error('error on resize', ex);
+            //                     }
+            //                     return true;
+            //                 }
+            //             ).bind(this);
 
             //--- Extend with new layout related spot functions
             this.addToRegion = function (theRegion, theContent, theOptionalTemplateName, thePrepend) {
@@ -3565,14 +3512,14 @@ License: MIT
         return theLayoutOptions;
     }
 
-    me.pubResize = function(){
+    me.pubResize = function () {
         if (typeof (this._onResizeLayout) == 'function') {
-            this._onResizeLayout();            
+            this._onResizeLayout();
         }
-        if( this.parts ){
-            for( aName in this.parts ){
+        if (this.parts) {
+            for (aName in this.parts) {
                 var tmpPart = this.parts[aName];
-                if( tmpPart && tmpPart.refreshSubLayouts ){
+                if (tmpPart && tmpPart.refreshSubLayouts) {
                     tmpPart.refreshSubLayouts();
                 }
             }
@@ -3582,7 +3529,7 @@ License: MIT
         var dfd = jQuery.Deferred();
         var tmpThis = this;
         this.options = this.options || {};
-        me.controls = {};        
+        me.controls = {};
 
         //--- Deprecated - backward compat functionality until apps are upgraded
         if (this.options.pageTemplates) {
@@ -3627,7 +3574,7 @@ License: MIT
                 //     ThisApp.siteLayout.resizeAll();                    
                 // };
                 tmpThis.publish('resized', {});
-                ThisApp.refreshLayouts();                
+                ThisApp.refreshLayouts();
             })
             dfd.resolve(true);
         })
@@ -4025,13 +3972,13 @@ License: MIT
     //======================================
     //======================================
 
-    
 
-    
+
+
 
     me.init = init;
     function init(theApp) {
-        
+
         if (theApp) {
             this.app = theApp;
         }
@@ -4102,7 +4049,7 @@ License: MIT
             this.parentEl.html(this.getLayoutHTML());
             this.parentEl.on("click", itemClicked.bind(this));
             var tmpParentDomEl = this.parentEl.get(0);
-            if( tmpParentDomEl ){
+            if (tmpParentDomEl) {
                 tmpParentDomEl.ontouchend = itemTouchEnd.bind(this);
                 tmpParentDomEl.ontouchstart = ThisApp.util.itemTouchStart.bind(this);
             }
@@ -4115,30 +4062,29 @@ License: MIT
             this.layoutConfig = this.layoutConfig || {};
             //if( !(this.layoutConfig.onresize_end)){
             this.pageLayoutChanged = ActionAppCore.debounce(function () {
-                this.publish('resized', {});                ;
+                this.publish('resized', {});;
             }, 200).bind(this);
-            
-            
+
+
             this.layoutConfig.onresize_end = this.pageLayoutChanged;
-            
+
             //}
             if (this.layoutOptions && this.layoutConfig) {
                 this.layoutSpot = ThisApp.getByAttr$({ group: ThisApp.pagesGroup, "item": this.pageName });
                 this.layout = this.layoutSpot.layout(this.layoutConfig);
-                //console.log("init page: Layout reply / config",this,this.layout,this.layoutConfig)
             };
 
             this.pubResize = me.pubResize.bind(this);
-            this.subscribe('resized',me.pubResize.bind(this));
+            this.subscribe('resized', me.pubResize.bind(this));
 
         }
-    }    
+    }
 
     // function inRect(theRect, theX, theY) {
     //     return theRect.x <= theX && theX <= theRect.x + theRect.width &&
     //     theRect.y <= theY && theY <= theRect.y + theRect.height;
     // }
-    
+
     // function itemTouchStart(theEvent) {
     //     var tmpTarget = theEvent.target || theEvent.currentTarget || theEvent.delegetTarget || {};
     //     if( theEvent.targetTouches && theEvent.targetTouches.length > 0){
@@ -4153,17 +4099,17 @@ License: MIT
     function itemTouchEnd(theEvent) {
         var tmpTarget = theEvent.target || theEvent.currentTarget || theEvent.delegetTarget || {};
         var tmpBounds = tmpTarget.getBoundingClientRect();
-        if( theEvent.changedTouches && theEvent.changedTouches.length > 0){
+        if (theEvent.changedTouches && theEvent.changedTouches.length > 0) {
             var tmpTouchInfo = theEvent.changedTouches[0];
             var tmpStart = ThisApp.util._start;
             var tmpXDiff = Math.abs(tmpStart.x - tmpTouchInfo.screenX)
             var tmpYDiff = Math.abs(tmpStart.y - tmpTouchInfo.screenY)
-            if( tmpXDiff > ThisApp.util.MIN_TOUCH_DISTANCE || tmpYDiff > ThisApp.util.MIN_TOUCH_DISTANCE){
+            if (tmpXDiff > ThisApp.util.MIN_TOUCH_DISTANCE || tmpYDiff > ThisApp.util.MIN_TOUCH_DISTANCE) {
                 return;
             }
-    
-            if( ThisApp.util.touchIsClick(tmpBounds, tmpTouchInfo.clientX, tmpTouchInfo.clientY ) ){
-               itemClicked.bind(this)(theEvent);
+
+            if (ThisApp.util.touchIsClick(tmpBounds, tmpTouchInfo.clientX, tmpTouchInfo.clientY)) {
+                itemClicked.bind(this)(theEvent);
             }
         }
     }
@@ -4445,7 +4391,7 @@ License: MIT
         me.alertDialogText = ThisApp.getByAttr$({ appuse: "_prompter:alert-dialog-text" });
         me.alertDialogIcon = ThisApp.getByAttr$({ appuse: "_prompter:alert-dialog-icon" });
         me.alertDialog = ThisApp.getByAttr$({ appuse: "_prompter:alert-dialog" });
-        if( me.alertDialog && me.alertDialog.modal){
+        if (me.alertDialog && me.alertDialog.modal) {
             me.alertDialog = me.alertDialog.modal(
                 {
                     onHidden: function () {
@@ -4458,10 +4404,10 @@ License: MIT
                     allowMultiple: true,
                     closable: true
                 }
-    
+
             );
         }
-        
+
 
 
 
@@ -4495,7 +4441,7 @@ License: MIT
         me.askDialogText = ThisApp.getByAttr$({ appuse: "_prompter:ask-dialog-text" });
 
         me.askDialog = ThisApp.getByAttr$({ appuse: "_prompter:ask-dialog" });
-        if( me.askDialog && me.askDialog.modal){
+        if (me.askDialog && me.askDialog.modal) {
             me.askDialog = me.askDialog.modal(
                 {
                     closable: false,
@@ -4512,11 +4458,11 @@ License: MIT
                         }
                     }
                 }
-    
+
             );
         }
 
-        
+
 
 
 
@@ -4576,7 +4522,7 @@ License: MIT
 
 
         me.promptDialog = ThisApp.getByAttr$({ appuse: "_prompter:prompt-dialog" });
-        if( me.promptDialog && me.promptDialog.modal){
+        if (me.promptDialog && me.promptDialog.modal) {
             me.promptDialog = me.promptDialog.modal(
                 {
                     closable: false,
@@ -4585,7 +4531,7 @@ License: MIT
                 }
             );
         }
-        
+
 
         me.promptDialogTitle = ThisApp.getByAttr$({ appuse: "_prompter:prompt-dialog-title" });
         me.promptDialogTextTop = ThisApp.getByAttr$({ appuse: "_prompter:prompt-dialog-text-top" });
@@ -5504,6 +5450,7 @@ License: MIT
             tmpMyConfig.options = ThisApp.clone(tmpConfig.options);
             tmpMyConfig.content = ThisApp.clone(tmpConfig.content);
         }
+
         if (tmpMyConfig.options.hasOwnProperty('mobileAt')) {
             this.mobileAt = tmpMyConfig.options.mobileAt;
         }
@@ -5542,15 +5489,15 @@ License: MIT
                             if (isFunc(this._onParentResize)) {
                                 this._onParentResize.call(this)
                             }
-                            
+
                             //--ToDo: Check mobile class add / remove process
                             var tmpDoMobileCheck = false;
-                            if( tmpDoMobileCheck && tmpEl ){
+                            if (tmpDoMobileCheck && tmpEl) {
                                 var tmpWidth = tmpEl.width();
-                                if( this.mobileAt !== false){
+                                if (this.mobileAt !== false) {
                                     if (tmpWidth < (this.mobileAt || 450)) {
                                         tmpEl.addClass('mobile');
-                                       
+
                                     } else {
                                         tmpEl.removeClass('mobile');
                                     }
@@ -5628,7 +5575,7 @@ License: MIT
     //---   Note: When calling ajax, it returns the promise
     meInstance.submitForm = function (theOptions) {
         var tmpForm = this.getEl().find('form');
-        if( tmpForm.length == 0){
+        if (tmpForm.length == 0) {
             console.error('sumitForm - no form found')
             return false;
         }
@@ -5877,19 +5824,18 @@ License: MIT
 
         var tmpFieldEl = this.getElByName$(theFieldName, 'field')
         if (!(tmpFieldEl)) { return ''; }
-       
+
         var tmpFieldSpecs = this.getFieldSpecs(theFieldName);
         if (tmpFieldSpecs) {
             var tmpCtl = tmpFieldSpecs.ctl || 'field';
 
-            if( tmpCtl == 'textarea'){
-                if( ThisApp.util.isArray(theValue)){
+            if (tmpCtl == 'textarea') {
+                if (ThisApp.util.isArray(theValue)) {
                     theValue = theValue.join('\n');
                 }
-                //console.log("tmpFieldEl",theFieldName,tmpCtl,theValue)
             }
 
-            
+
             var tmpControl = me.webControls.get(tmpCtl);
             if (!(tmpControl.setFieldValue)) {
                 tmpFieldEl.val(theValue);
@@ -6383,21 +6329,21 @@ License: MIT
     //     return theRect.x <= theX && theX <= theRect.x + theRect.width &&
     //     theRect.y <= theY && theY <= theRect.y + theRect.height;
     // }
-    
+
 
     function itemTouchEnd(theEvent) {
         var tmpTarget = theEvent.target || theEvent.currentTarget || theEvent.delegetTarget || {};
         var tmpBounds = tmpTarget.getBoundingClientRect();
-        if( theEvent.changedTouches && theEvent.changedTouches.length > 0){
+        if (theEvent.changedTouches && theEvent.changedTouches.length > 0) {
             var tmpTouchInfo = theEvent.changedTouches[0];
             var tmpStart = ThisApp.util._start;
             var tmpXDiff = Math.abs(tmpStart.x - tmpTouchInfo.screenX)
             var tmpYDiff = Math.abs(tmpStart.y - tmpTouchInfo.screenY)
-            if( tmpXDiff > ThisApp.util.MIN_TOUCH_DISTANCE || tmpYDiff > ThisApp.util.MIN_TOUCH_DISTANCE){
+            if (tmpXDiff > ThisApp.util.MIN_TOUCH_DISTANCE || tmpYDiff > ThisApp.util.MIN_TOUCH_DISTANCE) {
                 return;
             }
 
-            if( ThisApp.util.touchIsClick(tmpBounds, tmpTouchInfo.clientX, tmpTouchInfo.clientY ) ){
+            if (ThisApp.util.touchIsClick(tmpBounds, tmpTouchInfo.clientX, tmpTouchInfo.clientY)) {
                 this.onItemClick(theEvent);
             }
         }
@@ -6447,7 +6393,7 @@ License: MIT
                         } else {
                             this.publish(tmpEvent, [this, tmpPubParams, tmpTarget, theEvent])
                         }
-                        
+
                     } else if (tmpToRun == 'action' || tmpToRun == 'pageaction') {
                         if (tmpOnClick.validate === true) {
                             var tmpValidation = this.validate();
@@ -6456,7 +6402,7 @@ License: MIT
                                 return false;
                             }
                         }
-                        
+
 
                         var tmpAction = tmpOnClick.action || '';
                         var tmpPageAction = tmpOnClick.pageaction || '';
@@ -6545,7 +6491,7 @@ License: MIT
         if (tmpParams.controls && tmpParams.name) {
             var tmpFN = tmpParams.name;
             this.refreshForField(tmpFN);
-            this.publish('field-changed',[this,tmpFN]);
+            this.publish('field-changed', [this, tmpFN]);
         }
     }
 
@@ -6571,17 +6517,17 @@ License: MIT
     }
     meInstance.clearEvents = meInstance.destroy;
 
-    meInstance.refreshSubLayouts = function(){
-        if( this.liveIndex && this.liveIndex.layouts ){
-            for( aName in this.liveIndex.layouts){
+    meInstance.refreshSubLayouts = function () {
+        if (this.liveIndex && this.liveIndex.layouts) {
+            for (aName in this.liveIndex.layouts) {
                 var tmpLayout = this.liveIndex.layouts[aName];
                 tmpLayout.resizeAll();
             }
         }
-        if( this.parts ){
-            for( aName in this.parts ){
+        if (this.parts) {
+            for (aName in this.parts) {
                 var tmpPart = this.parts[aName];
-                if( tmpPart && tmpPart.refreshSubLayouts ){
+                if (tmpPart && tmpPart.refreshSubLayouts) {
                     tmpPart.refreshSubLayouts();
                 }
             }
@@ -6612,11 +6558,9 @@ License: MIT
                 }
             }
         }
-
         var tmpPanels = ThisApp.getByAttr$({ ctlcomp: 'panel' }, tmpEl);
         if (tmpPanels.length) {
             for (var iControl = 0; iControl < tmpPanels.length; iControl++) {
-
                 var tmpControlEl = $(tmpPanels[iControl]);
                 var tmpControlName = tmpControlEl.attr('controlname');
 
@@ -6678,7 +6622,7 @@ License: MIT
             //--- Loop to create each one, getting details if needed from el
             for (var iLayout = 0; iLayout < tmpLayouts.length; iLayout++) {
                 var tmpLayoutEntry = $(tmpLayouts.get(iLayout));
-                
+
 
 
                 var tmpOptions = defaultLayoutOptions;
@@ -6689,17 +6633,17 @@ License: MIT
                     tmpLayoutOptions = StaticApp.layoutTemplates[tmpLayoutTemplateName];
                 }
                 this.controlLayoutChanged = ActionAppCore.debounce(function () {
-                    this.publish('resized',this);
+                    this.publish('resized', this);
                 }, 200).bind(this);
 
                 tmpLayoutOptions.onresize_end = this.controlLayoutChanged;
                 this.layoutCount = this.layoutCount || 0;
                 this.layoutCount++;
-                var tmpControlLayout = tmpLayoutEntry.layout(tmpLayoutOptions);                
+                var tmpControlLayout = tmpLayoutEntry.layout(tmpLayoutOptions);
                 this.liveIndex.layouts['layout-' + this.layoutCount] = tmpControlLayout;
             }
         }
-        
+
         $.whenAll(tmpDefs).then(function (theReply) {
             //--- Tell the app to resize it's layouts
             ThisApp.resizeLayouts();
@@ -6723,11 +6667,11 @@ License: MIT
         tmpThis.parentEl.on('change', tmpThis.onFieldChange.bind(this));
         tmpThis.parentEl.on('click', tmpThis.onItemClick.bind(this));
         var tmpDom = tmpThis.parentEl.get(0);
-        if( tmpDom ){
+        if (tmpDom) {
             tmpDom.ontouchend = itemTouchEnd.bind(this);
             tmpDom.ontouchstart = ThisApp.util.itemTouchStart.bind(this);
         }
-        
+
         tmpThis.getConfig().options = tmpThis.getConfig().options || {};
 
 
@@ -6737,7 +6681,7 @@ License: MIT
                 if (isFunc(tmpThis._onInit)) {
                     tmpThis._onInit();
                 }
-                
+
                 tmpThis.refreshControl();
                 var tmpDoc = tmpOptions.doc || tmpThis.getConfig().options.doc || false;
                 if (tmpDoc) {
@@ -6794,12 +6738,12 @@ License: MIT
         var tmpFormMethod = '';
         var tmpFormAttr = '';
 
-        if (typeof(tmpSpecOptions.form) == 'object') {
+        if (typeof (tmpSpecOptions.form) == 'object') {
             tmpFormAction = tmpSpecOptions.form.action || '';
             tmpFormMethod = tmpSpecOptions.form.method || '';
 
             tmpFormAttr = ' action="' + tmpFormAction + '"';
-            if( tmpFormMethod ){
+            if (tmpFormMethod) {
                 tmpFormAttr += ' method="' + tmpFormMethod + '"';
             }
 
@@ -7573,7 +7517,7 @@ License: MIT
 
             var tmpClasses = tmpObject.classes || '';
             tmpClasses += getValueIfTrue(theObject, ['inverted', 'fitted', 'hidden', 'section', 'clearing']);
-            tmpClasses += getValueIfThere(theObject, ['color', 'attached', 'size']);
+            tmpClasses += getValueIfThere(theObject, ['color', 'attached', 'size','aligned']);
 
             var tmpStarter = 'h' + tmpLevel;
             var tmpHoriz = '';
@@ -7644,7 +7588,7 @@ License: MIT
             var tmpClass = tmpObject.class || '';
             var tmpControlClass = tmpClass || theControlName;
             var tmpClasses = tmpObject.classes || '';
-            if( tmpObject.centered ){
+            if (tmpObject.centered) {
                 tmpClasses += 'center aligned';
             }
             tmpClasses += getValueIfTrue(theObject, ['link', 'fluid', 'placeholder', 'raised', 'tall', 'stacked', 'piled', 'vertical', 'loading', 'inverted', 'bottom', 'top', 'attached', 'padded', 'slim', 'compact', 'secondary', 'tertiary', 'circular', 'clearing', 'right', 'left', 'center', 'aligned', 'basic']);
@@ -8212,8 +8156,8 @@ License: MIT
             }
             //--- Add field specific content here
             var tmpDefaultValHTML = '';
-            if( tmpObject.default != '' ){
-                tmpDefaultValHTML = ' value="'+tmpObject.default + '" ';
+            if (tmpObject.default != '') {
+                tmpDefaultValHTML = ' value="' + tmpObject.default + '" ';
             }
             tmpHTML.push('\n            <div ctlcomp="dropdown" class="ui selection ' + tmpDDAttr + tmpMulti + ' dropdown">')
             tmpHTML.push('\n                <div class="default text">Select</div>')
@@ -8233,7 +8177,7 @@ License: MIT
                             tmpText = tmpEntry[0]
                             tmpVal = tmpEntry[1]
                         }
-                        
+
                         tmpHTML.push('\n                  <div class="item" data-value="' + tmpVal + '">' + tmpText + '</div>')
                     }
                 }
@@ -8521,14 +8465,14 @@ License: MIT
             tmpClasses += getValueIfTrue(theObject, ['compact', 'fluid']);
             tmpClasses += getValueIfThere(theObject, ['color', 'size']);
 
-            
+
             var tmpSizeName = '';
             if (tmpObject.size && tmpObject.size > 0 && tmpObject.size < 17) {
                 tmpSizeName = getNumName(tmpObject.size)
                 tmpSizeName = ' ' + tmpSizeName + ' wide ';
             }
-            
-            
+
+
             tmpHTML.push('<div controls fieldwrap name="' + tmpObject.name + '" class="' + tmpClasses + tmpSizeName + tmpReq + ' field" ' + tmpStyle + '>')
             if (tmpObject.label) {
                 tmpHTML.push('<label>')
@@ -8552,9 +8496,9 @@ License: MIT
                     tmpPH = ' placeholder="' + tmpPH + ' ';
                 }
 
-    
+
                 var tmpRows = '';
-                if( tmpObject.rows ){
+                if (tmpObject.rows) {
                     tmpRows = 'rows=' + tmpObject.rows + ' ';
                 }
                 tmpHTML.push('<textarea ' + tmpRows + 'controls field name="' + tmpObject.name + '" ' + tmpPH + '" ></textarea>')
@@ -8676,15 +8620,15 @@ License: MIT
             var tmpObject = theObject || {};
             var tmpNewContent = [];
             var tmpCentered = '';
-            if( tmpObject.centered === true){
+            if (tmpObject.centered === true) {
                 tmpCentered = ' center aligned '
             }
 
             var tmpClasses = '';
-            if( tmpCentered ){
+            if (tmpCentered) {
                 tmpClasses += tmpCentered;
             }
-            
+
             var tmpTopHeaderText = '';
             var tmpTopHeaderVis = false;
 
@@ -8773,18 +8717,18 @@ License: MIT
 
             var tmpBottomContent = tmpObject.bottomContent || false;
             if (tmpBottomContent) {
-                if( Array.isArray(tmpBottomContent) ){
+                if (Array.isArray(tmpBottomContent)) {
                     tmpNewContent.push({
                         "ctl": "div",
                         "content": tmpBottomContent
                     })
-                } else if( typeof(tmpBottomContent) == 'string'){
+                } else if (typeof (tmpBottomContent) == 'string') {
                     tmpNewContent.push({
                         "ctl": "div",
                         "text": tmpBottomContent
                     })
                 }
-                
+
             }
 
             return tmpNewContent;
