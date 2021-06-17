@@ -553,7 +553,13 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
                 //     ** so a page can alias the control and use a cached version
                 tmpThis.res[tmpURI.type][(tmpURI.name || tmpURI.uri)] = tmpExisting;
             }
-
+            
+            if( typeof(tmpURI.uri) == 'object' ){
+                //--- Special case, process computed URI values when loading resources
+                var tmpToProc = {uri:tmpURI.uri};
+                var tmpReply = ThisApp.controls.processDynamicContent("",tmpToProc,this);
+                tmpURI.uri = tmpReply.uri;
+            }
             //--- ToDo: Implement App Caching Rules            
             if (tmpURI.uri.startsWith('design/')) {
                 tmpExists = false;
@@ -644,10 +650,8 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
         //--- If the base element (with no params) is not loaded, get the CSS and load it
         // if (!(tmpCheckPath) || (me.resourceInitFlags[tmpCheckPath] !== true)) {
         //     if (tmpCheckPath) {
-        //         console.log(tmpCheckPath);
         //         me.resourceInitFlags[tmpCheckPath] = true;
         //         if (tmpResourceData.controlConfig) {
-        //             console.log('added',tmpCheckPath)
         //             tmpResourceData.controlConfig.uri = theFullPath;
         //         }
         //     }
@@ -1344,6 +1348,35 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
 
     //--- Public ================ ================= ===================== ================
 
+    me.getData = function(theKey){
+        return this.context.data[theKey];
+    }
+    me.setData = function(theKey, theData){
+        this.context.data[theKey] = theData;
+        return this;
+    }
+    me.hasData = function(theKey, theData){
+        return this.context.data.hasOwnProperty(theKey);
+    }
+    me.getDataObject = function(theKey){
+        if( !this.hasData(theKey)){
+            this.setData(theKey,{});
+        }
+        return this.getData(theKey);
+    }
+    me.setDataObject = function(theKey, theObject, theMergeWithExisting){
+        var tmpToAdd = ThisApp.clone(theObject || {});
+        if( !this.hasData(theKey)){
+            this.setData(theKey,tmpToAdd);
+        } else {
+            if( theMergeWithExisting === true ){
+                //ToDo: merge with existing
+            }
+            this.setData(tmpToAdd);
+        }
+        return this;
+    }
+    
 
     /**
      * getAttrs
@@ -3407,7 +3440,7 @@ License: MIT
                     console.error('the control is not there to create ', theInstanceName);
                     throw ("Control now found to create " + theInstanceName)
                 }
-                this.parts[theInstanceName] = theControl.create(theInstanceName);
+                this.parts[theInstanceName] = theControl.create(theInstanceName, {parent:this});
                 return this.parts[theInstanceName];
             }
 
@@ -3951,6 +3984,36 @@ License: MIT
         }
     }
 
+    me.getData = function(theKey){
+        return this.contextData[theKey];
+    }
+    me.setData = function(theKey, theData){
+        this.contextData[theKey] = theData;
+        return this;
+    }
+    me.hasData = function(theKey, theData){
+        return this.contextData.hasOwnProperty(theKey);
+    }
+    // me.getDataObject = function(theKey){
+    //     if( !this.hasData(theKey)){
+    //         this.setData(theKey,{});
+    //     }
+    //     return this.getData(theKey);
+    // }
+    // me.setDataObject = function(theKey, theObject, theMergeWithExisting){
+    //     var tmpToAdd = ThisApp.clone(theObject || {});
+    //     if( !this.hasData(theKey)){
+    //         this.setData(theKey,tmpToAdd);
+    //     } else {
+    //         if( theMergeWithExisting === true ){
+    //             //ToDo: merge with existing
+    //         }
+    //         this.setData(tmpToAdd);
+    //     }
+    //     return this;
+    // }
+    
+
     me.getByAttr$ = function (theItems, theExcludeBlanks) {
         return ThisApp.getByAttr$(theItems, this.getParent$(), theExcludeBlanks);
     }
@@ -3982,6 +4045,21 @@ License: MIT
         if (theApp) {
             this.app = theApp;
         }
+
+        
+        var tmpStuffToPullIn = [
+            , 'getDataObject'
+            , 'setDataObject'
+        ];
+
+        for (var iStuff = 0; iStuff < tmpStuffToPullIn.length; iStuff++) {
+            var tmpFuncName = tmpStuffToPullIn[iStuff];
+            var tmpFunc = this.app[tmpFuncName];
+            if (ThisApp.util.isFunc(tmpFunc)) {
+                this[tmpFuncName] = tmpFunc.bind(this);
+            }
+        }
+        
 
         this.context = {
             app: ThisApp.context,
@@ -5620,6 +5698,7 @@ License: MIT
         if (!(this.controlConfig.content)) {
             return;
         }
+        
         this.controlConfig.index = me._loadContentIndex(this.controlConfig.content)
     }
 
@@ -6551,7 +6630,7 @@ License: MIT
                         var tmpCached = ThisApp.resCache['controls'][tmpControlName];
                         console.warn("initControlComponents Could not find parent control " + tmpControlName)
                     } else {
-                        var tmpPart = tmpCtl.create(tmpPartName);
+                        var tmpPart = tmpCtl.create(tmpPartName, {parent:this});
                         this.parts[tmpPartName] = tmpPart;
                         tmpDefs.push(tmpPart.loadToElement(tmpControlEl));
                     }
@@ -6572,7 +6651,7 @@ License: MIT
                         console.warn("Could not find parent control " + tmpControlName)
                         return false;
                     }
-                    var tmpPart = tmpCtl.create(tmpPartName);
+                    var tmpPart = tmpCtl.create(tmpPartName, {parent:this});
                     this.parts[tmpPartName] = tmpPart;
                     tmpDefs.push(tmpPart.loadToElement(tmpControlEl));
                 }
@@ -6622,10 +6701,6 @@ License: MIT
             //--- Loop to create each one, getting details if needed from el
             for (var iLayout = 0; iLayout < tmpLayouts.length; iLayout++) {
                 var tmpLayoutEntry = $(tmpLayouts.get(iLayout));
-
-
-
-                var tmpOptions = defaultLayoutOptions;
                 var tmpLayoutTemplateName = tmpLayoutEntry.attr('template') || '';
                 var tmpLayoutOptions = defaultLayoutOptions;
                 if (tmpLayoutTemplateName && StaticApp.layoutTemplates[tmpLayoutTemplateName]) {
@@ -6653,6 +6728,7 @@ License: MIT
     }
 
     meInstance.loadToElement = function (theEl, theOptions) {
+        
         var dfd = jQuery.Deferred();
         var tmpOptions = theOptions || {};
         var tmpThis = this;
@@ -6661,7 +6737,6 @@ License: MIT
         if (isFunc(tmpThis._onPreInit)) {
             tmpThis._onPreInit();
         }
-
         var tmpHTML = tmpThis.getHTML();
         tmpThis.parentEl.html(tmpHTML);
         tmpThis.parentEl.on('change', tmpThis.onFieldChange.bind(this));
@@ -6672,10 +6747,12 @@ License: MIT
             tmpDom.ontouchstart = ThisApp.util.itemTouchStart.bind(this);
         }
 
+        
         tmpThis.getConfig().options = tmpThis.getConfig().options || {};
 
 
         this.assureRequired().then(function () {
+        
             tmpThis.initControlComponents().then(function (theReply) {
 
                 if (isFunc(tmpThis._onInit)) {
@@ -6936,6 +7013,55 @@ License: MIT
 
     }
 
+    me.sources = {
+        states: 'Alabama|AL,Alaska|AK,Arizona|AZ,Arkansas|AR,California|CA,Colorado|CO,Connecticut|CT,Delaware|DE,District Of Columbia|DC,Florida|FL,Georgia|GA,Hawaii|HI,Idaho|ID,Illinois|IL,Indiana|IN,Iowa|IA,Kansas|KS,Kentucky|KY,Louisiana|LA,Maine|ME,Maryland|MD,Massachusetts|MA,Michigan|MI,Minnesota|MN,Mississippi|MS,Missouri|MO,Montana|MT,Nebraska|NE,Nevada|NV,New Hampshire|NH,New Jersey|NJ,New Mexico|NM,New York|NY,North Carolina|NC,North Dakota|ND,Ohio|OH,Oklahoma|OK,Oregon|OR,Pennsylvania|PA,Rhode Island|RI,South Carolina|SC,South Dakota|SD,Tennessee|TN,Texas|TX,Utah|UT,Vermont|VT,Virginia|VA,Washington|WA,West Virginia|WV,Wisconsin|WI,Wyoming|WY',
+        countries: 'Afghanistan|AF,Åland Islands|AX,Albania|AL,Algeria|DZ,American Samoa|AS,Andorra|AD,Angola|AO,Anguilla|AI,Antarctica|AQ,Antigua and Barbuda|AG,Argentina|AR,Armenia|AM,Aruba|AW,Australia|AU,Austria|AT,Azerbaijan|AZ,Bahamas|BS,Bahrain|BH,Bangladesh|BD,Barbados|BB,Belarus|BY,Belgium|BE,Belize|BZ,Benin|BJ,Bermuda|BM,Bhutan|BT,Bolivia, Plurinational State of|BO,Bonaire, Sint Eustatius and Saba|BQ,Bosnia and Herzegovina|BA,Botswana|BW,Bouvet Island|BV,Brazil|BR,British Indian Ocean Territory|IO,Brunei Darussalam|BN,Bulgaria|BG,Burkina Faso|BF,Burundi|BI,Cambodia|KH,Cameroon|CM,Canada|CA,Cape Verde|CV,Cayman Islands|KY,Central African Republic|CF,Chad|TD,Chile|CL,China|CN,Christmas Island|CX,Cocos (Keeling) Islands|CC,Colombia|CO,Comoros|KM,Congo|CG,Congo, the Democratic Republic of the|CD,Cook Islands|CK,Costa Rica|CR,Côte d\'Ivoire|CI,Croatia|HR,Cuba|CU,Curaçao|CW,Cyprus|CY,Czech Republic|CZ,Denmark|DK,Djibouti|DJ,Dominica|DM,Dominican Republic|DO,Ecuador|EC,Egypt|EG,El Salvador|SV,Equatorial Guinea|GQ,Eritrea|ER,Estonia|EE,Ethiopia|ET,Falkland Islands (Malvinas|FK,Faroe Islands|FO,Fiji|FJ,Finland|FI,France|FR,French Guiana|GF,French Polynesia|PF,French Southern Territories|TF,Gabon|GA,Gambia|GM,Georgia|GE,Germany|DE,Ghana|GH,Gibraltar|GI,Greece|GR,Greenland|GL,Grenada|GD,Guadeloupe|GP,Guam|GU,Guatemala|GT,Guernsey|GG,Guinea|GN,Guinea-Bissau|GW,Guyana|GY,Haiti|HT,Heard Island and McDonald Islands|HM,Holy See (Vatican City State|VA,Honduras|HN,Hong Kong|HK,Hungary|HU,Iceland|IS,India|IN,Indonesia|ID,Iran, Islamic Republic of|IR,Iraq|IQ,Ireland|IE,Isle of Man|IM,Israel|IL,Italy|IT,Jamaica|JM,Japan|JP,Jersey|JE,Jordan|JO,Kazakhstan|KZ,Kenya|KE,Kiribati|KI,Korea, Democratic People\'s Republic of|KP,Korea, Republic of|KR,Kuwait|KW,Kyrgyzstan|KG,Lao People\'s Democratic Republic|LA,Latvia|LV,Lebanon|LB,Lesotho|LS,Liberia|LR,Libya|LY,Liechtenstein|LI,Lithuania|LT,Luxembourg|LU,Macao|MO,Macedonia, the former Yugoslav Republic of|MK,Madagascar|MG,Malawi|MW,Malaysia|MY,Maldives|MV,Mali|ML,Malta|MT,Marshall Islands|MH,Martinique|MQ,Mauritania|MR,Mauritius|MU,Mayotte|YT,Mexico|MX,Micronesia, Federated States of|FM,Moldova, Republic of|MD,Monaco|MC,Mongolia|MN,Montenegro|ME,Montserrat|MS,Morocco|MA,Mozambique|MZ,Myanmar|MM,Namibia|NA,Nauru|NR,Nepal|NP,Netherlands|NL,New Caledonia|NC,New Zealand|NZ,Nicaragua|NI,Niger|NE,Nigeria|NG,Niue|NU,Norfolk Island|NF,Northern Mariana Islands|MP,Norway|NO,Oman|OM,Pakistan|PK,Palau|PW,Palestinian Territory, Occupied|PS,Panama|PA,Papua New Guinea|PG,Paraguay|PY,Peru|PE,Philippines|PH,Pitcairn|PN,Poland|PL,Portugal|PT,Puerto Rico|PR,Qatar|QA,Réunion|RE,Romania|RO,Russian Federation|RU,Rwanda|RW,Saint Barthélemy|BL,Saint Helena, Ascension and Tristan da Cunha|SH,Saint Kitts and Nevis|KN,Saint Lucia|LC,Saint Martin (French part|MF,Saint Pierre and Miquelon|PM,Saint Vincent and the Grenadines|VC,Samoa|WS,San Marino|SM,Sao Tome and Principe|ST,Saudi Arabia|SA,Senegal|SN,Serbia|RS,Seychelles|SC,Sierra Leone|SL,Singapore|SG,Sint Maarten (Dutch part|SX,Slovakia|SK,Slovenia|SI,Solomon Islands|SB,Somalia|SO,South Africa|ZA,South Georgia and the South Sandwich Islands|GS,South Sudan|SS,Spain|ES,Sri Lanka|LK,Sudan|SD,Suriname|SR,Svalbard and Jan Mayen|SJ,Swaziland|SZ,Sweden|SE,Switzerland|CH,Syrian Arab Republic|SY,Taiwan, Province of China|TW,Tajikistan|TJ,Tanzania, United Republic of|TZ,Thailand|TH,Timor-Leste|TL,Togo|TG,Tokelau|TK,Tonga|TO,Trinidad and Tobago|TT,Tunisia|TN,Turkey|TR,Turkmenistan|TM,Turks and Caicos Islands|TC,Tuvalu|TV,Uganda|UG,Ukraine|UA,United Arab Emirates|AE,United Kingdom|GB,United States|US,United States Minor Outlying Islands|UM,Uruguay|UY,Uzbekistan|UZ,Vanuatu|VU,Venezuela, Bolivarian Republic of|VE,Viet Nam|VN,Virgin Islands, British|VG,Virgin Islands, U.S|VI,Wallis and Futuna|WF,Western Sahara|EH,Yemen|YE,Zambia|ZM,Zimbabwe|ZW'
+    };
+
+    /**
+     * addListSource
+    *  - Returns a source list use for dropdown and other like controls
+    * 
+    * Example: 
+    * ThisApp.controls.addListSource('tests','Test One|test1,Test Two|test2'); 
+    * 
+    * @param  {String} theName   [The name of the source to return]
+    * @param  {String} theSourceString   String (see rules on how to supply this list)
+    * @return void
+    * 
+    */    
+    me.addListSource = function(theName, theSourceString ){
+        me.sources[theName] = theSourceString;
+    }
+    /**
+     * getListSource
+    *  - Returns a source list use for dropdown and other like controls
+    * 
+    * Example: 
+    * ThisApp.controls.getListSource('states'); //Returns array of arrays [["Alabama", "AL"],...]
+    * ThisApp.controls.getListSource('states','objects'); //Returns array of objects [{name: "Alabama", value: "AL", text: "Alabama"},...]
+    * 
+    * @param  {String} theName   [The name of the source to return]
+    * @param  {String} theReturnType   [<blank>,objects] Default: <blank>
+    *  "array" or <blank> 
+    *  "object" or "objects"
+    * @return Array
+    * 
+    */    
+    me.getListSource = function(theName, theReturnType){
+        if(!me.sources.hasOwnProperty(theName)){
+            return '';
+        }
+        var tmpSource = me.sources[theName];
+        if( theReturnType == 'string' ){
+            return tmpSource;
+        }
+        if( theReturnType == 'objects'|| theReturnType == 'object' ){
+            return getListAsObjects(tmpSource);
+        }
+        return getListAsArrays(tmpSource);
+    }
+
     me.getListAsObjects = getListAsObjects;
     function getListAsObjects(theList) {
         var tmpList = getListAsArrays(theList);
@@ -6994,9 +7120,7 @@ License: MIT
     me.processDynamicContent = processDynamicContent
     function processDynamicContent(theControlName, theObject, theControlObj) {
         var tmpRet = ThisApp.clone(theObject);
-        var tmpIsDyno = false;
-        var tmpContext = theControlObj.context || ThisApp.getContext();
-
+        var tmpContext = theControlObj.context || ThisApp.getContext();        
         for (var aFN in tmpRet) {
             var tmpObj = tmpRet[aFN];
             var tmpCompKey = '[computed]';
@@ -7014,6 +7138,7 @@ License: MIT
                     var tmpCompContext = tmpComputed.context || '';
                     if (tmpCompContext) {
                         try {
+                            //--- This is used in the eval statement, do not remove
                             var context = tmpContext;
                             tmpCompValue = eval(tmpCompContext)
                         } catch (ex) {
@@ -7024,7 +7149,6 @@ License: MIT
                     }
                     tmpRet[aFN] = tmpCompValue;
                 }
-                tmpIsDyno = true;
 
             }
 
@@ -7041,6 +7165,8 @@ License: MIT
             return '';
         }
 
+        //---ToDo: Use index to determine of dynamic is needed
+        //  also consider a type of dynamic that runs between preinit and init ???
         var tmpDataObject = me.processDynamicContent(theControlName, theObject, theControlObj);
 
         var tmpControl = me.webControls.get(theControlName);
@@ -8212,7 +8338,12 @@ License: MIT
         setFieldList: function (theFieldEl, theList, theFieldSpecs) {
             var tmpCtlEl = theFieldEl.closest('[ctlcomp]');
             var tmpList = getListAsObjects(theList || '');
+            var tmpVal = '';
+            if( tmpCtlEl && tmpCtlEl.dropdown ){
+                tmpVal = tmpCtlEl.dropdown('get value');
+            }
             tmpCtlEl.dropdown('change values', tmpList);
+            tmpCtlEl.dropdown('set selected',tmpVal);
         },
         setFieldValue: function (theFieldEl, theValue, theFieldSpecs) {
             var tmpCtlEl = theFieldEl.closest('[ctlcomp]');
