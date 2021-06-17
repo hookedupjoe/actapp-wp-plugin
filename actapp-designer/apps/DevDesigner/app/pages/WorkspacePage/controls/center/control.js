@@ -65,9 +65,20 @@ License: MIT
 													"text": "New Application"
 												},
 												{
+													"ctl": "button",
+													"color": "teal",
+													"size": "large",
+													"pageaction": "addCatalog",
+													"labeled": true,
+													"right": true,
+													"icon": "archive",
+													"name": "btn-new-cat",
+													"text": "New Catalog"
+												},
+												{
 													"ctl": "panel",
-													"controlname": "design/ws/get-ws-outline",
-													"name": "workspace"
+													"controlname": {"[computed]": "context.app.data.designer.endpoints.get_ws_outline || ''"},
+													"name": "listpanel"
 												}
 	
 											]
@@ -87,12 +98,16 @@ License: MIT
 	
 	
 	var ControlCode = {
-		_onInit: _onInit
+		_onInit: _onInit,
+		_onPreInit: _onPreInit
 	};
 
 	function _onInit(){
-		this.parts.workspace.subscribe('selectMe', onWsSelect.bind(this))
-		
+		this.parts.listpanel.subscribe('selectMe', onWsSelect.bind(this))
+	}
+
+	function _onPreInit(){
+
 	}
 
 	function onWsSelect(theEvent, theControl, theTarget){

@@ -17,22 +17,28 @@ License: MIT
 
     var pageBaseURL = 'app/pages/' + thisPageSpecs.pageName + '/';
 
-
     thisPageSpecs.required = {
         controls: {
             map: {
+                "app/catalog/designer/controls/catalog-console": "panelCatConsole",
                 "app/catalog/designer/controls/app-console": "panelAppConsole",
                 "app/catalog/designer/controls/resource-console": "resourceConsole",
-                "app/catalog/designer/controls/page-console": "pageConsole"
+                "app/catalog/designer/controls/page-console": "pageConsole",
             }
         },
         panels: {
             map: {
+                "app/catalog/designer/panels/frmNewCatalog": "frmNewCatalog",
                 "app/catalog/designer/panels/frmNewApp": "frmNewApp",
                 "app/catalog/designer/panels/frmNewPage": "frmNewPage"
             }
         }
     }
+    //DEVELOPER NOTE: Can use the following for backend versions that can include backend created details
+    /*
+                "design/ws/frmNewApp": "frmNewApp",
+                "design/ws/frmNewPage": "frmNewPage"
+    */
 
     thisPageSpecs.layoutOptions = {
         baseURL: pageBaseURL,
@@ -64,21 +70,25 @@ License: MIT
     */
     var actions = ThisPage.pageActions;
     var wsOutlineName = 'workspace-outline';
+    var loadedCats = {};
     var loadedApps = {};
     var loadedPages = {};
-    var loadedResources = {};
+    var loadedResources = {};    
+    
     // var loadedOutline = {};
 
     //--- for debug
-    window.loadedApps = loadedApps;
-    window.loadedPages = loadedPages;
-    window.loadedResources = loadedResources;
+    // window.loadedApps = loadedApps;
+    // window.loadedPages = loadedPages;
+    // window.loadedResources = loadedResources;
 
     var appSetupConfig = false;
 
     ThisPage._onPreInit = function (theApp) {
         ThisPage._om = theApp.om;
-
+        ThisPage.loadedApps = loadedApps;
+        ThisPage.loadedPages = loadedPages;
+        ThisPage.loadedResources = loadedResources;
     }
     ThisPage._onInit = function () {
 
@@ -119,8 +129,6 @@ License: MIT
                 //--- For debugging
                 window.wsPage = ThisPage;
 
-              
-
                 ThisPage.subscribe('selectMe', ThisPage.pageTabSelected)
 
                 //--- Now your done - READY to do stuff the first time on your page
@@ -128,7 +136,6 @@ License: MIT
                 //--- Subscirbe to when item selected in workspace
                 //ThisPage.parts.west.subscribe('selected', wsItemSelected);
                 ThisPage.parts.center.subscribe('selected', wsItemSelected);
-
 
                 //ThisPage.layout.toggle("west");
                 ThisPage.refreshWSNav();
@@ -152,7 +159,6 @@ License: MIT
                   }
                   ThisApp.delay(100).then(function(){
                     var tmpOutlineEl = ThisApp.getByAttr$({action: "toggleMe",type: "apps"});
-                    //console.log("tmpOutlineEl",tmpOutlineEl);
                     if( tmpOutlineEl && tmpOutlineEl.length > 0){
                         ThisApp.toggleMe(false,tmpOutlineEl.get(0));  
                         if( tmpOutlineEl.length > 1){
@@ -238,6 +244,62 @@ License: MIT
         //ThisPage.refreshNavTabs();
     };
 
+    
+
+    actions.showCatalogConsole = showCatalogConsole;
+    function showCatalogConsole(theParams, theTarget) {
+
+        var tmpParams = ThisApp.getActionParams(theParams, theTarget, ['catname', 'cattitle', 'name', 'title']);
+        var tmpCatName = tmpParams.catname || tmpParams.name || '';
+        if (!(tmpCatName)) {
+            alert("No category name provided to open");
+            return;
+        }
+        var tmpCatTitle = tmpParams.cattitle || tmpParams.title || tmpCatName;
+
+        if (loadedCats[tmpCatName]) {
+            var tmpTabAttr = { group: wsOutlineName, item: tmpCatName };
+            loadedCats[tmpCatName].refreshOnActivate();
+            ThisApp.delay(1).then(function(){
+                ThisApp.gotoTab(tmpTabAttr);
+            })
+        } else {
+            var tmpNewCat = ThisPage.getControl('panelCatConsole').create('cat-' + tmpCatName);
+            tmpNewCat.subscribe('selected', wsItemSelected);
+
+            
+            tmpNewCat.subscribe('update-cat-setup', function () {
+                refreshWorkspace()
+            })
+            loadedCats[tmpCatName] = tmpNewCat;
+            //--- For Debugging
+            window[tmpCatName] = tmpNewCat;
+
+            //--- Create a new card for this app
+            ThisPage.addToSpot('ws-work-area', '<div appuse="cards" group="' + wsOutlineName + '" item="' + tmpCatName + '"></div>');
+            var tmpTabAttr = { group: wsOutlineName, item: tmpCatName };
+            //--- Find created cards jQuery element
+            var tmpNewGroup = ThisPage.getByAttr$({ group: wsOutlineName, item: tmpCatName, appuse: 'cards' });
+
+            var tmpSetupDetails = { catname: tmpCatName, title: tmpCatTitle };
+
+            tmpNewCat.preLoad(tmpSetupDetails);
+            //--- Load App Console into that card
+            
+            window.tmpNewGroup = tmpNewGroup;
+            tmpNewCat.loadToElement(tmpNewGroup).then(function (theReply) {
+                //--- Go to the newly added card (to show it and hide others)
+                
+                tmpNewCat.setup(tmpSetupDetails);
+                //ThisPage.saveWorkspaceState();
+                ThisApp.delay(1).then(function(){
+                    ThisApp.gotoTab(tmpTabAttr);
+                })
+                
+            });
+        }
+    };
+
 
     actions.showAppConsole = showAppConsole;
     function showAppConsole(theParams, theTarget) {
@@ -299,18 +361,35 @@ License: MIT
         }
         var tmpResourceTitle = tmpResourceName;
 
+        var tmpCatName = '';
         var tmpAppName = '';
         var tmpPageName = '';
+
 
         var tmpEntryName = tmpResourceName || '';
         if ((tmpParams.appname)) {
             tmpAppName = tmpParams.appname;
         }
+        if ((tmpParams.catname)) {
+            tmpCatName = tmpParams.catname;
+        }
         if ((tmpParams.pagename)) {
             tmpPageName = tmpParams.pagename;
         }
 
-        tmpEntryName = tmpAppName + "-" + tmpPageName + "-" + tmpEntryName
+        if( tmpCatName ){
+            tmpEntryName = tmpCatName + "--" + tmpEntryName;
+        } else {
+            tmpEntryName = tmpAppName + "-" + tmpPageName + "-" + tmpEntryName;
+        }
+        
+        
+        // if( tmpPageName ){
+        //     tmpEntryName = tmpAppName + "-" + tmpPageName + "-" + tmpEntryName;
+        // } else {
+        //     tmpEntryName = tmpAppName + "-catalog-" + tmpEntryName;
+        // }
+
 
         if (loadedResources[tmpEntryName]) {
             var tmpTabAttr = { group: wsOutlineName, item: tmpEntryName };
@@ -323,6 +402,7 @@ License: MIT
                 refreshWorkspace()
             })
             loadedResources[tmpEntryName] = tmpNewResource;
+            
 
 
             //--- For Debugging
@@ -339,10 +419,12 @@ License: MIT
             tmpNewResource.loadToElement(tmpNewGroup).then(function (theReply) {
                 tmpNewResource.setup(tmpParams);
                 //ThisPage.refreshNavTabs();
-                ThisPage.saveWorkspaceState();
+                ThisPage.saveWorkspaceState();                
             });
             //--- Go to the newly added card (to show it and hide others)
-            ThisApp.gotoTab(tmpTabAttr);
+            ThisApp.delay(1).then(function(){
+                ThisApp.gotoTab(tmpTabAttr);
+            })
         }
     };
 
@@ -399,6 +481,71 @@ License: MIT
             ThisApp.gotoTab(tmpTabAttr);
         }
     };
+
+    
+
+    ThisPage.closeCatalogConsole = actions.closeCatalogConsole = closeCatalogConsole;
+    function closeCatalogConsole(theParams, theTarget) {
+        var tmpParams = ThisApp.getActionParams(theParams, theTarget, commonParams);
+        
+        var tmpCatName = '';
+        if (tmpParams.catname) {
+            tmpCatName = tmpParams.catname;
+        }
+
+        if (loadedCats[tmpCatName]) {
+            var tmpTabAttr = { group: wsOutlineName, item: tmpCatName };
+            var tmpAll = ThisPage.getByAttr$(tmpTabAttr);
+            tmpAll.each(function (theIndex, theItem) {
+                var tmpItemEl = $(theItem);
+                if (!(tmpItemEl.attr('oluse'))) {
+                    tmpItemEl.remove();
+                }
+            })
+            delete loadedCats[tmpCatName];
+
+        } else {
+            console.warn("No loaded cat to close for " + tmpCatName)
+        }
+
+        var tmpToRemove = [];
+        for (var aName in loadedResources) {
+            var tmpRes = loadedResources[aName]
+            var tmpResCatName = '';
+            if (tmpRes.details && tmpRes.details.catname) {
+                tmpResCatName = tmpRes.details.catname
+            }
+
+            if (tmpResCatName) {
+                if (tmpResCatName == tmpCatName) {
+                    tmpToRemove.push(aName);
+                }
+            }
+
+        }
+
+        for (var iPos in tmpToRemove) {
+            var tmpRemoveItem = tmpToRemove[iPos];
+            var tmpTabAttr = { group: wsOutlineName, item: tmpRemoveItem };
+            var tmpAll = ThisPage.getByAttr$(tmpTabAttr);
+            tmpAll.each(function (theIndex, theItem) {
+                var tmpItemEl = $(theItem);
+                if (!(tmpItemEl.attr('oluse'))) {
+                    tmpItemEl.remove();
+                }
+            })
+
+            delete loadedResources[tmpRemoveItem];
+        }
+        showWorkspace();
+        //showAppConsole(tmpParams);
+    };
+
+
+    function showWorkspace(){
+        ThisApp.gotoTab({group:'workspace-outline', item: 'workspace'});
+        ThisPage.refreshWSNav();
+    }
 
     ThisPage.closePageConsole = actions.closePageConsole = closePageConsole;
     function closePageConsole(theParams, theTarget) {
@@ -467,6 +614,94 @@ License: MIT
         showAppConsole(tmpParams);
     };
 
+    ThisPage.closeAppConsole = actions.closeAppConsole = closeAppConsole;
+    function closeAppConsole(theParams, theTarget) {
+        var tmpParams = ThisApp.getActionParams(theParams, theTarget, commonParams);
+        tmpAppName = tmpParams.appname;
+        
+        if (loadedApps[tmpAppName]) {
+            var tmpTabAttr = { group: wsOutlineName, item: tmpAppName };
+            var tmpAll = ThisPage.getByAttr$(tmpTabAttr);
+            tmpAll.each(function (theIndex, theItem) {
+                var tmpItemEl = $(theItem);
+                if (!(tmpItemEl.attr('oluse'))) {
+                    tmpItemEl.remove();
+                }
+            })
+            delete loadedApps[tmpAppName];
+
+        } else {
+            console.warn("No loaded page to close for " + tmpEntryName)
+        }
+
+        var tmpToRemove = [];
+
+        for (var aName in loadedPages) {
+            var tmpRes = loadedPages[aName]
+            var tmpResAppName = '';
+            if (tmpRes.details && tmpRes.details.appname) {
+                tmpResAppName = tmpRes.details.appname
+            }
+
+            if (tmpResAppName) {
+                if (tmpResAppName == tmpAppName) {
+                    tmpToRemove.push(aName);
+                }
+            }
+
+        }
+
+        for (var iPos in tmpToRemove) {
+            var tmpRemoveItem = tmpToRemove[iPos];
+            var tmpTabAttr = { group: wsOutlineName, item: tmpRemoveItem };
+            var tmpAll = ThisPage.getByAttr$(tmpTabAttr);
+            tmpAll.each(function (theIndex, theItem) {
+                var tmpItemEl = $(theItem);
+                if (!(tmpItemEl.attr('oluse'))) {
+                    tmpItemEl.remove();
+                }
+            })
+
+            delete loadedPages[tmpRemoveItem];
+        }
+
+        tmpToRemove = [];
+        for (var aName in loadedResources) {
+            var tmpRes = loadedResources[aName]
+            var tmpResAppName = '';
+            if (tmpRes.details && tmpRes.details.appname) {
+                tmpResAppName = tmpRes.details.appname
+            }
+
+            if (tmpResAppName) {
+                var tmpResPageName = '';
+                if (tmpRes.details && tmpRes.details.pagename) {
+                    tmpResPageName = tmpRes.details.pagename
+                }
+                if (tmpResAppName == tmpAppName) {
+                    tmpToRemove.push(aName);
+                }
+            }
+
+        }
+
+        for (var iPos in tmpToRemove) {
+            var tmpRemoveItem = tmpToRemove[iPos];
+            var tmpTabAttr = { group: wsOutlineName, item: tmpRemoveItem };
+            var tmpAll = ThisPage.getByAttr$(tmpTabAttr);
+            tmpAll.each(function (theIndex, theItem) {
+                var tmpItemEl = $(theItem);
+                if (!(tmpItemEl.attr('oluse'))) {
+                    tmpItemEl.remove();
+                }
+            })
+
+            delete loadedResources[tmpRemoveItem];
+        }
+
+        showWorkspace();
+    };
+
 
     ThisPage.closeResourceConsole = actions.closeResourceConsole = closeResourceConsole;
     function closeResourceConsole(theParams, theTarget) {
@@ -478,6 +713,7 @@ License: MIT
             return;
         }
 
+        var tmpCatName = '';
         var tmpAppName = '';
         var tmpPageName = '';
 
@@ -485,11 +721,18 @@ License: MIT
         if ((tmpParams.appname)) {
             tmpAppName = tmpParams.appname;
         }
+        if ((tmpParams.catname)) {
+            tmpCatName = tmpParams.catname;
+        }
         if ((tmpParams.pagename)) {
             tmpPageName = tmpParams.pagename;
         }
-
-        tmpEntryName = tmpAppName + "-" + tmpPageName + "-" + tmpEntryName
+        if( tmpAppName ){
+            tmpEntryName = tmpAppName + "-" + tmpPageName + "-" + tmpEntryName
+        } else if( tmpCatName ){
+            tmpEntryName = tmpCatName + "--" + tmpEntryName
+        } 
+        
 
         if (loadedResources[tmpEntryName]) {
             var tmpTabAttr = { group: wsOutlineName, item: tmpEntryName };
@@ -501,12 +744,42 @@ License: MIT
                 }
             })
             delete loadedResources[tmpEntryName];
-            showPageConsole(tmpParams);
+            if( tmpPageName ){
+                showPageConsole(tmpParams);
+            } else if( tmpCatName ){                
+                showCatalogConsole(tmpParams);
+            } else {
+                showAppConsole(tmpParams);
+            }
+            
         } else {
-            onsole.warn("No loaded resource to close for " + tmpEntryName)
+            console.warn("No loaded resource to close for " + tmpEntryName)
         }
 
     };
+
+    actions.addCatalog = addCatalog;
+    function addCatalog(theParams, theTarget) {
+        ThisPage.getPanel('frmNewCatalog').prompt(
+            {
+                isNew: true,
+                doc: { template: 'default' }
+            }
+        ).then(function (theSubmitted, theData) {
+            if (!theSubmitted) {
+                return;
+            }
+
+            ThisApp.common.apiCall({
+                url: '/design/ws/new-catalog',
+                data: theData
+            }).then(function (theReply) {
+                refreshWorkspace();
+                showCatalogConsole(theData);
+            })
+        })
+    };
+
     actions.addApp = addApp;
     function addApp(theParams, theTarget) {
         ThisPage.getPanel('frmNewApp').prompt(
@@ -556,8 +829,8 @@ License: MIT
     };
 
 
-    var commonParams = ['appname', 'apptitle', 'titie', 'source', 'type', 'pagename', 'resname', 'restype'];
-
+    var commonParams = ['catname', 'appname', 'apptitle', 'titie', 'source', 'type', 'pagename', 'resname', 'restype'];
+    actions.wsItemSelected = wsItemSelected;
     function wsItemSelected(theEvent, theControl, theTarget) {
         var tmpParams = ThisApp.getActionParams('na', theTarget, commonParams);
         //        var tmpEl = $(theTarget);
@@ -567,6 +840,8 @@ License: MIT
             showPageConsole(tmpParams);
         } else if (tmpParams.type == 'resource') {
             showResourceConsole(tmpParams);
+        } else if (tmpParams.type == 'catalog') {
+            showCatalogConsole(tmpParams);
         } else {
 
         }
@@ -613,29 +888,108 @@ License: MIT
     ThisPage.getSubNavTabs = getSubNavTabs
     function getSubNavTabs(theDetails) {
         var tmpAppsIndex = {};
+        var tmpCatsIndex = {};
         var tmpHTML = [];
         tmpHTML.push('<div class="pad0 ui top attached tabular tab-nav menu" style="">');
         tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="workspace" action="selectMe" class="item black"><i class="icon hdd black"></i> </a>');
-
+        
         var tmpForAppName = theDetails.appname || '';
+        var tmpForCatName = theDetails.catname || '';
         var tmpForPageName = theDetails.pagename || '';
+
+        for (var iPos in loadedCats) {
+            var tmpCat = loadedCats[iPos]
+            var tmpCatName = '';
+            if (tmpCat.details && tmpCat.details.catname) {
+                tmpCatName = tmpCat.details.catname;
+                var tmpCatTitle = tmpCat.details.title ||  tmpCat.details.catname;
+                if (!(tmpCatsIndex[tmpForCatName]) && tmpForCatName == tmpCatName) {
+                    tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpCatName + '" catname="' + tmpCatName + '" pageaction="showCatalogConsole" class="item   "><i class="icon archive teal"></i> ' + tmpCatTitle + '</a>');
+                }
+                tmpCatsIndex[tmpCatName] = true;
+            }
+        }
 
         for (var iPos in loadedApps) {
             var tmpApp = loadedApps[iPos]
             var tmpAppName = '';
             if (tmpApp.details && tmpApp.details.appname) {
                 tmpAppName = tmpApp.details.appname;
+                var tmpAppTitle = tmpApp.details.title || tmpAppName;
                 if (!(tmpAppsIndex[tmpForAppName]) && tmpForAppName == tmpAppName) {
-                    tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item black  "><i class="icon globe blue"></i> ' + tmpAppName + '</a>');
+                    tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item black  "><i class="icon globe blue"></i> ' + tmpAppTitle + '</a>');
                 }
                 tmpAppsIndex[tmpAppName] = true;
             }
         }
+        for (var iPos in loadedResources) {
+            var tmpRes = loadedResources[iPos]
+            var tmpAppName = '';
+            if (tmpRes.details && tmpRes.details.appname) {
+                tmpAppName = tmpRes.details.appname
+            }
+            if (tmpRes.details && tmpRes.details.catname) {
+                tmpCatName = tmpRes.details.catname
+            }
+             
+            if (tmpAppName && (!(tmpAppsIndex[tmpAppName]) && tmpForAppName == tmpAppName)) {
+                tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item black  "><i class="icon globe blue"></i> ' + tmpAppName + '</a>');
+                tmpAppsIndex[tmpAppName] = true;
+            } else if (tmpCatName && !(tmpCatsIndex[tmpCatName]) && tmpForCatName == tmpCatName){
+                tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpCatName + '" catname="' + tmpCatName + '" pageaction="showCatalogConsole" class="item   "><i class="icon archive teal"></i> ' + tmpCatTitle + '</a>');
+                tmpCatsIndex[tmpCatName] = true;
+            }
+
+            if (tmpAppName) {
+                var tmpPageName = '';
+                if (tmpRes.details && tmpRes.details.pagename) {
+                    tmpPageName = tmpRes.details.pagename
+                }
+                var tmpPageFN = tmpAppName + '-' + tmpPageName;
+                if( !tmpPageName ){
+                    //--- If this is showing nav for the page, show resources
+                    if (tmpForPageName || !(tmpPageName)) {
+                        var tmpResName = tmpRes.details.resname;
+                        var tmpResTitle = tmpRes.details.title || tmpRes.details.resname;
+
+                        var tmpResType = tmpRes.details.restype;
+                        var tmpResFN = tmpAppName + '-' + tmpPageName + '-' + tmpResName;
+
+                        if (!(tmpAppsIndex[tmpResFN]) && (tmpForAppName == tmpAppName)) {
+                            if (tmpPageName == tmpForPageName) {
+                                var tmpIcon = ThisApp.controls.detailsIndex.getDetails(tmpResType).icon;
+                                tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '-' + tmpResName + '" appname="' + tmpAppName + '" pagename="' + tmpPageName + '"  resname="' + tmpResName + '" pageaction="showResourceConsole"    class="item black"><i class="icon ' + tmpIcon + ' violet"></i> ' + tmpResTitle + '</a>')
+                                tmpAppsIndex[tmpResFN] = true;
+                            }
+                        }
+                    }
+                }
+            } else if (tmpCatName) {
+                
+                var tmpResName = tmpRes.details.resname;
+                var tmpResTitle = tmpRes.details.title || tmpRes.details.resname;
+
+                var tmpResType = tmpRes.details.restype;
+                var tmpResFN = tmpCatName + '--' + tmpResName;
+
+                if (!(tmpCatsIndex[tmpResFN]) && (tmpForCatName == tmpCatName)) {
+                    var tmpIcon = ThisApp.controls.detailsIndex.getDetails(tmpResType).icon;
+                    tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpCatName + '--' + tmpResName + '" catname="' + tmpCatName + '" pagename="' + tmpPageName + '"  resname="' + tmpResName + '" pageaction="showResourceConsole"    class="item black"><i class="icon ' + tmpIcon + ' brown"></i> ' + tmpResTitle + '</a>')
+                    tmpCatsIndex[tmpResFN] = true;
+                }
+            }
+
+        }
+
         for (var iPos in loadedPages) {
             var tmpPage = loadedPages[iPos]
             var tmpAppName = '';
+            var tmpCatName = '';
             if (tmpPage.details && tmpPage.details.appname) {
                 tmpAppName = tmpPage.details.appname
+            }
+            if (tmpPage.details && tmpPage.details.catname) {
+                tmpCatName = tmpPage.details.catname
             }
             if (!(tmpAppsIndex[tmpAppName]) && tmpForAppName == tmpAppName) {
                 tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item black  "><i class="icon globe blue"></i> ' + tmpAppName + '</a>');
@@ -648,8 +1002,8 @@ License: MIT
                     tmpPageName = tmpPage.details.pagename
                 }
                 var tmpPageFN = tmpAppName + '-' + tmpPageName;
-                if (!(tmpAppsIndex[tmpPageFN]) && tmpForAppName == tmpAppName) {
-                    if (!(tmpForPageName) || (tmpForPageName && (tmpPageName == tmpForPageName))) {
+                if (!(tmpAppsIndex[tmpPageFN])) {
+                    if ((!tmpForPageName && (tmpForAppName == tmpAppName)) || (tmpForPageName && (tmpPageName == tmpForPageName)  && (tmpForAppName == tmpAppName))) {
                         tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '" appname="' + tmpAppName + '" pagename="' + tmpPageName + '" pageaction="showPageConsole" class="item black"><i class="icon columns green"></i> ' + tmpPageName + '</a>');
                         tmpAppsIndex[tmpPageFN] = true;
                     }
@@ -662,10 +1016,15 @@ License: MIT
         for (var iPos in loadedResources) {
             var tmpRes = loadedResources[iPos]
             var tmpAppName = '';
+            var tmpCatName = '';
             if (tmpRes.details && tmpRes.details.appname) {
                 tmpAppName = tmpRes.details.appname
             }
-            if (!(tmpAppsIndex[tmpAppName]) && tmpForAppName == tmpAppName) {
+            if (tmpRes.details && tmpRes.details.catname) {
+                tmpCatName = tmpRes.details.catname
+            }
+
+            if (tmpAppName && !(tmpAppsIndex[tmpAppName]) && tmpForAppName == tmpAppName) {
                 tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item black  "><i class="icon globe blue"></i> ' + tmpAppName + '</a>');
                 tmpAppsIndex[tmpAppName] = true;
             }
@@ -676,16 +1035,18 @@ License: MIT
                     tmpPageName = tmpRes.details.pagename
                 }
                 var tmpPageFN = tmpAppName + '-' + tmpPageName;
-
-                if (!(tmpAppsIndex[tmpPageFN]) && tmpForAppName == tmpAppName) {
-                    if (!(tmpForPageName) || (tmpForPageName && (tmpPageName == tmpForPageName))) {
-                        tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '" appname="' + tmpAppName + '" pagename="' + tmpPageName + '" pageaction="showPageConsole" class="item black"><i class="icon columns green"></i> ' + tmpPageName + '</a>');
-                        tmpAppsIndex[tmpPageFN] = true;
+                if( tmpPageName ){
+                    if (!(tmpAppsIndex[tmpPageFN]) && tmpForAppName == tmpAppName) {
+                        if (!(tmpForPageName) || (tmpForPageName && (tmpPageName == tmpForPageName))) {
+                            tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '" appname="' + tmpAppName + '" pagename="' + tmpPageName + '" pageaction="showPageConsole" class="item black"><i class="icon columns green"></i> ' + tmpPageName + '</a>');
+                            tmpAppsIndex[tmpPageFN] = true;
+                        }
                     }
                 }
 
+
                 //--- If this is showing nav for the page, show resources
-                if (tmpForPageName) {
+                if (tmpForPageName || !(tmpPageName)) {
                     var tmpResName = tmpRes.details.resname;
                     var tmpResTitle = tmpRes.details.title || tmpRes.details.resname;
 
@@ -695,11 +1056,24 @@ License: MIT
                     if (!(tmpAppsIndex[tmpResFN]) && (tmpForAppName == tmpAppName)) {
                         if (tmpPageName == tmpForPageName) {
                             var tmpIcon = ThisApp.controls.detailsIndex.getDetails(tmpResType).icon;
-
                             tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '-' + tmpResName + '" appname="' + tmpAppName + '" pagename="' + tmpPageName + '"  resname="' + tmpResName + '" pageaction="showResourceConsole"    class="item black"><i class="icon ' + tmpIcon + ' purple"></i> ' + tmpResTitle + '</a>')
                             tmpAppsIndex[tmpResFN] = true;
                         }
                     }
+                }
+
+
+            } else if (tmpCatName && (tmpForCatName == tmpCatName)) {
+                
+                var tmpResName = tmpRes.details.resname;
+                var tmpResTitle = tmpRes.details.title || tmpRes.details.resname;
+
+                var tmpResType = tmpRes.details.restype;
+                var tmpResFN = tmpCatName + '--' + tmpResName;
+                if (!(tmpCatsIndex[tmpResFN]) && (tmpForCatName == tmpCatName)) {
+                    var tmpIcon = ThisApp.controls.detailsIndex.getDetails(tmpResType).icon;
+                    tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpCatName + '--' + tmpResName + '" catname="' + tmpCatName + '" pagename="' + tmpPageName + '"  resname="' + tmpResName + '" pageaction="showResourceConsole"    class="item black"><i class="icon ' + tmpIcon + ' brown"></i> ' + tmpResTitle + '</a>')
+                    tmpCatsIndex[tmpResFN] = true;
                 }
 
 
@@ -725,14 +1099,31 @@ License: MIT
         var tmpHTML = [];
         tmpHTML.push('<div class="pad0 ui top attached tabular tab-nav menu" style="">');
         tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="workspace" action="selectMe" class="item black"><i class="icon hdd black"></i> </a>');
-        var tmpAppsIndex = {}
+        var tmpAppsIndex = {};
+        var tmpCatsIndex = {};
 
+        var tmpForCatName = '';
+
+ 
+
+        for (var iPos in loadedCats) {
+            var tmpCat = loadedCats[iPos]
+            var tmpCatName = '';
+            if (tmpCat.details && tmpCat.details.catname) {
+                tmpCatName = tmpCat.details.catname;
+                var tmpCatTitle = tmpCat.details.title ||  tmpCat.details.catname;
+                tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpCatName + '" catname="' + tmpCatName + '" pageaction="showCatalogConsole" class="item   "><i class="icon archive teal"></i> ' + tmpCatTitle + '</a>');
+                tmpCatsIndex[tmpCatName] = true;
+            }
+        }
+        
         for (var iPos in loadedApps) {
             var tmpApp = loadedApps[iPos]
             var tmpAppName = '';
             if (tmpApp.details && tmpApp.details.appname) {
                 tmpAppName = tmpApp.details.appname;
-                tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item black  "><i class="icon globe blue"></i> ' + tmpAppName + '</a>');
+                var tmpAppTitle = tmpApp.details.title || tmpAppName;
+                tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item   "><i class="icon globe blue"></i> ' + tmpAppTitle + '</a>');
                 tmpAppsIndex[tmpAppName] = true;
             }
         }
@@ -766,3 +1157,4 @@ License: MIT
     }
 
 })(ActionAppCore, $);
+

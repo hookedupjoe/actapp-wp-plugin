@@ -44,7 +44,6 @@
                 var tmpSourceName = tmpEachEl.attr('sourcename');
                 var tmpSpotName = tmpEachEl.attr('spot');
                 var tmpSourcePartName = tmpEachEl.attr('sourcepartname') || tmpSourceName;
-                console.log('tmpSourcePartName',tmpSourcePartName);
                 
                 ActAppBlocksController.getCatalogItem(tmpSourceType, tmpSourceName).then(function(){
                     var tmpInstance = ThisApp.getResourceForType(tmpSourceType, tmpSourceName).create('preview');
@@ -53,7 +52,6 @@
                             BlocksController.parts[tmpSourcePartName] = tmpInstance;
                         }
                         ThisApp.publish('partloaded', [this,tmpInstance]);
-                        console.log('loaded',tmpInstance);
                     });
 
                 });

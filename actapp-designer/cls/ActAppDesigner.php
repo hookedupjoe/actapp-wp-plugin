@@ -30,7 +30,7 @@ class ActAppDesigner {
 	}
 
 	public static function getDataVersion(){
-		return 1.03;
+		return 1.06;
 	}
 
 	public static function actapp_block_category( $categories, $post ) {
@@ -69,9 +69,15 @@ class ActAppDesigner {
 	}
 
 	public static function override_tpl($template){
-		$post_types = array( 'designer' );
-
-
+		$post_types = array( 'actappdesign' );
+		$post = get_post();
+		$pagename = $post->post_name;
+		$current_user = wp_get_current_user();
+		
+		if ( is_singular( $post_types ) && $pagename != '' && file_exists( ACTAPP_DESIGNER_DIR . '/tpl/designer-'.$pagename.'.php' ) ){
+			$template = ACTAPP_DESIGNER_DIR . '/tpl/designer-'.$pagename.'.php';
+			return $template;
+		}
 
 		if ( is_singular( $post_types ) && file_exists( ACTAPP_DESIGNER_DIR . '/tpl/designer.php' ) ){
 			$template = ACTAPP_DESIGNER_DIR . '/tpl/designer.php';
@@ -82,39 +88,96 @@ class ActAppDesigner {
 	}
 	
 
-	public static function assure_plugin_initialized() {
-		$post_type = 'designer';
-
-		$slug = 'home';
-        $title = 'Designer Home Page';
-        $content = 'Internal Use';
-		$tmpVersion = 0;
-		$tmpMainID = ActAppCommon::post_exists_by_slug($slug, $post_type, $title, $content);
+	public static function getRootPost(){
+		$tmpMainID = self::getRootPostID();
 		if( $tmpMainID ){
-			//$tmpMainPost = get_post($tmpMainID);
+			$tmpMainPost = get_post($tmpMainID);
 			if( $tmpMainPost ){
-				$tmpVersion = get_post_meta( $tmpMainID, 'version' );
+				return $tmpMainPost;
 			}
 		}
+		return false;
+	}
+	public static function getRootPostID(){
+		$post_type = 'actappdesign';
+		$slug = 'welcome';
+		$tmpMainID = ActAppCommon::post_exists_by_slug($slug, $post_type, $title, $content);
+		if( $tmpMainID ){
+			return $tmpMainID;
+		}
+		return false;
+	}
+	
+	public static function getSUID(){
+		$tmpRet = false;
+		$tmpMainID = self::getRootPostID();
+		if( $tmpMainID ){
+			$tmpRet = get_post_meta( $tmpMainID, 'suid', true);
+		}
+		return $tmpRet;
+	}
+	public static function getPluginSetupVersion(){
+		$tmpVersion = 0;
+		$tmpMainID = self::getRootPostID();
+		if( $tmpMainID ){
+			$tmpVersion = get_post_meta( $tmpMainID, 'version', true);
+		}
+		return $tmpVersion;
+	}
 
+	public static function assure_plugin_initialized() {
+		$tmpVersion = self::getPluginSetupVersion();
 		if( $tmpVersion != self::getDataVersion() ){
 			flush_rewrite_rules();
 			return self::plugin_initialize();
 		}
-		
 		return false;
 	}
 
+	public static function setOnLoad() {
+		$slug = 'welcome';
+		$tmpMainID = ActAppCommon::post_exists_by_slug($slug, 'actappdesign');
+		//--- Use new var for assuring other docs to return false if not created
+		update_post_meta( $tmpMainID, 'access', 'yes' );
+
+	}
+
+
+	public static function getOnLoad() {
+		$slug = 'welcome';
+		$tmpMainID = ActAppCommon::post_exists_by_slug($slug, 'actappdesign');
+		//--- Use new var for assuring other docs to return false if not created
+		return get_post_meta( $tmpMainID, 'access', true );
+
+	}
+
 	public static function plugin_initialize() {
-		$post_type = 'designer';
+		$post_type = 'actappdesign';
 
 		$slug = 'welcome';
         $title = 'Designer Home Page';
         $content = 'Internal Use';
 		$tmpMainID = ActAppCommon::assure_doc($slug, $post_type, $title, $content);
 		
-		//--- Use new var for assuring other docs to return false if not created
-		update_post_meta( $tmpMainID, 'version', self::getDataVersion() );
+		$tmpMainID = ActAppCommon::post_exists_by_slug($slug, $post_type);
+		if( !($tmpMainID)){
+			throw new ErrorException("Could not create main entry point for designer, contact support");
+		}
+		$tmpSourceID = get_post_meta( $tmpMainID, 'suid', true );
+
+		if( $tmpSourceID == ''){
+			$tmpStoreID = uniqid('' . random_int(100, 999) . '_');
+			update_post_meta( $tmpMainID, 'suid', $tmpStoreID);
+			$tmpSourceID = get_post_meta( $tmpMainID, 'suid', true );
+			if( $tmpSourceID == ''){
+				throw new ErrorException("Could not save created store ID, contact support");
+			}
+		}
+		$tmpVersion = get_post_meta( $tmpMainID, 'version', true ); 
+		if( $tmpVersion != self::getDataVersion() ){
+			//--- Use new var for assuring other docs to return false if not created
+			update_post_meta( $tmpMainID, 'version', self::getDataVersion() );
+		}
 
 		$slug = 'dashboard';
         $title = 'Designer Dashboard';
@@ -166,12 +229,14 @@ class ActAppDesigner {
 			array('wp-blocks','wp-editor','wp-element'),
 			true
 		);
-		// //--- Load standardly created widgets;
-		// $tmpWidgetList = array();
-		// //ToAdd _. , 'buttons'
-		// foreach ($tmpWidgetList as $aName) {
-		// 	self::loadStandardBlock($aName);
-		// }
+		if ( get_post_type( get_the_ID() ) == 'actappdesign' ) {
+			//--- Load standardly created widgets;
+			$tmpWidgetList = array('any');
+			foreach ($tmpWidgetList as $aName) {
+				self::loadStandardBlock($aName);
+			}
+			
+		}
 
 			
 	}
@@ -187,38 +252,40 @@ class ActAppDesigner {
 		add_action('admin_enqueue_scripts',  array('ActAppDesigner','actapp_init_blocks_content'),20,2);
 		add_action('admin_enqueue_scripts',  array('ActAppDesigner','actapp_init_admin_scripts'),20);
 
-		add_action('enqueue_block_editor_assets',  array('ActAppDesigner','actapp_init_blocks_content'),10,2);
-		add_action('enqueue_block_editor_assets',  array('ActAppDesigner','actapp_init_blocks'),10,2);
+		add_action('enqueue_block_editor_assets',  array('ActAppDesigner','actapp_init_blocks_content'),11,2);
+		add_action('enqueue_block_editor_assets',  array('ActAppDesigner','actapp_init_blocks'),11,2);
 
 	}
 
 	
 	public static function setup_data() {
-		self::custom_post_designer_data();
-
+		self::custom_post_designer_access();
+		self::custom_post_actapp_doc();
+		self::custom_post_design_element();
 	}
 
-	private function custom_post_designer_data() {
+	
+
+	private function custom_post_actapp_doc() {
 
 		$labels = array(
-		'name'               => __( 'Designer Data Docs' ),
-		'singular_name'      => __( 'Designer Data Doc' ),
-		'add_new'            => __( 'Add New Designer Data Doc' ),
-		'add_new_item'       => __( 'Add New Designer Data Doc' ),
-		'edit_item'          => __( 'Edit Designer Data Doc' ),
-		'new_item'           => __( 'New Designer Data Doc' ),
-		'all_items'          => __( 'All Designer Data Docs' ),
-		'view_item'          => __( 'View Designer Data Doc' ),
-		'search_items'       => __( 'Search Designer Data Doc' ),
-		'featured_image'     => 'Poster',
-		'set_featured_image' => 'Add Poster'
+		'name'               => __( 'ActApp Docs' ),
+		'singular_name'      => __( 'ActApp Doc' ),
+		'add_new'            => __( 'Add New ActApp Doc' ),
+		'add_new_item'       => __( 'Add New ActApp Doc' ),
+		'edit_item'          => __( 'Edit ActApp Doc' ),
+		'new_item'           => __( 'New ActApp Doc' ),
+		'all_items'          => __( 'All ActApp Docs' ),
+		'view_item'          => __( 'View ActApp Doc' ),
+		'search_items'       => __( 'Search ActApp Doc' )
 		);
 
 		$args = array(
 		'labels'            => $labels,
-		'description'       => 'Holds our Designer Data for internal designer use',
+		'description'       => 'Holds general data managed by the ActApp model',
 		'public'            => true,
-		'menu_position'     => 5,
+		'menu_position'     => 21,
+		'show_in_rest' => true,
 		'supports'          => array( 'title', 'editor', 'custom-fields' ),
 		'has_archive'       => false,
 		'show_in_admin_bar' => false,
@@ -226,7 +293,69 @@ class ActAppDesigner {
 		'query_var'         => true,
 		);
 
-		register_post_type( 'designer', $args);
+		register_post_type( 'actappdoc', $args);
+
+	}
+
+	private function custom_post_design_element() {
+
+		$labels = array(
+		'name'               => __( 'Design Elements' ),
+		'singular_name'      => __( 'Design Element' ),
+		'add_new'            => __( 'Add New Design Element' ),
+		'add_new_item'       => __( 'Add New Design Element' ),
+		'edit_item'          => __( 'Edit Design Element' ),
+		'new_item'           => __( 'New Design Element' ),
+		'all_items'          => __( 'All Design Elements' ),
+		'view_item'          => __( 'View Design Element' ),
+		'search_items'       => __( 'Search Design Element' )
+		);
+
+		$args = array(
+		'labels'            => $labels,
+		'description'       => 'Holds general data managed by the ActApp model',
+		'public'            => true,
+		'menu_position'     => 22,
+		'show_in_rest' => true,
+		'supports'          => array( 'title', 'editor', 'custom-fields' ),
+		'has_archive'       => false,
+		'show_in_admin_bar' => false,
+		'show_in_nav_menus' => false,
+		'query_var'         => true,
+		);
+
+		register_post_type( 'actappelem', $args);
+
+	}
+
+	private function custom_post_designer_access() {
+
+		$labels = array(
+		'name'               => __( 'Designer Access Points' ),
+		'singular_name'      => __( 'Designer Access Point' ),
+		'add_new'            => __( 'Add New Designer Access Point' ),
+		'add_new_item'       => __( 'Add New Designer Access Point' ),
+		'edit_item'          => __( 'Edit Designer Access Point' ),
+		'new_item'           => __( 'New Designer Access Point' ),
+		'all_items'          => __( 'All Designer Access Points' ),
+		'view_item'          => __( 'View Designer Access Point' ),
+		'search_items'       => __( 'Search Designer Access Point' )
+		);
+
+		$args = array(
+		'labels'            => $labels,
+		'description'       => 'Used to provide access entrypoints into the designer',
+		'public'            => true,
+		'menu_position'     => 23,
+		'show_in_rest' => true,
+		'supports'          => array( 'title', 'editor', 'custom-fields' ),
+		'has_archive'       => false,
+		'show_in_admin_bar' => false,
+		'show_in_nav_menus' => false,
+		'query_var'         => true,
+		);
+
+		register_post_type( 'actappdesign', $args);
 
 	}
 
@@ -244,15 +373,19 @@ class ActAppDesigner {
 		esc_html_e( 'showDesigner', 'textdomain' );
 	}
 	public static function registerMenus(){
-		add_menu_page( 
-			__( 'UI Designer'),
-			'UI Designer',
-			'manage_options',
-			'actappdesigner',
-			array( 'ActAppDesigner', 'showDesigner' ),
-			plugins_url( 'actapp-designer/images/icon.png' ),
-			81
-		); 
+		//remove_menu_page( 'edit.php?post_type=actappdesign' );
+		//remove_menu_page( 'edit.php?post_type=actappdoc' );
+		
+		//--- Demo of how to add a page on the left panel.  		
+		// add_menu_page( 
+		// 	__( 'UI Designer'),
+		// 	'UI Designer',
+		// 	'manage_options',
+		// 	'actappdesigner',
+		// 	array( 'ActAppDesigner', 'showDesigner' ),
+		// 	plugins_url( 'actapp-designer/images/icon.png' ),
+		// 	81
+		// ); 
 	}
 
 

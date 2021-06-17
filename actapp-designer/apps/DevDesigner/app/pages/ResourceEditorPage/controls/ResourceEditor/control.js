@@ -117,9 +117,8 @@ License: MIT
 						],
 						center: [
 							{
-								ctl: "control",
-								"controlname": "app/catalog/designer/controls/AceEditor",
-								name: "editor",
+								ctl: "spot",
+								name: "ace-editor",
 								text: ""
 							}
 
@@ -150,19 +149,19 @@ License: MIT
 	};
 
 	function _onParentResize() {
-		// var tmpThis = this;
-		// ThisApp.delay(200).then(function (theReply) {
-		// 	if (tmpThis.aceEditorEl) {
-		// 		var tmpH = tmpThis.aceEditorEl.closest('.ui-layout-pane').height();
-		// 		if (tmpThis.aceEditorEl && tmpThis.aceEditor) {
-		// 			tmpThis.aceEditorEl
-		// 				.css('height', '' + tmpH + 'px')
-		// 				.css('position', 'relative')
-		// 			tmpThis.aceEditor.resize(true);
-		// 		}
-		// 	}
+		var tmpThis = this;
+		ThisApp.delay(200).then(function (theReply) {
+			if (tmpThis.aceEditorEl) {
+				var tmpH = tmpThis.aceEditorEl.closest('.ui-layout-pane').height();
+				if (tmpThis.aceEditorEl && tmpThis.aceEditor) {
+					tmpThis.aceEditorEl
+						.css('height', '' + tmpH + 'px')
+						.css('position', 'relative')
+					tmpThis.aceEditor.resize(true);
+				}
+			}
 
-		// })
+		})
 
 	}
 
@@ -208,7 +207,6 @@ License: MIT
 
 
 		var tmpPageName = theDetails.pagename || '';
-		var tmpCatName = theDetails.catname || '';
 		var tmpAppName = theDetails.appname || '';
 		var tmpResName = theDetails.resname || '';
 		var tmpResType = theDetails.restype || '';
@@ -229,7 +227,6 @@ License: MIT
 			source: tmpSource,
 			title: tmpShowName,
 			appname: tmpAppName,
-			catname: tmpCatName,
 			resname: tmpResName,
 			restype: tmpResType
 		}
@@ -240,16 +237,14 @@ License: MIT
 		}
 		this.setupEditor();
 
-		this.refreshTabNav();
-		this.endpointURL = 'design/ws/resource-content?run&source=' + tmpSource + '&resname=' + tmpResName + '&restype=' + tmpResType;
+		//this.refreshTabNav();
+		//this.endpointURL = 'design/ws/resource-content?run&source=' + tmpSource + '&resname=' + tmpResName + '&restype=' + tmpResType;
+		this.endpointURL = 'http://localhost:33460/catalog/controls/common/StatusBar/control.js?open';
 		if (tmpPageName) {
 			this.endpointURL += '&pagename=' + tmpPageName;
 		}
 		if (tmpAppName) {
 			this.endpointURL += '&appname=' + tmpAppName;
-		}
-		if (tmpCatName) {
-			this.endpointURL += '&catname=' + tmpCatName;
 		}
 		this.refreshFromSource();
 
@@ -258,44 +253,31 @@ License: MIT
 
 	}
 
-	// function refreshTabNav() {
-	// 	this.details = this.details || {};
-	// 	var tmpCatName = this.details.catname || '';
-	// 	var tmpAppName = this.details.appname || '';
-	// 	var tmpPageName = this.details.pagename || '';
-	// 	var tmpResName = this.details.resname || '';
-	// 	var tmpResType = this.details.restype || '';
+	function refreshTabNav() {
+		this.details = this.details || {};
+		var tmpAppName = this.details.appname || '';
+		var tmpPageName = this.details.pagename || '';
+		var tmpResName = this.details.resname || '';
+		var tmpResType = this.details.restype || '';
 
-	// 	if (tmpCatName && tmpResName) {
-	// 		var tmpHTML = [];
-	// 		var tmpIcon = ThisApp.controls.detailsIndex.getDetails(tmpResType).icon;
+		if ((tmpAppName || tmpPageName) && tmpResName) {
+			var tmpHTML = [];
+			var tmpIcon = ThisApp.controls.detailsIndex.getDetails(tmpResType).icon;
 
-	// 		tmpHTML.push('<div class="pad0 ui top attached tabular tab-nav menu" style="">');
-	// 		tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpCatName + '" catname="' + tmpAtmpCatNameppName + '" pageaction="showCatalogConsole" class="item black  "><i class="icon box brown"></i> ' + tmpCatName + '</a>');
-	// 		tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpCatName + '--' + tmpResName + '" class="item black"><i class="icon ' + tmpIcon + ' brown"></i> ' + tmpResName + '</a>')
-	// 		tmpHTML.push('</div><div class="ui divider fitted black"></div>')
-	// 		tmpHTML = tmpHTML.join('\n');
-	// 		this.loadSpot('nav-tabs', tmpHTML)
-	// 	} else if ((tmpAppName || tmpPageName) && tmpResName) {
-	// 		var tmpHTML = [];
-	// 		var tmpIcon = ThisApp.controls.detailsIndex.getDetails(tmpResType).icon;
+			tmpHTML.push('<div class="pad0 ui top attached tabular tab-nav menu" style="">');
+			if (tmpAppName) {
+				tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item black  "><i class="icon globe blue"></i> ' + tmpAppName + '</a>');
+			}
+			if (tmpPageName) {
+				tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '" appname="' + tmpAppName + '" pagename="' + tmpPageName + '" pageaction="showPageConsole" class="item black"><i class="icon columns green"></i> ' + tmpPageName + '</a>');
+			}
+			tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '-' + tmpResName + '" class="item black"><i class="icon ' + tmpIcon + ' purple"></i> ' + tmpResName + '</a>')
+			tmpHTML.push('</div><div class="ui divider fitted black"></div>')
+			tmpHTML = tmpHTML.join('\n');
+			this.loadSpot('nav-tabs', tmpHTML)
+		}
 
-	// 		tmpHTML.push('<div class="pad0 ui top attached tabular tab-nav menu" style="">');
-	// 		if (tmpAppName) {
-	// 			tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '" appname="' + tmpAppName + '" pageaction="showAppConsole" class="item black  "><i class="icon globe blue"></i> ' + tmpAppName + '</a>');
-	// 		}
-	// 		if (tmpPageName) {
-	// 			tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '" appname="' + tmpAppName + '" pagename="' + tmpPageName + '" pageaction="showPageConsole" class="item black"><i class="icon columns green"></i> ' + tmpPageName + '</a>');
-	// 		}
-	// 		tmpHTML.push('<a appuse="tablinks" group="workspace-outline" item="' + tmpAppName + '-' + tmpPageName + '-' + tmpResName + '" class="item black"><i class="icon ' + tmpIcon + ' purple"></i> ' + tmpResName + '</a>')
-	// 		tmpHTML.push('</div><div class="ui divider fitted black"></div>')
-	// 		tmpHTML = tmpHTML.join('\n');
-	// 		this.loadSpot('nav-tabs', tmpHTML)
-	// 	} else {
-			
-	// 	}
-
-	// }
+	}
 
 	function uniqueGroups(theUniqueness) {
 		var tmpIndex = this.getIndex();
@@ -309,9 +291,6 @@ License: MIT
 		}
 	}
 
-	function onEditorResize(){
-		this.parts.editor.resizeToParent();
-	}
 	function setupEditor() {
 		if (this.editorSetup === true) {
 			return;
@@ -320,13 +299,9 @@ License: MIT
 
 		this.editorSetup = true;
 
-		//this.aceEditorEl = this.getSpot("ace-editor");
-		//this.aceEditor = ace.edit(this.aceEditorEl.get(0));
-		this.aceEditor = this.parts.editor.codeEditor;
-		if( this.context.page && this.context.page.controller ){
-			this.context.page.controller.subscribe('resized', onEditorResize.bind(this));
-		}
-		//this.aceEditor.setTheme("ace/theme/tomorrow_night_bright");
+		this.aceEditorEl = this.getSpot("ace-editor");
+		this.aceEditor = ace.edit(this.aceEditorEl.get(0));
+		this.aceEditor.setTheme("ace/theme/tomorrow_night_bright");
 		this.aceEditor.setFontSize(16);
 
 		ace.config.loadModule('ace/ext/beautify', function (theResults) {
@@ -438,11 +413,6 @@ License: MIT
 			url: '/design/ws/save-resource?run',
 			data: tmpRequest
 		}).then(function (theReply) {
-			if( theReply && theReply.status === false){
-				var tmpMsg = "There was an error, contact support with these details: " + theReply.error || '(unknown error)';
-				alert(tmpMsg,"Error","e");
-				return;
-			}
 			tmpThis.setItemDisabled('btn-save', true);
 			tmpThis.markClean();
 		})
@@ -508,6 +478,7 @@ License: MIT
 
 	ControlCode.refreshTabNav = refreshTabNav;
 	function refreshTabNav() {
+		return;
 		this.details = this.details || {};
 
 		var tmpHTML = this.context.page.controller.getSubNavTabs(this.details);

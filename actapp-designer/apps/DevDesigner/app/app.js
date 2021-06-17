@@ -4,9 +4,9 @@
 
   var tmpPageNames = [   
     'WorkspacePage',
+    //'ControlBuilderPage',
     'ControlsPage',
     'JsonHelperPage',
-    'ControlBuilderPage',
     'LogsPage'
   ];
 
@@ -36,7 +36,10 @@
           index: appIndex,
           apiCall: apiCall
         })
-        
+       var tmpDesigner = ThisApp.getDataObject('designer');
+        tmpDesigner.endpoints = {
+          get_ws_outline: '../../../../../wp-json/actappdesigner/get-ws-outline.json?open'
+        }
       });
     } catch (ex) {
       console.error("Unexpected Error " + ex);

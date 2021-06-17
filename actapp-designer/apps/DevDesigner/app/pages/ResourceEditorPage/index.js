@@ -7,8 +7,8 @@ License: MIT
     var SiteMod = ActionAppCore.module("site");
 
     var thisPageSpecs = {
-        pageName: "ResourceEditor",
-        pageTitle: "Resource Editor",
+        pageName: "ResourceEditorPage",
+        pageTitle: "Resources",
         navOptions: {
             topLink: true,
             sideLink: true
@@ -35,15 +35,15 @@ License: MIT
         baseURL: pageBaseURL,
         north: false,
         east: false,
-        west: { partname: "west", control: "west" },
-        center: { html: "body" },
+        west: { partname: "list", control: "CatalogList" },
+        center: { partname: "editor", control: "ResourceEditor" },
         south: false
     }
 
     //--- Customize default layout configuration
     //--- See http://layout.jquery-dev.com/documentation.cfm for details
     thisPageSpecs.layoutConfig = {
-        west__size: "350"
+        west__size: "250"
         , east__size: "200"
     }
 
@@ -96,7 +96,7 @@ License: MIT
 
     ThisPage._onActivate = function () {
         //-- Do refresh / checks here to update when page is activated
-
+        window.activePage = ThisPage;
     }
     //--- End lifecycle hooks
 
@@ -110,7 +110,13 @@ License: MIT
 
     //=== Page Stuff
 
-   
+
+    actions.addResource = addResource;
+    function addResource(theParams, theTarget) {        
+        var tmpParams = ThisApp.getActionParams(theParams, theTarget, ['restype','resname']);
+        this.parts.editor.setup({restype:tmpParams.restype,resname:tmpParams.resname});
+    }
+    
     
     actions.showResourceConsole = showResourceConsole;
     function showResourceConsole(theParams, theTarget) {        
