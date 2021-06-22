@@ -67,6 +67,26 @@ public static function setup_scripts($hook) {
 			wp_enqueue_script( 'tabulator_xlsx', $tmplibloc . 'lib/tabulator/addons/xlsx.full.min.js', array(), $my_js_ver );
 
 			
+			$tmpConfig = array(
+				'rootPath'=>self::getRootPath(),
+				'catalogURL'=>self::getRootPath() . '/catalog',
+				'restPath' => esc_url_raw( rest_url() ),
+				'nonce' => wp_create_nonce( 'wp_rest' )
+			);
+			$tmpJson = json_encode($tmpConfig);
+			$tmpScript = 'window.ActionAppCore.ActAppWP = ' . $tmpJson . ';';
+			$tmpScript .= 'ActionAppCore.apiCallOptions = ActionAppCore.apiCallOptions || {};ActionAppCore.apiCallOptions.filterOptions = function(theOptions){
+				var tmpOptions = theOptions || {};
+				if( ActionAppCore.ActAppWP && ActionAppCore.ActAppWP.nonce ){
+					tmpOptions.beforeSend = function ( xhr ) {
+						xhr.setRequestHeader( "X-WP-Nonce", ActionAppCore.ActAppWP.nonce );
+					}
+				}
+				return tmpOptions;
+			};';
+			
+			wp_add_inline_script( 'app-only-preinit', $tmpScript );
+	
 			wp_enqueue_script( 'app-only-preinit', $tmplibloc . 'lib/actionapp/app-only-preinit.js', array(), $my_js_ver );
 			wp_enqueue_script( 'app-only-init', $tmplibloc . 'lib/actionapp/app-only-init.js', array(), $my_js_ver,true );
 			
@@ -106,12 +126,19 @@ public static function setup_scripts($hook) {
                     'post_author'       =>   $author_id,
                     'post_name'         =>   $slug,
                     'post_title'        =>   $title,
-                    'post_content'      =>  $content,
+                    'post_content'      =>   $content,
                     'post_status'       =>   'publish',
                     'post_type'         =>   $post_type
                 )
 			);
+		} else {
+			return self::post_exists_by_slug( $slug, $post_type );
 		}
+	}
+	
+	public static function getRootPath(){
+		$path = home_url();
+		return ($path);
 	}
 	
 	public static function init() {
