@@ -69,21 +69,25 @@ class ActAppDesigner {
 	}
 
 	public static function override_tpl($template){
-		$post_types = array( 'actappdesign' );
 		$post = get_post();
 		$pagename = $post->post_name;
 		$current_user = wp_get_current_user();
-		
+
+		$post_types = array( 'actappdesign' );
 		if ( is_singular( $post_types ) && $pagename != '' && file_exists( ACTAPP_DESIGNER_DIR . '/tpl/designer-'.$pagename.'.php' ) ){
 			$template = ACTAPP_DESIGNER_DIR . '/tpl/designer-'.$pagename.'.php';
 			return $template;
 		}
-
 		if ( is_singular( $post_types ) && file_exists( ACTAPP_DESIGNER_DIR . '/tpl/designer.php' ) ){
 			$template = ACTAPP_DESIGNER_DIR . '/tpl/designer.php';
 			return $template;
 		}
 
+		$post_types = array( 'actappdoc' );
+		if ( is_singular( $post_types ) && file_exists( ACTAPP_DESIGNER_DIR . '/tpl/actappdoc.php' ) ){
+			$template = ACTAPP_DESIGNER_DIR . '/tpl/actappdoc.php';
+			return $template;
+		}
 		return $template;
 	}
 	
@@ -112,10 +116,18 @@ class ActAppDesigner {
 		$tmpRet = false;
 		$tmpMainID = self::getRootPostID();
 		if( $tmpMainID ){
-			$tmpRet = get_post_meta( $tmpMainID, 'suid', true);
+			$tmpRet = '' . get_post_meta( $tmpMainID, 'storeid', true);
+			if( $tmpRet == ''){
+				self::create_storeid($tmpMainID);
+				$tmpRet = '' . get_post_meta( $tmpMainID, 'storeid', true);
+			}
+			if( $tmpRet == ''){
+				throw new ErrorException("Could not save created store ID, contact support");
+			}
 		}
 		return $tmpRet;
 	}
+
 	public static function getPluginSetupVersion(){
 		$tmpVersion = 0;
 		$tmpMainID = self::getRootPostID();
@@ -151,6 +163,12 @@ class ActAppDesigner {
 
 	}
 
+	
+	static function create_storeid($thePostID) {
+		$tmpStoreID = uniqid('' . random_int(1000, 9999));
+		update_post_meta( $thePostID, 'storeid', $tmpStoreID);
+	}
+
 	public static function plugin_initialize() {
 		$post_type = 'actappdesign';
 
@@ -163,16 +181,8 @@ class ActAppDesigner {
 		if( !($tmpMainID)){
 			throw new ErrorException("Could not create main entry point for designer, contact support");
 		}
-		$tmpSourceID = get_post_meta( $tmpMainID, 'suid', true );
+		$tmpSourceID = self::getSUID();
 
-		if( $tmpSourceID == ''){
-			$tmpStoreID = uniqid('' . random_int(100, 999) . '_');
-			update_post_meta( $tmpMainID, 'suid', $tmpStoreID);
-			$tmpSourceID = get_post_meta( $tmpMainID, 'suid', true );
-			if( $tmpSourceID == ''){
-				throw new ErrorException("Could not save created store ID, contact support");
-			}
-		}
 		$tmpVersion = get_post_meta( $tmpMainID, 'version', true ); 
 		if( $tmpVersion != self::getDataVersion() ){
 			//--- Use new var for assuring other docs to return false if not created
@@ -203,6 +213,7 @@ class ActAppDesigner {
 		$tmpScript = 'window.ActionAppCore.DesignerConfig = ' . $tmpJson;
 		ActAppCommon::setup_scripts($theHook);
 		wp_add_inline_script( 'app-only-preinit', $tmpScript );
+
 
 		//--- Load the action app core components and ActionAppCore.common.blocks add on
 		wp_enqueue_script(
@@ -286,11 +297,21 @@ class ActAppDesigner {
 		'public'            => true,
 		'menu_position'     => 21,
 		'show_in_rest' => true,
-		'supports'          => array( 'title', 'editor', 'custom-fields' ),
+		'supports'          => array( 'title', 'editor', 'custom-fields' , 'excerpt' ),
 		'has_archive'       => false,
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
+		'capability_type' => 'actappdoc',
+		'capabilities' => array(
+			'publish_posts' => 'publish_actappdocs',
+			'edit_posts' => 'actappdoc',
+			'edit_others_posts' => 'actappdoc',
+			'read_private_posts' => 'read_private_actappdocs',
+			'edit_post' => 'actappdoc',
+			'delete_post' => 'delete_actappdocs',
+			'read_post' => 'actappdoc',
+		),
 		);
 
 		register_post_type( 'actappdoc', $args);
@@ -322,6 +343,16 @@ class ActAppDesigner {
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
+		'capability_type' => 'actappdesign',
+		'capabilities' => array(
+			'publish_posts' => 'publish_actappdesigns',
+			'edit_posts' => 'edit_actappdesigns',
+			'edit_others_posts' => 'edit_others_actappdesigns',
+			'read_private_posts' => 'read_private_actappdesigns',
+			'edit_post' => 'edit_actappdesigns',
+			'delete_post' => 'delete_actappdesigns',
+			'read_post' => 'read_actappdesign',
+		),
 		);
 
 		register_post_type( 'actappelem', $args);
@@ -353,6 +384,16 @@ class ActAppDesigner {
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
+		'capability_type' => 'actappdesign',
+		'capabilities' => array(
+			'publish_posts' => 'publish_actappdesigns',
+			'edit_posts' => 'edit_actappdesigns',
+			'edit_others_posts' => 'edit_others_actappdesigns',
+			'read_private_posts' => 'read_private_actappdesigns',
+			'edit_post' => 'edit_actappdesigns',
+			'delete_post' => 'delete_actappdesigns',
+			'read_post' => 'read_actappdesign',
+		),
 		);
 
 		register_post_type( 'actappdesign', $args);

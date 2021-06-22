@@ -22,10 +22,34 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	  );
 	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
 
+	  $path = 'json_from_csv';
+	  $routeInfo = array(
+		'methods'             => 'GET',
+		'callback'            => array( $this, 'get_json_from_csv' ),
+		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
 	  $path = 'more';
 	  $routeInfo = array(
 		'methods'             => 'GET',
 		'callback'            => array( $this, 'get_more' ),
+		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
+	  $path = 'people';
+	  $routeInfo = array(
+		'methods'             => 'GET',
+		'callback'            => array( $this, 'get_people' ),
+		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
+	  $path = 'savedoc';
+	  $routeInfo = array(
+		'methods'             => 'POST',
+		'callback'            => array( $this, 'save_doc' ),
 		'permission_callback' => array( $this, 'get_edit_permissions_check' )
 	  );
 	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
@@ -61,6 +85,8 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 
 	}
 
+	
+
 	public function get_permissions_check($request) {
 		return true;
 	}
@@ -89,13 +115,186 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		exit();
 	}
 
-	
-	public function get_more($request) {
-		$tmpRet = wp_json_encode(get_blog_details());
+	public function save_doc($request) {
+		//-- If using formSubmit = true then get field values like this
+		//--> $body = $request->get_body_params();
+		//--> $firstname = $body['firstname'];
+
+		//-- If using formSubmit = false or no formSubmit used,,
+		// .... then get field values like this
+		$json = $request->get_body();
+		$body = json_decode($json);
+		//$firstname = $body->firstname;
+
+		//--- If passing URL params in addition to json, 
+		// .... get them like this
+		$doctype = $_GET['doctype'];
+		$doctitle = $_GET['doctitle'];
+		$tmpDocID = ActAppDesigner::getSUID() . '_' . uniqid('' . random_int(1000, 9999));
+
+		if( $doctitle == ''){
+			$doctitle = $tmpDocID;
+		}
+
+		$author_id = 1;
+		$newid = wp_insert_post(
+			array(
+				'comment_status'    =>   'closed',
+				'ping_status'       =>   'closed',
+				'post_author'       =>   $author_id,
+				'post_name'         =>   $tmpDocID,
+				'post_title'        =>   $doctitle,
+				'post_content'      =>   '',
+				'post_status'       =>   'publish',
+				'post_type'         =>   'actappdoc'
+			)
+		);
+
+		update_post_meta( $newid, 'actappdocdata', $json );
+		update_post_meta( $newid, 'doctype', $doctype );
+
+		//--- Make return as array and encode it
+		$tmpRet = wp_json_encode(array(
+			'action' => 'savedoc',
+			'post_id' => $newid,
+			'doctype' => $doctype,
+			'storeid' => ActAppDesigner::getSUID(),
+			'data_version' => ActAppDesigner::getPluginSetupVersion(),
+			'base_url' => ActAppCommon::getRootPath(),
+		));
+
+		//--- Standard JSON reply
 		header('Content-Type: application/json');
 		echo $tmpRet;
 		exit();
 	}
+
+
+	public function get_json_from_csv($request) {
+		$file="C:\\aa\\mock-data.csv";
+		$csv= file_get_contents($file);
+		$array = array_map("str_getcsv", explode("\n", $csv));
+		$tmpDocCount = count($array);
+
+		$tmpID = 'na';
+		$pos = $_GET['pos'];
+		$tmpStart = 1;
+		$tmpEnd = $tmpDocCount;		
+		if( $pos != ''){
+			if( $pos == 'auto'){
+				$current_user = wp_get_current_user();
+				$tmpID = $current_user->ID;
+				$tmpLastPos = get_user_meta( $tmpID, 'mock_data_pos', true ); 
+				if( $tmpLastPos == ''){
+					$pos = 1;
+				} else {
+					$pos = intval(''.$tmpLastPos) + 1;
+					if( $pos >= $tmpDocCount-1){
+						$pos = 1;
+					}
+				}
+				update_user_meta( $tmpID, 'mock_data_pos', $pos ); 
+			}
+			$tmpStart = intval($pos);
+			$tmpEnd = $tmpStart + 1;
+		}
+		$tmpFieldNames = $array[0];
+		$tmpFNCount = count($tmpFieldNames);
+		$tmpData = [];
+		for ($iPos = $tmpStart; $iPos < $tmpEnd; $iPos++) {
+			$tmpDoc = $array[$iPos];
+			$tmpDocEntry = [];
+			if(count($tmpDoc) == $tmpFNCount){
+				for ($iFieldPos = 0; $iFieldPos < $tmpFNCount; $iFieldPos++) {
+					$tmpFN = $tmpFieldNames[$iFieldPos];
+					$tmpDocEntry[$tmpFN] = $tmpDoc[$iFieldPos];
+				}
+				array_push($tmpData, $tmpDocEntry);
+			}
+		}
+		$tmpRet = array('data' => $tmpData,'id' => $tmpID, 'pos' => $pos);
+		$json = json_encode($tmpRet);
+		header('Content-Type: application/json');
+		echo $json;
+		exit();
+	}
+
+	// public static function get_mock_data($thePos) {
+	// 	$file="C:\\aa\\mock-data.csv";
+	// 	$csv= file_get_contents($file);
+	// 	$array = array_map("str_getcsv", explode("\n", $csv));
+	// 	$tmpDocCount = count($array);
+
+	// 	$pos = $thePos;
+	// 	$tmpStart = 1;
+	// 	$tmpEnd = $tmpDocCount;
+		
+	// 	if( $pos != ''){
+	// 		$tmpStart = intval($pos);
+	// 		$tmpEnd = $tmpStart + 1;
+	// 	}
+	// 	$tmpFieldNames = $array[0];
+	// 	$tmpFNCount = count($tmpFieldNames);
+	// 	$tmpData = [];
+	// 	for ($iPos = $tmpStart; $iPos < $tmpEnd; $iPos++) {
+	// 		$tmpDoc = $array[$iPos];
+	// 		$tmpDocEntry = [];
+	// 		if(count($tmpDoc) == $tmpFNCount){
+	// 			for ($iFieldPos = 0; $iFieldPos < $tmpFNCount; $iFieldPos++) {
+	// 				$tmpFN = $tmpFieldNames[$iFieldPos];
+	// 				$tmpDocEntry[$tmpFN] = $tmpDoc[$iFieldPos];
+	// 			}
+	// 			array_push($tmpData, $tmpDocEntry);
+	// 		}
+	// 	}
+	// 	$tmpRet = array('data' => $tmpData);
+	// 	return $tmpRet;
+	// }
+
+
+	public function get_more($request) {
+		$tmpRet = wp_json_encode(array(
+			'storeid' => ActAppDesigner::getSUID(),
+			'data_version' => ActAppDesigner::getPluginSetupVersion(),
+			'base_url' => ActAppCommon::getRootPath(),
+		));
+		header('Content-Type: application/json');
+		echo $tmpRet;
+		exit();
+	}
+
+	public function get_people($request) {
+		$args = array(
+			'post_type' => 'actappdoc',
+			'meta_key'   => 'doctype',
+			'meta_value' => 'person'
+		);
+		$query = new WP_Query( $args );
+
+		$tmpRet = '{"data":[';
+		$tmpAdded = false;
+		if ( $query->have_posts() ) {
+			while ( $query->have_posts() ) {
+				$query->the_post();
+				$tmpID = get_the_ID();
+				$tmpJson = get_post_meta($tmpID,'actappdocdata',true);
+				if( $tmpAdded ){
+					$tmpRet .= ',';			
+				} else {
+					$tmpAdded = true;
+				}
+				$tmpRet .= $tmpJson;			
+			}
+		}
+		/* Restore original Post Data */
+		wp_reset_postdata();
+		$tmpRet .= ']}';
+		header('Content-Type: application/json');
+		echo $tmpRet;
+		
+		exit();
+	}
+
 	public function get_ws_outline($request) {
 		$tmpMsg = 'Version: ' . ActAppDesigner::getDataVersion();
 		
