@@ -488,6 +488,11 @@
                 name: "Paragraph",
                 attr: {}
             },
+            "corecolumns": {
+                type: 'core/columns', 
+                name: "Columns",
+                attr: {}
+            },            
             "button": {
                 type: 'actappui/button', 
                 name: "Button",

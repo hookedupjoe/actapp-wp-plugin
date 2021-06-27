@@ -132,9 +132,16 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		$doctitle = $_GET['doctitle'];
 		$tmpDocID = ActAppDesigner::getSUID() . '_' . uniqid('' . random_int(1000, 9999));
 
+		
+
 		if( $doctitle == ''){
 			$doctitle = $tmpDocID;
 		}
+		$body->__uid = $tmpDocID;
+		$body->__doctype = $doctype;
+		$body->__title = $doctitle;
+
+		$jsonDoc = json_encode($body);
 
 		$author_id = 1;
 		$newid = wp_insert_post(
@@ -150,7 +157,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 			)
 		);
 
-		update_post_meta( $newid, 'actappdocdata', $json );
+		update_post_meta( $newid, 'actappdocdata', $jsonDoc );
 		update_post_meta( $newid, 'doctype', $doctype );
 
 		//--- Make return as array and encode it
@@ -209,6 +216,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 					$tmpFN = $tmpFieldNames[$iFieldPos];
 					$tmpDocEntry[$tmpFN] = $tmpDoc[$iFieldPos];
 				}
+				$tmpDocEntry['id'] = ''.$iPos;
 				array_push($tmpData, $tmpDocEntry);
 			}
 		}

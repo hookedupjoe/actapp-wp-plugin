@@ -21,9 +21,6 @@
 
 
 (function (wp, ActionAppCore) {
-    var gSelectedAddItem = '';
-    var gToolbarSelection = '';
-
     var el = wp.element.createElement;
     var useBlockProps = wp.blockEditor.useBlockProps;
     var BlockEditor = ActionAppCore.common.blocks.Editor;
@@ -41,7 +38,7 @@
     const iconEl = BlockEditor.getControlIcon(info.name);
 
     BlockEditor.addBooleanAtts(info.atts, ['raised', 'stacked', 'vertical', 'clearing', 'hasdropindicator']);
-    BlockEditor.addStringAtts(info.atts, ['color', 'size', 'attached', 'alignment', 'basic', 'spotname', 'spotsourcetype', 'spotsourcename', 'spotsourcepartname']);
+    BlockEditor.addStringAtts(info.atts, ['color', 'size', 'attached', 'alignment', 'basic']);
 
     var tmpClassSpecs = {
         boolean: ['raised', 'stacked', 'vertical', 'basic', 'clearing'],
@@ -137,53 +134,24 @@
                 BlockEditor.getStandardProperty(props, 'clearing', 'Contain Floaters', 'checkbox')
             ];
             var tmpFormatProperties = [
-                //(tmpAtts.alignment) ? '' : BlockEditor.getStandardProperty(props,'float', 'Float', 'floatleftright' ),
                 BlockEditor.getStandardProperty(props, 'alignment', 'Alignment', 'alignment')
-            ];
-
-            var tmpDevProperties = [
-                BlockEditor.getStandardProperty(props, 'spotname', 'Spot Name', 'text'),
-                !(tmpPropAtts.spotname != '') ? '' : BlockEditor.getStandardProperty(props, 'spotsourcetype', 'Spot Source Type', 'text'),
-                !(tmpPropAtts.spotname != '') ? '' : BlockEditor.getStandardProperty(props, 'spotsourcename', 'Spot Source Name', 'text'),
-                !(tmpPropAtts.spotname != '') ? '' : BlockEditor.getStandardProperty(props, 'spotsourcepartname', 'Part Name (Optional)', 'text'),
-                !(tmpPropAtts.spotsourcename != '') ? '' : el('div', { className: 'ui button circular blue fluid', action: 'updatePreview' }, 'Refresh Preview')
             ];
 
             var tmpSidebarPanels = [
                 BlockEditor.getSidebarPanel('Segment Options', tmpStandardProperties),
-                BlockEditor.getSidebarPanel('Formatting Options', tmpFormatProperties),
-                BlockEditor.getSidebarPanel('Developer Options', tmpDevProperties)
+                BlockEditor.getSidebarPanel('Formatting Options', tmpFormatProperties)
             ];
 
             var tmpSidebarControls = BlockEditor.getSidebarControls(tmpSidebarPanels);
 
             var tmpDisplayObject = getDisplayValue(props, true);
 
-            var tmpOnAddSelect = function (theEvent) {
-                var tmpThis = wp.data.select('core/block-editor').getSelectedBlock();
-                var tmpPos = 0;
-                if (tmpThis.innerBlocks && tmpThis.innerBlocks.length) {
-                    tmpPos = tmpThis.innerBlocks.length;
-                }
-                var tmpItemToAdd = theEvent.nativeEvent.target.value || '';
-                var tmpToAddElement = BlockEditor.getCommonBlock(tmpItemToAdd);
-                wp.data.dispatch('core/editor').insertBlocks(tmpToAddElement, tmpPos, tmpThis.clientId)
-            }
-            var tmpToolbarAdds = el(
-                wp.blockEditor.BlockControls,
-                { key: 'controls' },
-                [
-                    gToolbarSelection
-                ]
-            );
-
-            gToolbarSelection = BlockEditor.getCommonBlocksListControl(gSelectedAddItem, tmpOnAddSelect);
-
             var tmpBtnBar = '';
             if (props.isSelected) {
                 var tmpBarContent = [];
                 //tmpBarContent.push(el('div',{className:'ui fluid label blue mar5'},'UI Segment')),
                 tmpBarContent.push(el('div', { className: 'ui compact button blue basic ', action: 'beAddElement', elementname: 'header' }, 'Header'));
+                tmpBarContent.push(el('div', { className: 'ui compact button blue basic ', action: 'beAddElement', elementname: 'corecolumns' }, 'Columns'));
                 tmpBarContent.push(el('div', { className: 'ui compact button blue basic ', action: 'beAddElement', elementname: 'message' }, 'Message'));
                 tmpBarContent.push(el('div', { className: 'ui compact button blue basic ', action: 'beAddElement', elementname: 'image' }, 'Image'));
                 tmpBarContent.push(el('div', { className: 'ui compact button blue basic ', action: 'beAddElement', elementname: 'cards' }, 'Cards'));
