@@ -18,8 +18,9 @@ License: MIT
 				"ctl": "message",
 				"color": "blue",
 				"size": "large",
-				"name": "welcome-info",
-				"text": "Thank you for considering a tax deductable contribute.  Please provide your contact information and contribution amount below."
+				"name": "welcome",
+				"hidden": true,
+				"text": "Enter details below and save to submit a new person into the system"
 			},
 			{
 				"ctl": "fieldrow",
@@ -147,13 +148,13 @@ License: MIT
 				"ctl": "divider",
 				"color": "blue",
 				"size": "medium",
-				"text": "Contribution Details"
+				"text": "Person Details"
 			},
 			
 			{
 				"name": "comments",
 				"label": "Comments",
-				"placeholder": "Enter any comments related to this contribution",
+				"placeholder": "Enter any comments related to this person",
 				"ctl": "textarea",
 				"rows": 2
 			},
@@ -161,6 +162,7 @@ License: MIT
 				"ctl": "segment",
 				"raised": true,
 				"clearing": true,
+				"name":'submit-bar',
 				"content":[
 					{
 						"ctl": "button",
@@ -194,20 +196,20 @@ License: MIT
 	};
 
 	function setup() {
-		var tmpBaseURL = ActionAppCore.ActAppWP.rootPath;
-		var tmpURL = tmpBaseURL + '/wp-json/actappdesigner/json_from_csv?run&pos=auto';
-		var tmpThis = this;
-		ThisApp.apiCall(tmpURL).then(function(theReply){
-			console.log('tmpThis',tmpThis)
-			if( theReply && theReply.data && theReply.data.length ){
-				console.log('theReply',theReply);
-				tmpThis.loadData(theReply.data[0]);
-			}
-		})
+		// var tmpBaseURL = ActionAppCore.ActAppWP.rootPath;
+		// var tmpURL = tmpBaseURL + '/wp-json/actappdesigner/json_from_csv?run&pos=auto';
+		// var tmpThis = this;
+		// ThisApp.apiCall(tmpURL).then(function(theReply){
+		// 	console.log('tmpThis',tmpThis)
+		// 	if( theReply && theReply.data && theReply.data.length ){
+		// 		console.log('theReply',theReply);
+		// 		tmpThis.loadData(theReply.data[0]);
+		// 	}
+		// })
 	}
 	
 	function _onInit(){
-		console.log('Person Form Init');
+		console.log('Person Form Inited');
 		var tmpThis = this;
 		ThisApp.delay(1).then(function(){
 			tmpThis.setup();
@@ -216,24 +218,17 @@ License: MIT
 	}
 	
 	function submitForm() {
-		var tmpThis = this;
 		var tmpData = this.getData();
 		var tmpDocTitle = tmpData.firstname + ' ' + tmpData.lastname;
 		
 		var tmpBaseURL = ActionAppCore.ActAppWP.rootPath;
-		
+		console.log('tmpBaseURL',tmpBaseURL)
 		var tmpPostOptions = {
 			formSubmit: false,
 			data: tmpData,
 			url: tmpBaseURL + '/wp-json/actappdesigner/savedoc?open&doctype=person&doctitle=' + tmpDocTitle
 		}
-		
-		ThisApp.apiCall(tmpPostOptions).then(function (theReply) {
-			console.log('theReply',theReply);
-
-			
-
-		})
+		return ThisApp.apiCall(tmpPostOptions);
 	}
 
 	//=== End

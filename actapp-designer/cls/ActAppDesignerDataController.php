@@ -120,7 +120,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		//--> $body = $request->get_body_params();
 		//--> $firstname = $body['firstname'];
 
-		//-- If using formSubmit = false or no formSubmit used,,
+		//-- If using formSubmit = false or no formSubmit used,
 		// .... then get field values like this
 		$json = $request->get_body();
 		$body = json_decode($json);
@@ -137,7 +137,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		if( $doctitle == ''){
 			$doctitle = $tmpDocID;
 		}
-		$body->__uid = $tmpDocID;
+		$body->id = $tmpDocID;
 		$body->__doctype = $doctype;
 		$body->__title = $doctitle;
 
@@ -274,6 +274,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	public function get_people($request) {
 		$args = array(
 			'post_type' => 'actappdoc',
+			'posts_per_page' => -1,
 			'meta_key'   => 'doctype',
 			'meta_value' => 'person'
 		);

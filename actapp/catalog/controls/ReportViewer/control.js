@@ -21,6 +21,15 @@
             clearing : true
         },
         {
+          ctl: 'div',
+          classes: 'hidden',
+          content:[{
+            "ctl": "control",
+            "controlname": "/developer/demos/wp-content/plugins/actapp/catalog/controls/PersonForm",
+            "name": "personform"          
+          }]
+        },
+        {
           "ctl": "control",
           "controlname": "/developer/demos/wp-content/plugins/actapp/catalog/controls/SearchBar",
           "name": "searchbar"
@@ -123,7 +132,7 @@
       var tmpRows = this.mainTable.getRows();
       this.batchSelect = true;
   
-      this.mainTable.addFilter(this.notDeleted, {});
+      //this.mainTable.addFilter(this.notDeleted, {});
   
       this.batchSelect = false;
   
@@ -134,12 +143,12 @@
     };
   
     ControlCode.refreshData = function(theData, theOptions) {
-      this.mainTable.blockRedraw();
+      //this.mainTable.blockRedraw();
       var tmpThis = this;
       var tmpSelectedRows = this.mainTable.getSelectedRows();
       this.mainTable.replaceData(theData).then(function(){
-        tmpThis.mainTable.rowManager.element.scrollTop = tmpThis.lastScrollV;
-        tmpThis.mainTable.rowManager.element.scrollLeft = tmpThis.lastScrollH;        
+        // tmpThis.mainTable.rowManager.element.scrollTop = tmpThis.lastScrollV;
+        // tmpThis.mainTable.rowManager.element.scrollLeft = tmpThis.lastScrollH;        
         var tmpRows = [];
         for (let iPos = 0; iPos < tmpSelectedRows.length; iPos++) {
           const tmpItem = tmpSelectedRows[iPos];
@@ -158,11 +167,13 @@
       }).catch(function(){
         console.error('The table did not update for some reason',arguments);
       });
+      this.tableData = theData;
       
       
       
       var tmpOptions = theOptions || {};
   
+      //--- OLD Code that does a refresh
       // if (theData && theData.length === 0) {
       //   return;
       // }
@@ -174,7 +185,7 @@
       // for (iPos in theData) {
       //   tmpDoc = theData[iPos];
       //   tmpDoc._dataVersion = this.dataVersion;
-      //   var tmpID = tmpDoc.unid || '';
+      //   var tmpID = tmpDoc.id || '';
       //   if (tmpID) {
       //     tmpPosIndex[tmpID] = iPos;
       //     var tmpExisting = this.tableIndex[tmpID];
@@ -206,24 +217,22 @@
       if (tmpOptions.select) {
         this.selectByUNID(tmpOptions.select);
       }
-      this.mainTable.restoreRedraw();
-      console.log('refreshData done')
       this.postProcessData();
       this.refreshTableUI();
     };
   
-    ControlCode.initTableIndex = function() {
-      this.tableIndex = {};
-      if (!(this.tableData && this.tableData.length)) {
-        return;
-      }
-      for (var iPos in this.tableData) {
-        var tmpDoc = this.tableData[iPos];
-        if (tmpDoc && (tmpDoc.unid)) {
-          this.tableIndex[tmpDoc.unid] = tmpDoc;
-        }
-      }
-    };
+    // ControlCode.initTableIndex = function() {
+    //   this.tableIndex = {};
+    //   if (!(this.tableData && this.tableData.length)) {
+    //     return;
+    //   }
+    //   for (var iPos in this.tableData) {
+    //     var tmpDoc = this.tableData[iPos];
+    //     if (tmpDoc && (tmpDoc.id)) {
+    //       this.tableIndex[tmpDoc.id] = tmpDoc;
+    //     }
+    //   }
+    // };
   
     
   
@@ -280,7 +289,7 @@
           this.mainTableEl = this.getSpot('report-area');
   
           this.tableData = tmpData;
-          this.initTableIndex();
+          //this.initTableIndex();
   
           var tmpRowSelected = ActionAppCore.debounce(function(theEvent,row){
             if (this.batchSelect) {
@@ -309,6 +318,12 @@
           this.mainTable = new Tabulator(this.mainTableEl.get(0), this.tableConfig );
         }
   
+        //--- Add default filter to excluded deleted records (one tie)
+        //---> NOTE: Disabled, doing a full refresh of data now:
+        //---   Use this if the update only method is employed.
+        //--------->  this.mainTable.addFilter(this.notDeleted, {});
+
+
         this.postProcessData();
         this.refreshTableUI(theOptions);
   
@@ -390,7 +405,17 @@
     }
   
   
-    ControlCode._onInit = function() {
+    ControlCode._onInit = function() {      
+      //--- Update the internal configuration to hide stuff we don't need for our use / in dialog
+      var tmpToHide = ['submit-bar','title','welcome'];
+      for( var iPos in tmpToHide){
+        this.parts.personform.controlConfig.index.items[tmpToHide[iPos]].classes = 'hidden';  
+        this.parts.personform.controlConfig.index.items[tmpToHide[iPos]].hidden = true;  
+      }
+      // this.parts.personform.controlConfig.index.items['submit-bar'].classes = 'hidden';
+      // this.parts.personform.controlConfig.index.items['title'].classes = 'hidden';
+      
+
       this.lastScrollH = 0;
       this.lastScrollV = 0;
 
@@ -494,8 +519,9 @@
       var tmpThis = this;
       //var tmpURL = './' + this.viewName + '?ReadViewEntries&count=20000&outputformat=JSON&PreFormat&ExpandView';
       //var tmpURL = './app/pages/Table/report-data.json';
-      //var tmpURL = '/developer/wp-json/actappdesigner/people';
-      var tmpURL = '/developer/wp-json/actappdesigner/json_from_csv';
+      var tmpBaseURL = ActionAppCore.ActAppWP.rootPath;
+      var tmpURL = tmpBaseURL + '/wp-json/actappdesigner/people';
+      //var tmpURL = '/developer/wp-json/actappdesigner/json_from_csv';
       
       
       var tmpFullPull = true;
@@ -549,7 +575,7 @@
       var tmpDocCount = 0;
       for (var iPos in this.tableData) {
         var tmpDoc = this.tableData[iPos];
-        if (tmpDoc && (tmpDoc.unid) && (!tmpDoc._deleted)) {
+        if (tmpDoc && (tmpDoc.id) && (!tmpDoc._deleted)) {
           tmpDocCount++;
         }
       }
@@ -571,9 +597,17 @@
       }
   
       var tmpSelDisabled = (this.counts.filtered === 0);
-      this.setItemDisabled('btn-select-filtered-footer', tmpSelDisabled)
-      this.setItemDisabled('btn-select-filtered', tmpSelDisabled)
-  
+      console.log('tmpSelDisabled',tmpSelDisabled)
+      this.setItemDisabled('btn-select-filtered-footer', tmpSelDisabled);
+      this.setItemDisabled('btn-select-filtered', tmpSelDisabled);
+      
+      var tmpNoneDisabled = (this.counts.selected === 0);
+      this.setItemDisabled('btn-page-tb-recycle', tmpNoneDisabled);
+
+
+      var tmpNotOneDisabled = (this.counts.selected !== 1);
+      this.setItemDisabled('btn-page-tb-edit', tmpNotOneDisabled);
+
       this.refreshSearchUI();
   
       var tmpTotalCount = " " + (this.counts.all || "none") + " records.";
@@ -625,7 +659,7 @@
       for (var iPos in tmpRows) {
         var tmpRow = tmpRows[iPos];
         var tmpDoc = tmpRow.getData();
-        if (tmpDoc.unid == tmpID) {
+        if (tmpDoc.id == tmpID) {
           tmpRow.select();
           break;
         }
@@ -674,8 +708,8 @@
         for (var iPos in tmpSelected) {
           var tmpSel = tmpSelected[iPos];
           var tmpSelDoc = tmpSel.getData();
-          if (tmpSelDoc && tmpSelDoc.unid) {
-            tmpRet.push(tmpSelDoc.unid);
+          if (tmpSelDoc && tmpSelDoc.id) {
+            tmpRet.push(tmpSelDoc.id);
           } else {
             console.warn("Document did not have a UNID.", tmpSelDoc);
           }
@@ -686,7 +720,6 @@
   
   
     ControlCode.recycleSelected = function(){
-      xxx
       console.log("recycleSelected",arguments);
     }
   
@@ -696,7 +729,57 @@
       });
     }
 
+    
+    ControlCode.recycleSelected = function(){
+      var tmpSelected = this.getSelectedKeys();
+      alert('recycleSelected ' + tmpSelected)
+    }
+
+    ControlCode.editDoc = function(){
+      var tmpSelected = this.getSelectedKeys();
+      var tmpRow = this.mainTable.getRow(tmpSelected[0]);
+      console.log('tmpRow',tmpRow._row.data);
+      var self = this;
+      self.parts.personform.prompt({title:'Edit Person',submitLabel: 'Save Changes', doc:tmpRow._row.data}).then(function(theSubmit,theData){
+        if( !theSubmit ){return;}
+        console.log('data',theData);
+        // self.parts.personform.submitForm().then(function(){
+        //   console.log('submitted',arguments);
+        //   self.showReport();
+        // });
+        
+      })
+
+    }
+
+    ControlCode.newDoc = function(){
+      var self = this;
+      
+      var tmpBaseURL = ActionAppCore.ActAppWP.rootPath;
+      var tmpURL = tmpBaseURL + '/wp-json/actappdesigner/json_from_csv?run&pos=auto';
+      var tmpThis = this;
+      ThisApp.apiCall(tmpURL).then(function(theReply){
+        
+        if( theReply && theReply.data && theReply.data.length ){
+          var tmpDoc = theReply.data[0];
+          console.log('tmpDoc',tmpDoc);
+          self.parts.personform.prompt({title:'Add Person',submitLabel: 'Save New Person',doc:tmpDoc}).then(function(theSubmit,theData){
+            if( !theSubmit ){return;}
+            console.log('data',theData);
+            self.parts.personform.submitForm().then(function(){
+              console.log('submitted',arguments);
+              self.showReport();
+            });
+            
+          })
+        }
+      })
+
+      
+    }
+
     ControlCode.thisReportSetup = function(){
+
       var tmpToolBar = [ {
         "ctl" : "ui",
         "name" : "search-toolbar",
@@ -764,11 +847,29 @@
         "title" : "Phone Number",
         "field" : "phone"
       }, {
-        "title" : "Member Name",
-        "field" : "membername"
+        "title" : "Address",
+        "field" : "address"
       }, {
-        "title" : "Contact Section",
-        "field" : "submit-contact"
+        "title" : "Address 2",
+        "field" : "address2"
+      }, {
+        "title" : "City",
+        "field" : "city"
+      }, {
+        "title" : "State",
+        "field" : "state"
+      }, {
+        "title" : "State (other)",
+        "field" : "state-text"
+      }, {
+        "title" : "Country",
+        "field" : "country"
+      }, {
+        "title" : "Zipcode",
+        "field" : "zipcode"
+      }, {
+        "title" : "Comments",
+        "field" : "comments"
       } ]
       
       
