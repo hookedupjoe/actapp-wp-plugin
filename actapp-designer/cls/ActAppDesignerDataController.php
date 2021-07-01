@@ -108,13 +108,14 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		echo $tmpRet;
 		exit();
 	}
+
 	public function get_page($request) {
 		$tmpRet = '{"options":{"padding":false},"content":[{"ctl":"tbl-ol-node","type":"pages","name":"pages","item":"","details":".../pages","meta":"&#160;","classes":"ws-outline","level":3,"icon":"columns","color":"black","group":"workspace-outline","content":[{"ctl":"tbl-ol-node","type":"page","item":"ActionAppParts-Home","attr":{"appname":"ActionAppParts","pagename":"Home","source":"app"},"details":"Home","meta":"&#160;","level":2,"icon":"columns","color":"green","group":"workspace-outline","content":[{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-PanelWIthControls.json","details":"PanelWIthControls","meta":"&#160;","level":1,"icon":"newspaper outline","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"PanelWIthControls.json","restype":"Panels","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-PanelWithLayout.json","details":"PanelWithLayout","meta":"&#160;","level":1,"icon":"newspaper outline","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"PanelWithLayout.json","restype":"Panels","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-frmContactInfo.json","details":"frmContactInfo","meta":"&#160;","level":1,"icon":"newspaper outline","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"frmContactInfo.json","restype":"Panels","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-Demo Media Text.html","details":"Demo Media Text","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"Demo Media Text.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-buttons - animated demo.html","details":"buttons - animated demo","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"buttons - animated demo.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-buttons container testing.html","details":"buttons container testing","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"buttons container testing.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-cards demo.html","details":"cards demo","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"cards demo.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-center.html","details":"center","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"center.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-demo sae detroit home.html","details":"demo sae detroit home","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"demo sae detroit home.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-demo single event.html","details":"demo single event","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"demo single event.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-east.html","details":"east","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"east.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-events page demo.html","details":"events page demo","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"events page demo.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-file-upload-formatted.html","details":"file-upload-formatted","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"file-upload-formatted.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-grid-16 four column example.html","details":"grid-16 four column example","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"grid-16 four column example.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-members.html","details":"members","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"members.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-relaxed list demo.html","details":"relaxed list demo","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"relaxed list demo.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-sidebar-cards.html","details":"sidebar-cards","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"sidebar-cards.html","restype":"HTML","source":"app"},"group":"workspace-outline"},{"ctl":"tbl-ol-node","type":"resource","item":"ActionAppParts-Home-tabs-demo.html","details":"tabs-demo","meta":"&#160;","level":1,"icon":"code","color":"purple","attr":{"appname":"ActionAppParts","pagename":"Home","resname":"tabs-demo.html","restype":"HTML","source":"app"},"group":"workspace-outline"}]}]}]}';
 		header('Content-Type: application/json');
 		echo $tmpRet;
 		exit();
 	}
-
+	
 	public function save_doc($request) {
 		//-- If using formSubmit = true then get field values like this
 		//--> $body = $request->get_body_params();
@@ -125,46 +126,94 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		$json = $request->get_body();
 		$body = json_decode($json);
 		//$firstname = $body->firstname;
+		
 
 		//--- If passing URL params in addition to json, 
 		// .... get them like this
-		$doctype = $_GET['doctype'];
-		$doctitle = $_GET['doctitle'];
-		$tmpDocID = ActAppDesigner::getSUID() . '_' . uniqid('' . random_int(1000, 9999));
+		$doctype = $body->__doctype;
+		if( !$doctype ){
+			$doctype = $_GET['doctype'];
+		}
+
+		$doctitle = $body->__doctitle;
+		if( !$doctitle ){
+			$doctitle = $_GET['doctitle'];
+		}
+
+		$tmpDocID = '';
+		$tmpPostID = false;
+		if ($body->id != null && $body->id != ""){
+			$tmpPostID = $body->id; //ActAppCommon::post_exists_by_slug( $tmpDocID, 'actappdoc' );
+			$tmpDocID = $body->id;
+		} else {
+			if($body->id != null){
+				unset($body["id"]);
+			}
+			$tmpDocID = (ActAppDesigner::getSUID() . '_' . uniqid('' . random_int(1000, 9999)));
+			if( $doctitle == ''){
+				$doctitle = $tmpDocID;
+			}
+			$body->__uid = $tmpDocID;
+			$body->__doctype = $doctype;
+			$body->__title = $doctitle;
+	
+		}
 
 		
-
-		if( $doctitle == ''){
-			$doctitle = $tmpDocID;
-		}
-		$body->id = $tmpDocID;
-		$body->__doctype = $doctype;
-		$body->__title = $doctitle;
-
 		$jsonDoc = json_encode($body);
-
+		
 		$author_id = 1;
-		$newid = wp_insert_post(
-			array(
-				'comment_status'    =>   'closed',
-				'ping_status'       =>   'closed',
-				'post_author'       =>   $author_id,
-				'post_name'         =>   $tmpDocID,
-				'post_title'        =>   $doctitle,
-				'post_content'      =>   '',
-				'post_status'       =>   'publish',
-				'post_type'         =>   'actappdoc'
-			)
-		);
+		$newid = 0;
 
-		update_post_meta( $newid, 'actappdocdata', $jsonDoc );
-		update_post_meta( $newid, 'doctype', $doctype );
+		$newpost = array(
+			'comment_status'    =>   'closed',
+			'ping_status'       =>   'closed',
+			'post_author'       =>   $author_id,
+			'post_name'         =>   $tmpDocID,
+			'post_title'        =>   $doctitle,
+			'post_content'      =>   '',
+			'post_status'       =>   'publish',
+			'post_type'         =>   'actappdoc'
+		);
+		if( $tmpPostID ){
+			$newpost['id'] = $tmpPostID;
+		}
+
+		
+		$tmpResultCode = '';
+		if( !$tmpPostID ){
+			$tmpResultCode = 'new doc';
+			$newid = wp_insert_post(
+				$newpost
+			);
+			$body->id = $newid;
+			//update_post_meta( $newid, 'actappdocdata', $jsonDoc );
+			wp_update_post(array(
+				'ID'        => $newid,
+				'meta_input'=> $body,
+	
+			));
+			update_post_meta( $newid, 'doctype', $doctype );
+		} else {
+			$tmpResultCode = 'updated json';
+			//update_post_meta( $tmpPostID, 'actappdocdata', $jsonDoc );
+			wp_update_post(array(
+				'ID'        => $tmpPostID,
+				'meta_input'=> $body,
+			));
+		}
 
 		//--- Make return as array and encode it
 		$tmpRet = wp_json_encode(array(
 			'action' => 'savedoc',
-			'post_id' => $newid,
+			'post_id' => $newid ? $newid : $tmpPostID,
+			'full_id' => $body->id,
+			'new_id' => $newid,
+			'update_id' => $tmpPostID,
 			'doctype' => $doctype,
+			'newpost' => $newpost,
+			'result' => $tmpResultCode,
+			'body' => $body,
 			'storeid' => ActAppDesigner::getSUID(),
 			'data_version' => ActAppDesigner::getPluginSetupVersion(),
 			'base_url' => ActAppCommon::getRootPath(),
@@ -216,7 +265,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 					$tmpFN = $tmpFieldNames[$iFieldPos];
 					$tmpDocEntry[$tmpFN] = $tmpDoc[$iFieldPos];
 				}
-				$tmpDocEntry['id'] = ''.$iPos;
+				$tmpDocEntry['posid'] = ''.$iPos;
 				array_push($tmpData, $tmpDocEntry);
 			}
 		}
@@ -286,7 +335,16 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 			while ( $query->have_posts() ) {
 				$query->the_post();
 				$tmpID = get_the_ID();
-				$tmpJson = get_post_meta($tmpID,'actappdocdata',true);
+				//$tmpJson = get_post_meta($tmpID,'actappdocdata',true);
+				$tmpJson = get_post_meta($tmpID);
+				
+				foreach($tmpJson as $iField => $iVal) {
+					if( count($iVal) == 1){
+						$tmpJson[$iField] = $iVal[0];
+					}
+					
+				}
+				$tmpJson = json_encode($tmpJson);
 				if( $tmpAdded ){
 					$tmpRet .= ',';			
 				} else {

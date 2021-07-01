@@ -21,7 +21,8 @@ echo ('<br/>GUID: ' . get_the_guid() );
 echo ('<br/>Title: ' . get_the_title() );
 echo ('<br/>doctype: ' . $doctype  );
 
-$tmpDocJson = get_post_meta($tmpID, 'actappdocdata', true);
+$tmpDocJson = get_post_meta($tmpID);
+$tmpDocJson = json_encode($tmpDocJson);
 echo ('<br/>JSON: ' .$tmpDocJson );
 $current_user = wp_get_current_user();
 $tmpID = $current_user->ID;

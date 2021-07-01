@@ -5,7 +5,7 @@ License: MIT
 (function (ActionAppCore, $) {
 
 	var ControlSpecs = {
-		"options": {padding: false},
+		"options": {padding: true},
 		"content": [
 			{
 				"ctl": "title",
@@ -24,7 +24,6 @@ License: MIT
 			},
 			{
 				"ctl": "fieldrow",
-				"req": true,
 				"items": [
 					{
 						"label": "First Name",
@@ -157,6 +156,18 @@ License: MIT
 				"placeholder": "Enter any comments related to this person",
 				"ctl": "textarea",
 				"rows": 2
+			},
+			{
+				"name": "id",
+				"ctl": "hidden"
+			},
+			{
+				"name": "__doctype",
+				"ctl": "hidden"
+			},
+			{
+				"name": "__title",
+				"ctl": "hidden"
 			},
 			{
 				"ctl": "segment",

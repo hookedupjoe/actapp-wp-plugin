@@ -297,7 +297,7 @@
             }
             this.refreshSelection();
             this.publish('data-selected',[this,row.getData()]);
-            console.log('pub data',row.getData());
+            console.log('pub data');
           },200);
 
           this.tableConfig = $.extend({
@@ -738,21 +738,15 @@
     ControlCode.editDoc = function(){
       var tmpSelected = this.getSelectedKeys();
       var tmpRow = this.mainTable.getRow(tmpSelected[0]);
+      console.log('tmpRow',tmpRow._row.data);
       var self = this;
       self.parts.personform.prompt({title:'Edit Person',submitLabel: 'Save Changes', doc:tmpRow._row.data}).then(function(theSubmit,theData){
         if( !theSubmit ){return;}
-        
-        theData.id = tmpRow._row.data.id;
-        theData.__id = tmpRow._row.data.id;
-        theData.__doctype = tmpRow._row.data.__doctype;
-        theData.__title = tmpRow._row.data.__title;
-
-        console.log('updated data',theData);
-
-        self.parts.personform.submitForm().then(function(){
-          console.log('updated',arguments);
-          self.showReport();
-        });
+        console.log('data',theData);
+        // self.parts.personform.submitForm().then(function(){
+        //   console.log('submitted',arguments);
+        //   self.showReport();
+        // });
         
       })
 
