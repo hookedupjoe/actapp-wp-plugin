@@ -719,10 +719,6 @@
     };
   
   
-    ControlCode.recycleSelected = function(){
-      console.log("recycleSelected",arguments);
-    }
-  
     ControlCode.exportTable = function() {
       this.mainTable.download("xlsx", "myview.xlsx", {
         sheetName: "Exported Data"
@@ -731,8 +727,34 @@
 
     
     ControlCode.recycleSelected = function(){
+      var self = this;
+      ThisApp.confirm('Recycle the selected documents?', 'Recycle?').then(function(theIsYes){
+        if( theIsYes ){
+          self.recycleSelectedRun()
+        }
+      });
+    }
+    ControlCode.recycleSelectedRun = function(){
+
       var tmpSelected = this.getSelectedKeys();
-      alert('recycleSelected ' + tmpSelected)
+      var tmpData = {
+        ids: tmpSelected
+      }
+
+      var tmpBaseURL = ActionAppCore.ActAppWP.rootPath;
+      var tmpPostOptions = {
+        formSubmit: false,
+        data: tmpData,
+        url: tmpBaseURL + '/wp-json/actappdesigner/recycle?open'
+      }
+      
+      var self = this;
+      ThisApp.apiCall(tmpPostOptions).then(function(){
+        console.log('recycle complete',arguments);
+        self.showReport();
+      });
+
+      
     }
 
     ControlCode.editDoc = function(){
@@ -768,10 +790,13 @@
         
         if( theReply && theReply.data && theReply.data.length ){
           var tmpDoc = theReply.data[0];
-          console.log('tmpDoc',tmpDoc);
+          // tmpDoc.track = "Business";
+          // tmpDoc.one = "other";
+          //console.log('tmpDoc',tmpDoc);
           self.parts.personform.prompt({title:'Add Person',submitLabel: 'Save New Person',doc:tmpDoc}).then(function(theSubmit,theData){
             if( !theSubmit ){return;}
             console.log('data',theData);
+            
             self.parts.personform.submitForm().then(function(){
               console.log('submitted',arguments);
               self.showReport();

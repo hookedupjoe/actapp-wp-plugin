@@ -22,18 +22,27 @@ echo ('<br/>Title: ' . get_the_title() );
 echo ('<br/>doctype: ' . $doctype  );
 
 $tmpDocJson = get_post_meta($tmpID);
+$tmpTopic = get_post_meta($tmpID, 'topic');
+echo ('<br/>topic: ' . json_encode($tmpTopic) );
+foreach( $tmpDocJson as $iFieldName => $iVal){
+  if( count($iVal) == 1 ){
+    $tmpVal = $iVal[0];
+    var_dump($tmpVal);
+    echo ('<br/>' . $iFieldName . ' ===> ' . ($tmpVal) );
+  }
+  
+}
 $tmpDocJson = json_encode($tmpDocJson);
 echo ('<br/>JSON: ' .$tmpDocJson );
 $current_user = wp_get_current_user();
 $tmpID = $current_user->ID;
-$current_user = wp_get_current_user();
-$tmpID = $current_user->ID;
-$tmpLastPos = get_user_meta( $tmpID, 'mock_data_pos', true ); 
-if( $tmpLastPos == ''){
-    $pos = 1;
-} else {
-    $pos = intval(''.$tmpLastPos) + 1;
-}
+
+// $tmpLastPos = get_user_meta( $tmpID, 'mock_data_pos', true ); 
+// if( $tmpLastPos == ''){
+//     $pos = 1;
+// } else {
+//     $pos = intval(''.$tmpLastPos) + 1;
+// }
 
 //   for ($x = 0; $x <= 10; $x++) {
 //     echo "The number is: $x <br>";

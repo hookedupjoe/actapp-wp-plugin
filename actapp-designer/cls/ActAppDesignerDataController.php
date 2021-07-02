@@ -54,6 +54,16 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	  );
 	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
 
+	  $path = 'recycle';
+	  $routeInfo = array(
+		'methods'             => 'POST',
+		'callback'            => array( $this, 'recycle_docs' ),
+		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
+	  
+
 	  $path = 'get-ws-outline.json';
 	  $routeInfo = array(
 		'methods'             => 'GET',
@@ -116,6 +126,24 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		exit();
 	}
 	
+	public function recycle_docs($request) {
+		$json = $request->get_body();
+		$body = json_decode($json);
+		$ids = $body->ids;
+		foreach( $ids as $id){
+			set_post_type( $id, get_post_type($id)."_recycled" );
+		}
+		//--- Make return as array and encode it
+		$tmpRet = wp_json_encode(array(
+			'action' => 'recycle',
+			'ids' => $ids,
+		));
+
+		//--- Standard JSON reply
+		header('Content-Type: application/json');
+		echo $tmpRet;
+		exit();
+	}	
 	public function save_doc($request) {
 		//-- If using formSubmit = true then get field values like this
 		//--> $body = $request->get_body_params();
@@ -148,7 +176,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		} else {
 			if($body->id != null){
 				unset($body["id"]);
-			}
+			}			
 			$tmpDocID = (ActAppDesigner::getSUID() . '_' . uniqid('' . random_int(1000, 9999)));
 			if( $doctitle == ''){
 				$doctitle = $tmpDocID;
@@ -172,6 +200,8 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 			'post_name'         =>   $tmpDocID,
 			'post_title'        =>   $doctitle,
 			'post_content'      =>   '',
+			'json' => $jsonDoc,
+			'body_topic' => $body->topic,
 			'post_status'       =>   'publish',
 			'post_type'         =>   'actappdoc'
 		);
@@ -187,16 +217,16 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 				$newpost
 			);
 			$body->id = $newid;
-			//update_post_meta( $newid, 'actappdocdata', $jsonDoc );
+
+			//--- ToDo, Update all then Loop and update arrays only using single method??
+
 			wp_update_post(array(
 				'ID'        => $newid,
-				'meta_input'=> $body,
-	
+				'meta_input'=> $body,	
 			));
 			update_post_meta( $newid, 'doctype', $doctype );
 		} else {
 			$tmpResultCode = 'updated json';
-			//update_post_meta( $tmpPostID, 'actappdocdata', $jsonDoc );
 			wp_update_post(array(
 				'ID'        => $tmpPostID,
 				'meta_input'=> $body,
@@ -339,10 +369,10 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 				$tmpJson = get_post_meta($tmpID);
 				
 				foreach($tmpJson as $iField => $iVal) {
-					if( count($iVal) == 1){
-						$tmpJson[$iField] = $iVal[0];
-					}
-					
+					// if( count($iVal) == 1){
+					// 	$tmpJson[$iField] = $iVal[0];
+					// }
+					$tmpJson[$iField] = get_post_meta($tmpID,$iField,true);
 				}
 				$tmpJson = json_encode($tmpJson);
 				if( $tmpAdded ){
