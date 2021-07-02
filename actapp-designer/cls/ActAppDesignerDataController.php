@@ -210,26 +210,37 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		}
 
 		
+		$newbody = array();
+		foreach($body as $iFN => $iVal) {
+			if( is_string($iVal) ){
+				$newbody[$iFN] = $iVal;
+			} else {
+				//--- Self Parse
+				$newbody[$iFN] = 'j;;' . json_encode($iVal);
+			}
+		}
+		
 		$tmpResultCode = '';
 		if( !$tmpPostID ){
 			$tmpResultCode = 'new doc';
 			$newid = wp_insert_post(
 				$newpost
 			);
-			$body->id = $newid;
-
+			//$body->id = $newid;
+			$newbody["id"] = $newid;
 			//--- ToDo, Update all then Loop and update arrays only using single method??
 
 			wp_update_post(array(
 				'ID'        => $newid,
-				'meta_input'=> $body,	
+				'meta_input'=> $newbody,	
 			));
 			update_post_meta( $newid, 'doctype', $doctype );
 		} else {
 			$tmpResultCode = 'updated json';
+			
 			wp_update_post(array(
 				'ID'        => $tmpPostID,
-				'meta_input'=> $body,
+				'meta_input'=> $newbody,
 			));
 		}
 
@@ -369,10 +380,17 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 				$tmpJson = get_post_meta($tmpID);
 				
 				foreach($tmpJson as $iField => $iVal) {
-					// if( count($iVal) == 1){
-					// 	$tmpJson[$iField] = $iVal[0];
-					// }
-					$tmpJson[$iField] = get_post_meta($tmpID,$iField,true);
+					if( count($iVal) == 1){
+						$tmpVal = $iVal[0];
+						if( substr( $tmpVal, 0, 3 ) == 'j;;'){
+							$tmpVal = substr( $tmpVal,3);
+							$tmpJson[$iField] = json_decode($tmpVal);
+						} else {
+							$tmpJson[$iField] = $tmpVal;
+						}
+						
+					}
+					//$tmpJson[$iField] = get_post_meta($tmpID,$iField,true);
 				}
 				$tmpJson = json_encode($tmpJson);
 				if( $tmpAdded ){

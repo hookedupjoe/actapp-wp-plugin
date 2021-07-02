@@ -5283,7 +5283,10 @@ License: MIT
                                 } 
                                 tmpData[tmpFN] = tmpFldValue;
                             } else {
-                                tmpData[tmpFN] = tmpDataValue; 
+                                if( typeof(tmpDataValue) == 'string'){
+                                    tmpData[tmpFN] = JSON.parse(tmpDataValue); 
+                                }
+                                
                                 
                             }
                         }
@@ -5936,6 +5939,8 @@ License: MIT
                         tmpFieldEl.data('datavalue',theValue)
                     } else if( typeof(theValue) == 'number' ){
                         tmpFieldEl.data('datavalue',theValue)
+                    } else if( typeof(theValue) == 'object' ){
+                        tmpFieldEl.data('datavalue',JSON.stringify(theValue))
                     } else {
                         tmpFieldEl.data('datavalue',undefined);
                     }    

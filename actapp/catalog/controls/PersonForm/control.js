@@ -219,6 +219,10 @@ License: MIT
 				"ctl": "hidden"
 			},
 			{
+				"name": "tag",
+				"ctl": "hidden"
+			},
+			{
 				"ctl": "segment",
 				"raised": true,
 				"clearing": true,
