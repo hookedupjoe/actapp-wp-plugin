@@ -194,7 +194,7 @@ License: MIT
 						"multi": true,
 						"name": "topic",
 						"label": "Select Topic(s)",
-						"list": "Work,Play,Meetup,Other",
+						"list": "Work,Play,Meetup,Play More,Other",
 						"req": false
 					}
 				]

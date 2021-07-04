@@ -171,7 +171,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		$tmpDocID = '';
 		$tmpPostID = false;
 		if ($body->id != null && $body->id != ""){
-			$tmpPostID = $body->id; //ActAppCommon::post_exists_by_slug( $tmpDocID, 'actappdoc' );
+			$tmpPostID = $body->id;
 			$tmpDocID = $body->id;
 		} else {
 			if($body->id != null){
@@ -210,15 +210,10 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		}
 
 		
-		$newbody = array();
-		foreach($body as $iFN => $iVal) {
-			if( is_string($iVal) ){
-				$newbody[$iFN] = $iVal;
-			} else {
-				//--- Self Parse
-				$newbody[$iFN] = 'j;;' . json_encode($iVal);
-			}
-		}
+		// $newbody = array();
+		// foreach($body as $iFN => $iVal) {
+		// 	$newbody[$iFN] = $iVal;
+		// }
 		
 		$tmpResultCode = '';
 		if( !$tmpPostID ){
@@ -226,21 +221,21 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 			$newid = wp_insert_post(
 				$newpost
 			);
-			//$body->id = $newid;
-			$newbody["id"] = $newid;
+			$body->id = $newid;
+			//$newbody["id"] = $newid;
 			//--- ToDo, Update all then Loop and update arrays only using single method??
 
 			wp_update_post(array(
 				'ID'        => $newid,
-				'meta_input'=> $newbody,	
+				'meta_input'=> $body,	
 			));
-			update_post_meta( $newid, 'doctype', $doctype );
+			//update_post_meta( $newid, 'doctype', $doctype );
 		} else {
 			$tmpResultCode = 'updated json';
 			
 			wp_update_post(array(
 				'ID'        => $tmpPostID,
-				'meta_input'=> $newbody,
+				'meta_input'=> $body,
 			));
 		}
 
@@ -362,15 +357,31 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	}
 
 	public function get_people($request) {
+
+		$qs = $_GET['qs'];
+		$tmpQuery = array(
+			array(
+				'key'     => '__doctype',
+				'value'   => 'person',
+				'compare' => '=',
+			),
+		);
+		if( $qs != ''){
+			array_push($tmpQuery,array(
+				'key'     => 'topic',
+				'value'   => '"'.$qs.'"',
+				'compare' => 'Like',
+			));
+		}
+
 		$args = array(
 			'post_type' => 'actappdoc',
 			'posts_per_page' => -1,
-			'meta_key'   => 'doctype',
-			'meta_value' => 'person'
+			'meta_query' => $tmpQuery
 		);
 		$query = new WP_Query( $args );
 
-		$tmpRet = '{"data":[';
+		$tmpRet = '{"q":' . json_encode($tmpQuery) .',"data":[';
 		$tmpAdded = false;
 		if ( $query->have_posts() ) {
 			while ( $query->have_posts() ) {
@@ -382,12 +393,13 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 				foreach($tmpJson as $iField => $iVal) {
 					if( count($iVal) == 1){
 						$tmpVal = $iVal[0];
-						if( substr( $tmpVal, 0, 3 ) == 'j;;'){
-							$tmpVal = substr( $tmpVal,3);
-							$tmpJson[$iField] = json_decode($tmpVal);
-						} else {
-							$tmpJson[$iField] = $tmpVal;
-						}
+						$tmpJson[$iField] = maybe_unserialize($tmpVal);
+						// if( substr( $tmpVal, 0, 3 ) == 'j;;'){
+						// 	$tmpVal = substr( $tmpVal,3);
+						// 	$tmpJson[$iField] = json_decode($tmpVal);
+						// } else {
+						// 	$tmpJson[$iField] = $tmpVal;
+						// }
 						
 					}
 					//$tmpJson[$iField] = get_post_meta($tmpID,$iField,true);
@@ -403,6 +415,8 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		}
 		/* Restore original Post Data */
 		wp_reset_postdata();
+
+		
 		$tmpRet .= ']}';
 		header('Content-Type: application/json');
 		echo $tmpRet;
