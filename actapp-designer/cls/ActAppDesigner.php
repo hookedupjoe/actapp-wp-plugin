@@ -30,7 +30,7 @@ class ActAppDesigner {
 	}
 
 	public static function getDataVersion(){
-		return 1.06;
+		return 1.08;
 	}
 
 	public static function actapp_block_category( $categories, $post ) {
@@ -88,6 +88,13 @@ class ActAppDesigner {
 			$template = ACTAPP_DESIGNER_DIR . '/tpl/actappdoc.php';
 			return $template;
 		}
+
+		$post_types = array( 'actappdesigndoc' );
+		if ( is_singular( $post_types ) && file_exists( ACTAPP_DESIGNER_DIR . '/tpl/actappdesigndoc.php' ) ){
+			$template = ACTAPP_DESIGNER_DIR . '/tpl/actappdesigndoc.php';
+			return $template;
+		}
+
 		return $template;
 	}
 	
@@ -252,10 +259,18 @@ class ActAppDesigner {
 			
 	}
 
+	
+	public static function setup_access() {
+		//--- Give all editors access to the applications interface (see see "my apps")
+		$role = get_role( 'editor' );
+  		$role->add_cap( 'actappapps' );
+	}
+
 	public static function init() {
 		self::assure_plugin_initialized();
 		self::setup_data();
-
+		self::setup_access();
+  
 		add_filter('block_categories',  array('ActAppDesigner','actapp_block_category'), 10, 2);
 
 		add_action('wp_enqueue_scripts',  array('ActAppDesigner','actapp_init_blocks_content'),20,2);
@@ -273,9 +288,8 @@ class ActAppDesigner {
 		self::custom_post_designer_access();
 		self::custom_post_actapp_doc();
 		self::custom_post_design_element();
+		self::custom_post_design_doc();
 	}
-
-	
 
 	private function custom_post_actapp_doc() {
 
@@ -343,16 +357,7 @@ class ActAppDesigner {
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
-		'capability_type' => 'actappdesign',
-		'capabilities' => array(
-			'publish_posts' => 'publish_actappdesigns',
-			'edit_posts' => 'edit_actappdesigns',
-			'edit_others_posts' => 'edit_others_actappdesigns',
-			'read_private_posts' => 'read_private_actappdesigns',
-			'edit_post' => 'edit_actappdesigns',
-			'delete_post' => 'delete_actappdesigns',
-			'read_post' => 'read_actappdesign',
-		),
+		'capability_type' => 'actappdesign'
 		);
 
 		register_post_type( 'actappelem', $args);
@@ -384,6 +389,39 @@ class ActAppDesigner {
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
+		'capability_type' => 'actappdesign'
+		);
+
+		register_post_type( 'actappdesign', $args);
+
+	}
+
+
+	private function custom_post_design_doc() {
+
+		$labels = array(
+		'name'               => __( 'Designer Docs' ),
+		'singular_name'      => __( 'Designer Doc' ),
+		'add_new'            => __( 'Add New Designer Doc' ),
+		'add_new_item'       => __( 'Add New Designer Doc' ),
+		'edit_item'          => __( 'Edit Designer Doc' ),
+		'new_item'           => __( 'New Designer Doc' ),
+		'all_items'          => __( 'All Designer Docs' ),
+		'view_item'          => __( 'View Designer Doc' ),
+		'search_items'       => __( 'Search Designer Doc' )
+		);
+
+		$args = array(
+		'labels'            => $labels,
+		'description'       => 'Holds design related details, managed by development team only',
+		'public'            => true,
+		'menu_position'     => 22,
+		'show_in_rest' => true,
+		'supports'          => array( 'title', 'editor', 'custom-fields' ),
+		'has_archive'       => false,
+		'show_in_admin_bar' => false,
+		'show_in_nav_menus' => false,
+		'query_var'         => true,
 		'capability_type' => 'actappdesign',
 		'capabilities' => array(
 			'publish_posts' => 'publish_actappdesigns',
@@ -396,10 +434,9 @@ class ActAppDesigner {
 		),
 		);
 
-		register_post_type( 'actappdesign', $args);
+		register_post_type( 'actappdesigndoc', $args);
 
 	}
-
 	
 	public static function baseDir() {
 		return ACTAPP_DESIGNER_DIR;
@@ -411,22 +448,95 @@ class ActAppDesigner {
 
 	//---- Admin Settings
 	public static function showDesigner(){
-		esc_html_e( 'showDesigner', 'textdomain' );
+		//esc_html_e( 'showDesigner', 'textdomain' );
+		
+		include(ACTAPP_DESIGNER_DIR . '/tpl/designer-debug.php');
+
+	}
+	public static function foobar_handler(){
+		$tmpID = get_current_user_id();
+		echo 'you are ' . $tmpID;
+		//-> always die
+		wp_die();
+	}
+	
+	
+	public static function showUsers(){
+		
+		echo '<hr/><div class="ui header blue">Users</div>';
+		$blogusers = get_users( array( 'role__in' => array( 'author', 'editor' ) ) );
+		// Array of WP_User objects.
+		foreach ( $blogusers as $user ) {
+			$tmpID = $user->ID;
+			//$tmpUser = new WP_User( $tmpID ); 
+			//if( $tmpID == 3){
+
+				if( $user->has_cap('actappapps')){
+					echo "<hr/>Application Access";
+				} else {
+					echo "<hr/>No Application Access";
+					if( $tmpID == 5){
+						echo " (assigning)";
+						$user->add_cap('actappapps');
+					}
+				}
+				if( $user->has_cap('actappdesign')){
+					echo "<hr/>Design";
+				} else {
+					echo "<hr/>No Design";
+					if( $tmpID == 3){
+						echo " (assigning)";
+						$user->add_cap('actappdesign');
+					}
+				}
+				
+
+			//}
+			echo '<div>';
+			echo '<span>' . esc_html( $user->display_name ) . ':' . $tmpID . '</span>';
+			echo '</div>';
+
+			echo '<div>';
+			//var_dump( $user);
+			echo '</div>';
+
+		}
+		
 	}
 	public static function registerMenus(){
-		//remove_menu_page( 'edit.php?post_type=actappdesign' );
-		//remove_menu_page( 'edit.php?post_type=actappdoc' );
+		// if( !current_user_can('editor')){
+		// 	remove_menu_page( 'index.php' );
+		// 	remove_menu_page( 'tools.php' );
+		// }
+		// remove_menu_page( 'edit.php?post_type=actappelem' );
+		// remove_menu_page( 'edit.php?post_type=actappdesign' );
+		// remove_menu_page( 'edit.php?post_type=actappdoc' );
+		
+		//--- Adds "Applications" tab for those with the 'actappapps' capability (cap)
+		add_menu_page( 
+			__( 'Applications'),
+			'Applications',
+			'actappapps',
+			'actapps',
+			array( 'ActAppDesigner', 'showDesigner' ),
+			'dashicons-list-view',
+			20
+		); 
 		
 		//--- Demo of how to add a page on the left panel.  		
-		// add_menu_page( 
-		// 	__( 'UI Designer'),
-		// 	'UI Designer',
-		// 	'manage_options',
-		// 	'actappdesigner',
-		// 	array( 'ActAppDesigner', 'showDesigner' ),
-		// 	plugins_url( 'actapp-designer/images/icon.png' ),
-		// 	81
-		// ); 
+		add_menu_page( 
+			__( 'UI Designer'),
+			'UI Designer',
+			'actappdesign',
+			'actappdesigner',
+			array( 'ActAppDesigner', 'showDesigner' ),
+			'dashicons-editor-kitchensink',
+			81
+		); 
+
+
+
+
 	}
 
 
@@ -447,4 +557,7 @@ add_filter(
 	'template_include',
 	array( 'ActAppDesigner', 'override_tpl')
 );
+
+
+add_action( 'wp_ajax_foobar', array('ActAppDesigner','foobar_handler') );
 

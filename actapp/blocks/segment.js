@@ -57,21 +57,21 @@
         var tmpPropAtts = theProps.attributes;
 
         var tmpEls = [];
-        if (tmpPropAtts.spotname && tmpPropAtts.spotname != '') {
-            var tmpSpotTopAtts = { spot: tmpPropAtts.spotname };
-            if (tmpPropAtts.spotsourcetype) {
-                tmpSpotTopAtts.sourcetype = tmpPropAtts.spotsourcetype;
-                tmpSpotTopAtts.appuse = 'blockmarkup';
-            }
-            if (tmpPropAtts.spotsourcename) {
-                tmpSpotTopAtts.sourcename = tmpPropAtts.spotsourcename;
-            }
-            if (tmpPropAtts.spotsourcepartname) {
-                tmpSpotTopAtts.sourcepartname = tmpPropAtts.spotsourcepartname;
-            }
+        // if (tmpPropAtts.spotname && tmpPropAtts.spotname != '') {
+        //     var tmpSpotTopAtts = { spot: tmpPropAtts.spotname };
+        //     if (tmpPropAtts.spotsourcetype) {
+        //         tmpSpotTopAtts.sourcetype = tmpPropAtts.spotsourcetype;
+        //         tmpSpotTopAtts.appuse = 'blockmarkup';
+        //     }
+        //     if (tmpPropAtts.spotsourcename) {
+        //         tmpSpotTopAtts.sourcename = tmpPropAtts.spotsourcename;
+        //     }
+        //     if (tmpPropAtts.spotsourcepartname) {
+        //         tmpSpotTopAtts.sourcepartname = tmpPropAtts.spotsourcepartname;
+        //     }
 
-            tmpEls.push(el('div', tmpSpotTopAtts, ''));
-        }
+        //     tmpEls.push(el('div', tmpSpotTopAtts, ''));
+        // }
 
         if (theIsEditMode) {
             var tmpMe = wp.data.select('core/block-editor').getBlock(props.clientId);

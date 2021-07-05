@@ -39,7 +39,7 @@
     const iconEl = BlockEditor.getControlIcon(info.name);
 
     //BlockEditor.addBooleanAtts(info.atts, []);
-    BlockEditor.addStringAtts(info.atts, ['spotname', 'spotsourcetype', 'spotsourcename', 'spotsourcepartname']);
+    BlockEditor.addStringAtts(info.atts, ['spotname', 'spotsourcetype', 'spotsourcename', 'spotsourcecatalog', 'spotsourcepartname']);
 
     var tmpClassSpecs = {
         boolean: [],
@@ -69,6 +69,9 @@
             }
             if (tmpPropAtts.spotsourcename) {
                 tmpSpotTopAtts.sourcename = tmpPropAtts.spotsourcename;
+            }
+            if (tmpPropAtts.spotsourcecatalog) {
+                tmpSpotTopAtts.catalog = tmpPropAtts.spotsourcecatalog;
             }
             if (tmpPropAtts.spotsourcepartname) {
                 tmpSpotTopAtts.sourcepartname = tmpPropAtts.spotsourcepartname;
@@ -116,6 +119,7 @@
                 BlockEditor.getStandardProperty(props, 'spotname', 'Spot Name', 'text'),
                 !(tmpPropAtts.spotname != '') ? '' : BlockEditor.getStandardProperty(props, 'spotsourcetype', 'Spot Source Type', 'text'),
                 !(tmpPropAtts.spotname != '') ? '' : BlockEditor.getStandardProperty(props, 'spotsourcename', 'Spot Source Name', 'text'),
+                !(tmpPropAtts.spotname != '') ? '' : BlockEditor.getStandardProperty(props, 'spotsourcecatalog', 'Spot Source Catalog', 'text'),
                 !(tmpPropAtts.spotname != '') ? '' : BlockEditor.getStandardProperty(props, 'spotsourcepartname', 'Part Name (Optional)', 'text'),
                 !(tmpPropAtts.spotsourcename != '') ? '' : el('div', { className: 'ui button circular blue fluid', action: 'updatePreview' }, 'Refresh Preview')
             ];

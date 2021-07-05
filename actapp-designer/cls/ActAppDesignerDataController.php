@@ -46,11 +46,27 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	  );
 	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
 
+	  $path = 'dataview';
+	  $routeInfo = array(
+		'methods'             => 'GET',
+		'callback'            => array( $this, 'get_dataview' ),
+		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
 	  $path = 'savedoc';
 	  $routeInfo = array(
 		'methods'             => 'POST',
 		'callback'            => array( $this, 'save_doc' ),
 		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
+	  $path = 'savedesign';
+	  $routeInfo = array(
+		'methods'             => 'POST',
+		'callback'            => array( $this, 'save_design' ),
+		'permission_callback' => array( $this, 'get_design_permissions_check' )
 	  );
 	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
 
@@ -103,6 +119,13 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	public function get_edit_permissions_check($request) {
 		return true;
 	}
+	public function get_design_permissions_check($request) {
+		if( current_user_can('actappdesign')){
+			return true;
+		}
+		return false;
+	}
+	
 
 	public function get_config($request) {
 		$tmpRet = array('for'=>'designer');
@@ -131,7 +154,8 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		$body = json_decode($json);
 		$ids = $body->ids;
 		foreach( $ids as $id){
-			set_post_type( $id, get_post_type($id)."_recycled" );
+			//set_post_type( $id, get_post_type($id)."_recycled" );
+			wp_trash_post( $id );
 		}
 		//--- Make return as array and encode it
 		$tmpRet = wp_json_encode(array(
@@ -144,7 +168,194 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		echo $tmpRet;
 		exit();
 	}	
+
+	public static function getDataFromQuery($query){
+		$tmpRet = array();
+		if ( $query->have_posts() ) {
+			while ( $query->have_posts() ) {
+				$query->the_post();
+				$tmpID = get_the_ID();
+				$tmpData = get_post_meta($tmpID);
+				
+				foreach($tmpData as $iField => $iVal) {
+					if( count($iVal) == 1){
+						$tmpVal = $iVal[0];
+						$tmpData[$iField] = maybe_unserialize($tmpVal);
+					}
+				}
+				
+				if( $tmpAdded ){
+					$tmpRet .= ',';			
+				} else {
+					$tmpAdded = true;
+				}
+				array_push($tmpRet, $tmpData);			
+			}
+		}
+		return $tmpRet;
+	}
+	public static function get_design_doc($theName,$theType){
+		//--- Get data view document by slug
+		//-- populate this from the details
+		$tmpDocType = $theType; 
+		$tmpPostType = 'actappdesigndoc'; 
+
+		//--- Start with blank query
+		$tmpQuery = array();
+
+		//--- If getting a doc type then add to the query
+		if( $tmpDocType != ''){
+			array_push($tmpQuery, array(
+				'key'     => '__doctype',
+				'value'   => $tmpDocType,
+				'compare' => '=',
+				)
+			);
+		}
+		if( $theName != ''){
+			array_push($tmpQuery,array(
+				'key'     => 'name',
+				'value'   => $theName,
+				'compare' => '=',
+			));
+		}
+
+		$args = array(
+			'post_type' => $tmpPostType,
+			'posts_per_page' => 1,
+			'meta_query' => $tmpQuery
+		);
+
+		$query = new WP_Query( $args );
+
+		$tmpRet = self::getDataFromQuery($query);
+		/* Restore original Post Data */
+		wp_reset_postdata();
+		return $tmpRet[0];
+		
+	}
+	public function save_design($request) {
+		if( !current_user_can('actappdesign') ){
+			return new WP_Error('actapp_data_error', 'Not autorized', array('status' => 403));
+		}
+		//-- If using formSubmit = true then get field values like this
+		//--> $body = $request->get_body_params();
+		//--> $firstname = $body['firstname'];
+
+		//-- If using formSubmit = false or no formSubmit used,
+		// .... then get field values like this
+		$json = $request->get_body();
+		$body = json_decode($json);
+		//$firstname = $body->firstname;
+		
+
+		//--- If passing URL params in addition to json, 
+		// .... get them like this
+		$doctype = $body->__doctype;
+		if( !$doctype ){
+			$doctype = $_GET['doctype'];
+		}
+
+		$doctitle = $body->__doctitle;
+		if( !$doctitle ){
+			$doctitle = $_GET['doctitle'];
+		}
+
+		$tmpDocID = '';
+		$tmpPostID = false;
+		if ($body->id != null && $body->id != ""){
+			$tmpPostID = $body->id;
+			$tmpDocID = $body->id;
+		} else {
+			if($body->id != null){
+				unset($body["id"]);
+			}			
+			$tmpDocID = (ActAppDesigner::getSUID() . '_' . uniqid('' . random_int(1000, 9999)));
+			if( $doctitle == ''){
+				$doctitle = $tmpDocID;
+			}
+			$body->__uid = $tmpDocID;
+			$body->__doctype = $doctype;
+			$body->__title = $doctitle;
+		}
+
+		
+		$jsonDoc = json_encode($body);
+		
+		$author_id = get_current_user_id();;
+		$newid = 0;
+
+		$newpost = array(
+			'comment_status'    =>   'closed',
+			'ping_status'       =>   'closed',
+			'post_author'       =>   $author_id,
+			'post_name'         =>   $tmpDocID,
+			'post_title'        =>   $doctitle,
+			'post_content'      =>   '',
+			'json' => $jsonDoc,
+			'body_topic' => $body->topic,
+			'post_status'       =>   'public',
+			'post_type'         =>   'actappdesigndoc'
+		);
+
+		if( $tmpPostID ){
+			$newpost['id'] = $tmpPostID;
+		}
+
+		
+		// $newbody = array();
+		// foreach($body as $iFN => $iVal) {
+		// 	$newbody[$iFN] = $iVal;
+		// }
+		
+		$tmpResultCode = '';
+		if( !$tmpPostID ){
+			$tmpResultCode = 'new doc';
+			$newid = wp_insert_post(
+				$newpost
+			);
+			$body->id = $newid;
+			//$newbody["id"] = $newid;
+			//--- ToDo, Update all then Loop and update arrays only using single method??
+
+			wp_update_post(array(
+				'ID'        => $newid,
+				'meta_input'=> $body,	
+			));
+			//update_post_meta( $newid, 'doctype', $doctype );
+		} else {
+			$tmpResultCode = 'updated json';
+			
+			wp_update_post(array(
+				'ID'        => $tmpPostID,
+				'meta_input'=> $body,
+			));
+		}
+
+		//--- Make return as array and encode it
+		$tmpRet = wp_json_encode(array(
+			'action' => 'savedesign',
+			'post_id' => $newid ? $newid : $tmpPostID,
+			'full_id' => $body->id,
+			'new_id' => $newid,
+			'update_id' => $tmpPostID,
+			'doctype' => $doctype,
+			'newpost' => $newpost,
+			'result' => $tmpResultCode,
+			'body' => $body,
+			'base_url' => ActAppCommon::getRootPath(),
+		));
+
+		//--- Standard JSON reply
+		header('Content-Type: application/json');
+		echo $tmpRet;
+		exit();
+	}	
+
 	public function save_doc($request) {
+		if( !current_user_can('actappapps') ){
+			return new WP_Error('actapp_data_error', 'Not autorized', array('status' => 403));
+		}
 		//-- If using formSubmit = true then get field values like this
 		//--> $body = $request->get_body_params();
 		//--> $firstname = $body['firstname'];
@@ -190,7 +401,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		
 		$jsonDoc = json_encode($body);
 		
-		$author_id = 1;
+		$author_id = get_current_user_id();;
 		$newid = 0;
 
 		$newpost = array(
@@ -355,6 +566,83 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		echo $tmpRet;
 		exit();
 	}
+
+	public function get_dataview($request) {
+
+		$tmpName = $_GET['name'];
+		$qs = $_GET['qs'];
+
+
+		//--- Get design doc for data view
+		$tmpDesignDoc = self::get_design_doc($tmpName,'dataview');
+
+		//-- populate this from the details
+		$tmpDocType = $tmpDesignDoc["doctype"]; 
+		$tmpPostType = $tmpDesignDoc["posttype"];
+
+		//--- Start with blank query
+		$tmpQuery = array();
+
+		//--- If getting a doc type then add to the query
+		if( $tmpDocType != ''){
+			array_push($tmpQuery, array(
+				'key'     => '__doctype',
+				'value'   => $tmpDocType,
+				'compare' => '=',
+				)
+			);
+		}
+
+		//--- Get and use query string values from the setup doc
+		if( $qs != '' ){
+			array_push($tmpQuery,array(
+				'key'     => 'topic',
+				'value'   => '"'.$qs.'"',
+				'compare' => 'Like',
+			));
+		}
+
+		$args = array(
+			'post_type' => $tmpPostType,
+			'posts_per_page' => -1,
+			'meta_query' => $tmpQuery
+		);
+		$query = new WP_Query( $args );
+		$tmpQuery["design"] = $tmpDesignDoc;
+		$tmpRet = '{"q":' . json_encode($tmpQuery) .',"data":[';
+		$tmpAdded = false;
+		if ( $query->have_posts() ) {
+			while ( $query->have_posts() ) {
+				$query->the_post();
+				$tmpID = get_the_ID();
+				$tmpJson = get_post_meta($tmpID);
+				
+				foreach($tmpJson as $iField => $iVal) {
+					if( count($iVal) == 1){
+						$tmpVal = $iVal[0];
+						$tmpJson[$iField] = maybe_unserialize($tmpVal);
+					}
+				}
+				$tmpJson = json_encode($tmpJson);
+				if( $tmpAdded ){
+					$tmpRet .= ',';			
+				} else {
+					$tmpAdded = true;
+				}
+				$tmpRet .= $tmpJson;			
+			}
+		}
+		/* Restore original Post Data */
+		wp_reset_postdata();
+
+		
+		$tmpRet .= ']}';
+		header('Content-Type: application/json');
+		echo $tmpRet;
+		
+		exit();
+	}
+	
 
 	public function get_people($request) {
 

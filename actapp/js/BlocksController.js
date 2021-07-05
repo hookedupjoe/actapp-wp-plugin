@@ -42,10 +42,11 @@
                 var tmpEachEl = $(theEl);
                 var tmpSourceType = tmpEachEl.attr('sourcetype');
                 var tmpSourceName = tmpEachEl.attr('sourcename');
+                var tmpSourceCatalog = tmpEachEl.attr('catalog');
                 var tmpSpotName = tmpEachEl.attr('spot');
                 var tmpSourcePartName = tmpEachEl.attr('sourcepartname') || tmpSourceName;
                 
-                ActAppBlocksController.getCatalogItem(tmpSourceType, tmpSourceName).then(function(){
+                ActAppBlocksController.getCatalogItem(tmpSourceType, tmpSourceName, tmpSourceCatalog).then(function(){
                     var tmpInstance = ThisApp.getResourceForType(tmpSourceType, tmpSourceName).create('preview');
                     tmpInstance.loadToElement(ThisApp.getSpot$(tmpSpotName).get(0)).then(function(){	
                         if( tmpSourcePartName ){
@@ -70,6 +71,10 @@
             }
             tmpBaseCatalogURL = ActionAppCore.BlockManagerConfig.catalogURL;
             if( theOptionalCatalogName ){
+                console.log('catalog',tmpBaseCatalogURL);
+                if( theOptionalCatalogName == 'designer'){
+                    tmpBaseCatalogURL = ActionAppCore.DesignerConfig.catalogURL;
+                }
                 //todo: support additional catalog locations
             }
             var tmpMap = {};
