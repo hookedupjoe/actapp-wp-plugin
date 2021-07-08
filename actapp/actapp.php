@@ -36,27 +36,27 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 define( 'ACTAPP_FILE', __FILE__ );
-if ( !defined( 'ACTAPP_CORE_DIR' ) ) {
-	define( 'ACTAPP_CORE_DIR', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
+if ( !defined( 'ACTAPP_BASE_DIR' ) ) {
+	define( 'ACTAPP_BASE_DIR', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 }
 
-if ( !defined( 'ACTAPP_CORE_URL' ) ) {
-	define( 'ACTAPP_CORE_URL', plugins_url( 'actapp' ) );
+if ( !defined( 'ACTAPP_BASE_URL' ) ) {
+	define( 'ACTAPP_BASE_URL', plugins_url( 'actapp' ) );
 }
 
 if ( !defined( 'ACTAPP_CORE_LIB_URL' ) ) {
-	define( 'ACTAPP_CORE_LIB_URL', ACTAPP_CORE_URL . '/core' );
+	define( 'ACTAPP_CORE_LIB_URL', ACTAPP_BASE_URL . '/core' );
 }
 
 if ( !defined( 'ACTAPP_CORE_LIB' ) ) {
-	define( 'ACTAPP_CORE_LIB', ACTAPP_CORE_DIR . '/core' );
+	define( 'ACTAPP_CORE_LIB', ACTAPP_BASE_DIR . '/core' );
 }
 
 if ( !defined( 'ACTAPP_SLEEKDB_LIB' ) ) {
-	define( 'ACTAPP_SLEEKDB_LIB', ACTAPP_CORE_DIR . '/SleekDB' );
+	define( 'ACTAPP_SLEEKDB_LIB', ACTAPP_BASE_DIR . '/SleekDB' );
 }
 
-require_once ACTAPP_CORE_DIR . '/cls/ActAppCommon.php';
+require_once ACTAPP_BASE_DIR . '/cls/ActAppCommon.php';
 require_once ACTAPP_SLEEKDB_LIB . '/SleekDB.php';
 
 
@@ -66,11 +66,11 @@ define( 'ACTAPP_BLOCKS_VERSION', '1.0.3' );
 define( 'ACTAPP_BLOCKS_FILE', __FILE__ );
 
 if ( !defined( 'ACTAPP_BLOCKS_DIR' ) ) {
-	define( 'ACTAPP_BLOCKS_DIR', ACTAPP_CORE_DIR );
+	define( 'ACTAPP_BLOCKS_DIR', ACTAPP_BASE_DIR );
 }
 
 if ( !defined( 'ACTAPP_BLOCKS_URL' ) ) {
-	define( 'ACTAPP_BLOCKS_URL', ACTAPP_CORE_URL );
+	define( 'ACTAPP_BLOCKS_URL', ACTAPP_BASE_URL );
 }
 
 require_once ACTAPP_BLOCKS_DIR . '/cls/ActAppWidgetManager.php';

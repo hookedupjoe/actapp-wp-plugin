@@ -69,12 +69,19 @@ public static function setup_scripts($hook) {
 			
 			$tmpConfig = array(
 				'rootPath'=>self::getRootPath(),
-				'catalogURL'=>self::getRootPath() . '/catalog',
+				'actappCatalogURL'=> ACTAPP_BASE_URL . '/catalog/', 
+				'libCatalogsURL'=> ACTAPP_BASE_URL . '/core/catalogs/', 
 				'restPath' => esc_url_raw( rest_url() ),
 				'nonce' => wp_create_nonce( 'wp_rest' )
 			);
+			$tmpCats = array(
+				'actapp' => ACTAPP_BASE_URL . '/catalog/',
+				'common' => ACTAPP_BASE_URL . '/core/catalogs/common/', 
+			);
 			$tmpJson = json_encode($tmpConfig);
 			$tmpScript = 'window.ActionAppCore.ActAppWP = ' . $tmpJson . ';';
+			$tmpScript .= 'ActionAppCore.dir.catalogs.wordpress = "' . ACTAPP_BASE_URL . '/catalog/' . '";';
+			$tmpScript .= 'ActionAppCore.dir.catalogs.common = "' . ACTAPP_BASE_URL . '/core/catalogs/common/' . '";';
 			$tmpScript .= 'ActionAppCore.apiCallOptions = ActionAppCore.apiCallOptions || {};ActionAppCore.apiCallOptions.filterOptions = function(theOptions){
 				var tmpOptions = theOptions || {};
 				if( ActionAppCore.ActAppWP && ActionAppCore.ActAppWP.nonce ){

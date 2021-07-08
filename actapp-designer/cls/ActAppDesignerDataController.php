@@ -14,6 +14,31 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	public function registerRoutes() {
 	  $namespace = 'actappdesigner';
 
+	  
+	  $path = 'datapost';
+	  $routeInfo = array(
+		'methods'             => 'POST',
+		'callback'            => array( $this, 'datapost' ),
+		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
+	  $path = 'formpost';
+	  $routeInfo = array(
+		'methods'             => 'POST',
+		'callback'            => array( $this, 'formpost' ),
+		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
+	  $path = 'jsonpost';
+	  $routeInfo = array(
+		'methods'             => 'POST',
+		'callback'            => array( $this, 'jsonpost' ),
+		'permission_callback' => array( $this, 'get_edit_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
 	  $path = 'config';
 	  $routeInfo = array(
 		'methods'             => 'GET',
@@ -125,7 +150,107 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		}
 		return false;
 	}
-	
+
+
+	//--- *** EDUCATIONAL USE ONLY: DO NOT USE THE fieldVal FUNCTION IN PRODUCTION
+	public static function fieldVal($theName,$theContainer,$theIsArray = ''){
+		if( is_string($theName) ){
+			if( $theIsArray === true || is_array($theContainer) ){
+				return $theContainer[$theName];
+			}
+			return $theContainer->{$theName};
+		}
+		if( is_array($theName) ){
+			$tmpRet = [];
+			foreach ($theName as $iFieldName) {
+				$tmpRet[$iFieldName] = self::fieldVal($iFieldName,$theContainer,$theIsArray);
+			}
+			return $tmpRet;
+		}
+		return false;
+	}
+	//--- *** EDUCATIONAL USE ONLY: DO NOT USE THE datapost FUNCTION IN PRODUCTION
+	//--- Example of an endpoint that takes form submit or json data that is one level deep
+	public function datapost($request) {
+		//---> Return an error using this technique
+		// if( !current_user_can('pingback') ){
+		// 	return new WP_Error('actapp_data_error', 'Not autorized', array('status' => 403));
+		// }
+
+
+		$parameters = $request->get_params();
+		//---> Check for a form submit (formSubmit = true)
+		$body = $request->get_body_params();
+		if( $body == null || count($body) == 0){
+			//---> No form passed, use the body as json
+			$json = $request->get_body();
+			$body = json_decode($json);	
+		}
+		//--> Determine if this is an array field and pass optional param
+		//..... if the third param is not set, it checks the type in the fieldVal function
+		//..... so for performance reasons, we check it once if we need more than one field in a loop
+		$tmpIsArray = is_array($body);
+		$tmpActionName = self::fieldVal('action',$body,$tmpIsArray);
+		$tmpFieldVals = self::fieldVal(['action','more','test'],$body,$tmpIsArray);
+		//or just $tmpActionName = self::fieldVal('action',$body);
+
+		//--- Make return as array and encode it
+		$tmpRet = wp_json_encode(array(
+			'request' => 'datapost',
+			'vals' => $tmpFieldVals,
+			'params' => $parameters,
+			'action' => $tmpActionName,
+			'body' => $body,
+		));
+
+		//--- Standard JSON reply
+		header('Content-Type: application/json');
+		echo $tmpRet;
+		exit();
+
+	}
+
+//**** This is the preferred method for sending data to a service
+	//--- A JSON Post can convert to any data type based on JSON passed
+	public function jsonpost($request) {
+		//---> If using formSubmit = false or no formSubmit used,
+		// .... then get field values like this
+		$json = $request->get_body();
+		$body = json_decode($json);
+		$tmpActionName = $body->action; //or $body->{'action'};
+
+		//--- Make return as array and encode it
+		$tmpRet = wp_json_encode(array(
+			'request' => 'jsonpost',
+			'action' => $tmpActionName,
+			'body' => $body,
+		));
+
+		//--- Standard JSON reply
+		header('Content-Type: application/json');
+		echo $tmpRet;
+		exit();
+
+	}
+
+	//--- A Form Post of json data ends up being all strings
+	public function formpost($request) {
+		//---> If using formSubmit = true then get field values like this
+		$body = $request->get_body_params();
+		$tmpActionName = $body['action'];
+
+		//--- Make return as array and encode it
+		$tmpRet = wp_json_encode(array(
+			'request' => 'formpost',
+			'action' => $tmpActionName,
+			'body' => $body,
+		));
+
+		header('Content-Type: application/json');
+		echo $tmpRet;
+		exit();
+	}	
+
 
 	public function get_config($request) {
 		$tmpRet = array('for'=>'designer');
@@ -351,7 +476,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		echo $tmpRet;
 		exit();
 	}	
-
+	
 	public function save_doc($request) {
 		if( !current_user_can('actappapps') ){
 			return new WP_Error('actapp_data_error', 'Not autorized', array('status' => 403));

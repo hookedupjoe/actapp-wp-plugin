@@ -87,7 +87,7 @@
             return ThisApp.loadResources(tmpRequestedItems)
         }
 
-        ActionAppCore.subscribe('app-loaded', function(){
+        ActionAppCore.subscribe('app-loaded', function(){            
             ThisApp.actions.updatePreview = function(){
                 ActAppBlocksController.loadFromMarkup();
             }

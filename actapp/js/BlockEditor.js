@@ -41,16 +41,17 @@
         
         var tmpBaseURL = ActionAppCore.BlockManagerConfig.catalogURL;
         //--- Load stuff we need on startup, can load dynamically as needed, 
-        //      so only use this for suff needed on startup
+        //      so only use this for stuff needed on startup
+        // ** Loading demo objects not used **         
         var tmpRequired = {
-            panels: {
-                baseURL: tmpBaseURL + '/panels/',
-                map: {'nested':'nested'}
-            },
-            templates: {
-                baseURL: tmpBaseURL + '/templates/',
-                map: {"demo1":"demo1"}
-            }
+            // panels: {
+            //     baseURL: tmpBaseURL + '/panels/',
+            //     map: {'nested':'nested'}
+            // },
+            // templates: {
+            //     baseURL: tmpBaseURL + '/templates/',
+            //     map: {"demo1":"demo1"}
+            // }
         };
 
         ActionAppCore.config = ActionAppCore.config || {};
