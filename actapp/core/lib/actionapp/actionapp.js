@@ -1,6 +1,6 @@
 /*
 ActionAppCore Core Library
-Author: Joseph Francis, 2017 - 2020
+Author: Joseph Francis, 2017 - 2021
 License: MIT
 */
 
@@ -15,7 +15,12 @@ License: MIT
 
 //--- Global Entry Point / Always available functionality
 var ActionAppCore = {
-
+    //--- Directory of where stuff is located
+    dir: {
+        catalogs: {
+            common: '/catalogs/common/'
+        }
+    },
     //--- Debounce resize / rapid firing events
     debounce: function (func, wait, immediate) {
         var timeout;
@@ -1627,9 +1632,9 @@ window.ActionAppCore = window.ActionAppCore || ActionAppCore;
      *   me.actions = me.options.actions || {};
      *   var defaults = {};
      *   if (typeof (me.options.app) == 'object') {
-     *       ThisApp = me.options.app;
-     *       if (ThisApp && ThisApp.registerComponent) {
-     *           ThisApp.registerComponent("app:PouchPage", this);
+     *       var tmpApp = me.options.app;
+     *       if (tmpApp && tmpApp.registerComponent) {
+     *           tmpApp.registerComponent("app:PouchPage", this);
      *       }
      *   }
      * }
@@ -3986,24 +3991,7 @@ License: MIT
     me.hasData = function(theKey, theData){
         return this.contextData.hasOwnProperty(theKey);
     }
-    // me.getDataObject = function(theKey){
-    //     if( !this.hasData(theKey)){
-    //         this.setData(theKey,{});
-    //     }
-    //     return this.getData(theKey);
-    // }
-    // me.setDataObject = function(theKey, theObject, theMergeWithExisting){
-    //     var tmpToAdd = ThisApp.clone(theObject || {});
-    //     if( !this.hasData(theKey)){
-    //         this.setData(theKey,tmpToAdd);
-    //     } else {
-    //         if( theMergeWithExisting === true ){
-    //             //ToDo: merge with existing
-    //         }
-    //         this.setData(tmpToAdd);
-    //     }
-    //     return this;
-    // }
+    //--> me.getDataObject and me.setDataObject also available
     
 
     me.getByAttr$ = function (theItems, theExcludeBlanks) {
@@ -4310,7 +4298,7 @@ License: MIT
     var MyMod = ActionAppCore.module("plugin");
     MyMod[pluginConfig.name] = ThisPageController;
 
-    var ThisApp = null;
+    //var ThisApp = null;
 
 
     var thisComponentID = "plugin:" + pluginConfig.name;
@@ -4321,9 +4309,9 @@ License: MIT
         this.actions = this.options.actions || {};
         var defaults = {};
         if (typeof (this.options.app) == 'object') {
-            ThisApp = this.options.app;
-            if (ThisApp && ThisApp.registerComponent) {
-                ThisApp.registerComponent(thisComponentID, this);
+            var tmpApp = this.options.app;
+            if (tmpApp && tmpApp.registerComponent) {
+                tmpApp.registerComponent(thisComponentID, this);
             }
         }
     }
@@ -4810,7 +4798,7 @@ License: MIT
 
     var ExtendMod = ActionAppCore.module("extension");
 
-    var ThisApp = null;
+    //var ThisApp = null;
 
     var thisComponentID = "plugin:" + pluginConfig.name;
 
@@ -4820,9 +4808,9 @@ License: MIT
         this.actions = this.options.actions || {};
         var defaults = {};
         if (typeof (this.options.app) == 'object') {
-            ThisApp = this.options.app;
-            if (ThisApp && ThisApp.registerComponent) {
-                ThisApp.registerComponent(thisComponentID, this);
+            var tmpApp = this.options.app;
+            if (tmpApp && tmpApp.registerComponent) {
+                tmpApp.registerComponent(thisComponentID, this);
             }
         }
     }
@@ -5283,10 +5271,7 @@ License: MIT
                                 } 
                                 tmpData[tmpFN] = tmpFldValue;
                             } else {
-                                if( typeof(tmpDataValue) == 'string'){
-                                    tmpData[tmpFN] = JSON.parse(tmpDataValue); 
-                                }
-                                
+                                tmpData[tmpFN] = tmpDataValue; 
                                 
                             }
                         }
@@ -5939,8 +5924,6 @@ License: MIT
                         tmpFieldEl.data('datavalue',theValue)
                     } else if( typeof(theValue) == 'number' ){
                         tmpFieldEl.data('datavalue',theValue)
-                    } else if( typeof(theValue) == 'object' ){
-                        tmpFieldEl.data('datavalue',JSON.stringify(theValue))
                     } else {
                         tmpFieldEl.data('datavalue',undefined);
                     }    
@@ -6970,8 +6953,8 @@ License: MIT
                         var tmpControlName = tmpItem.controlname;
                         var tmpCatalog = tmpItem.catalog || tmpItem.source || '';
                         if( tmpCatalog ){
-                            if( me.catalogs[tmpCatalog] ){
-                                tmpCatalog = me.catalogs[tmpCatalog];
+                            if( ActionAppCore.dir.catalogs[tmpCatalog] ){
+                                tmpCatalog = ActionAppCore.dir.catalogs[tmpCatalog];
                                 tmpCatalog += tmpAppComp + 's/';
                             }
                             tmpControlName = tmpCatalog + tmpControlName;
@@ -7052,13 +7035,6 @@ License: MIT
         return tmpRet
 
     }
-
-
-
-    me.catalogs = {
-        common: '/catalogs/common/'
-    };
-
 
     me.sources = {
         states: 'Alabama|AL,Alaska|AK,Arizona|AZ,Arkansas|AR,California|CA,Colorado|CO,Connecticut|CT,Delaware|DE,District Of Columbia|DC,Florida|FL,Georgia|GA,Hawaii|HI,Idaho|ID,Illinois|IL,Indiana|IN,Iowa|IA,Kansas|KS,Kentucky|KY,Louisiana|LA,Maine|ME,Maryland|MD,Massachusetts|MA,Michigan|MI,Minnesota|MN,Mississippi|MS,Missouri|MO,Montana|MT,Nebraska|NE,Nevada|NV,New Hampshire|NH,New Jersey|NJ,New Mexico|NM,New York|NY,North Carolina|NC,North Dakota|ND,Ohio|OH,Oklahoma|OK,Oregon|OR,Pennsylvania|PA,Rhode Island|RI,South Carolina|SC,South Dakota|SD,Tennessee|TN,Texas|TX,Utah|UT,Vermont|VT,Virginia|VA,Washington|WA,West Virginia|WV,Wisconsin|WI,Wyoming|WY',
@@ -7854,8 +7830,8 @@ License: MIT
 
             var tmpCatalog = tmpItem.catalog || tmpItem.source || '';
             if( tmpCatalog ){
-                if( me.catalogs[tmpCatalog] ){
-                    tmpCatalog = me.catalogs[tmpCatalog];
+                if( ActionAppCore.dir.catalogs[tmpCatalog] ){
+                    tmpCatalog = ActionAppCore.dir.catalogs[tmpCatalog];
                     tmpCatalog += tmpAppComp + 's/';
                 }
                 tmpControlName = tmpCatalog + tmpControlName;
