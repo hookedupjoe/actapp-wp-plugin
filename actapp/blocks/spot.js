@@ -110,7 +110,12 @@
         example: info.example,
         attributes: info.atts,
         edit: function (props) {
-
+            if( (this._autoRendered !== true)){
+                this._autoRendered = true;
+                ThisApp.delay(1).then(function(){
+                    ActAppBlocksController.loadFromMarkup();
+                });
+            }
             var tmpPropAtts = props.attributes;
             if (tmpPropAtts.spotname) {
 

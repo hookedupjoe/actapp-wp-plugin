@@ -45,14 +45,16 @@
                 var tmpSourceCatalog = tmpEachEl.attr('catalog');
                 var tmpSpotName = tmpEachEl.attr('spot');
                 var tmpSourcePartName = tmpEachEl.attr('sourcepartname') || tmpSourceName;
-                
+                //ToDo: This doesn't recrete HTML in blocks editor, 
+                // ... so only do this when not in block editor designing using controls
+                // --> tmpEachEl.attr('appuse','blockmarkup_instance');
                 ActAppBlocksController.getCatalogItem(tmpSourceType, tmpSourceName, tmpSourceCatalog).then(function(){
                     var tmpInstance = ThisApp.getResourceForType(tmpSourceType, tmpSourceName).create('preview');
                     tmpInstance.loadToElement(ThisApp.getSpot$(tmpSpotName).get(0)).then(function(){	
                         if( tmpSourcePartName ){
                             BlocksController.parts[tmpSourcePartName] = tmpInstance;
                         }
-                        ThisApp.publish('partloaded', [this,tmpInstance]);
+                        ThisApp.publish('partloaded', [this,tmpInstance,tmpSourcePartName]);
                     });
 
                 });
@@ -69,19 +71,17 @@
             if( !(tmpName) ){
                 return false;
             }
-            tmpBaseCatalogURL = ActionAppCore.BlockManagerConfig.catalogURL;
+            var tmpBaseCatalogURL = ActionAppCore.dir.catalogs.common;
             if( theOptionalCatalogName ){
-                console.log('catalog',tmpBaseCatalogURL);
-                if( theOptionalCatalogName == 'designer'){
-                    tmpBaseCatalogURL = ActionAppCore.DesignerConfig.catalogURL;
+                if( theOptionalCatalogName && ActionAppCore.dir.catalogs[theOptionalCatalogName]){
+                    tmpBaseCatalogURL = ActionAppCore.dir.catalogs[theOptionalCatalogName];
                 }
-                //todo: support additional catalog locations
             }
             var tmpMap = {};
             tmpMap[theName] = theName;
             var tmpRequestedItems = {}
             tmpRequestedItems[tmpType] = {
-                baseURL: tmpBaseCatalogURL + '/' + tmpType + '/',
+                baseURL: tmpBaseCatalogURL + tmpType + '/',
                 map: tmpMap
             }
             return ThisApp.loadResources(tmpRequestedItems)
@@ -91,9 +91,7 @@
             ThisApp.actions.updatePreview = function(){
                 ActAppBlocksController.loadFromMarkup();
             }
-            ThisApp.delay(5).then(function(){
-                ActAppBlocksController.loadFromMarkup();
-            });
+            ActAppBlocksController.loadFromMarkup();
         })
 
         
