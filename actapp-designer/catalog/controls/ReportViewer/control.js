@@ -18,7 +18,9 @@
             "name": "searchbar"
           },
           {
-            ctl: 'spot',
+            ctl: 'div',
+            classes: 'ui message small mar0 pad4',
+            attr: {'myspot':'filtered-count'},
             name: 'filtered-count'
           },
           {
@@ -169,6 +171,11 @@
     });
   };
 
+  function onDoubleClick(e,row){
+    this.publish('doubleClick',[row]);
+    window.getSelection().removeAllRanges();
+  }
+
   ControlCode.initTable = function (theDetails) {
     var tmpDetails = theDetails || {};
 
@@ -198,6 +205,7 @@
         }, 200);
 
         this.tableConfig = $.extend({
+          rowDblClick: onDoubleClick.bind(this),
           height: tmpHeight,
           selectableRangeMode: "click",
           selectable: true,

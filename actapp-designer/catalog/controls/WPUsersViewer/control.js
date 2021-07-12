@@ -92,6 +92,7 @@
       this.parts.mainform.controlConfig.index.items[tmpToHide[iPos]].hidden = true;
     }
     this.viewer.subscribe('selectionChange', this.onSelectionChange.bind(this))
+    this.viewer.subscribe('doubleClick', this.editDoc.bind(this))
 
     this.thisReportSetup();
   };
@@ -145,11 +146,37 @@
 
   }
 
-  ControlCode.editDoc = function () {
-    var tmpSelected = this.viewer.getSelectedKeys();
+  ControlCode.editDoc = function (theParams,theOptionalRow) {
+    //--- Account for double click row
+    var tmpSelected = theOptionalRow;
+    if( tmpSelected ){
+      tmpSelected = [theOptionalRow];
+    } else {
+      tmpSelected = this.viewer.getSelectedKeys()
+    }
+
+    if( tmpSelected.length != 1){
+      alert('Select only one document to edit', 'Can not edit multiple records', 'e');
+      return;
+    }
+    
     var tmpRow = this.viewer.mainTable.getRow(tmpSelected[0]);
     var self = this;
 
+    // var tmpID = this.getFieldValue('id');
+    // var tmpPassField = this.getFieldSpecs('user_pass');
+    // var tmpUserIDField = this.getFieldSpecs('user_login');
+
+    // if( tmpID ){
+    //   tmpPassField.req = true;
+    //   tmpUserIDField.readonly = false;
+    // } else {
+    //   tmpUserIDField.readonly = true;
+    //   tmpPassField.req = false;
+    // }
+
+    self.parts.mainform.getFieldSpecs('user_login').readonly = true;
+    self.parts.mainform.getFieldSpecs('user_pass').req = false;
     self.parts.mainform.prompt({ title: 'Edit User Information', submitLabel: 'Save Changes', doc: tmpRow._row.data }).then(function (theSubmit, theData) {
       if (!theSubmit) { return; }
 
@@ -171,6 +198,8 @@
 
   ControlCode.newDoc = function () {
     var self = this;
+    self.parts.mainform.getFieldSpecs('user_login').readonly = false;
+    self.parts.mainform.getFieldSpecs('user_pass').req = true;
     self.parts.mainform.prompt({ title: 'Add User', submitLabel: 'Submit'}).then(function (theSubmit, theData) {
       if (!theSubmit) { return; }
       self.parts.mainform.submitForm().then(function () {

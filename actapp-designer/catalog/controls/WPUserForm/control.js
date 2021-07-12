@@ -146,15 +146,16 @@ License: MIT
   };
 
   function setup() {
+
     
   }
 
   function _onInit() {
     var tmpThis = this;
-    window.personForm = this;
     ThisApp.delay(1).then(function() {
       tmpThis.setup();
     })
+    
   }
 
   function submitForm() {

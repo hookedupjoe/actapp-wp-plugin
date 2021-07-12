@@ -427,11 +427,15 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		if( $tmpPostID ){
 			$newuser['ID'] = $tmpPostID;
 		}
-
+		
 		
 		$tmpResultCode = '';
 		if( !$tmpPostID ){
 			$tmpResultCode = 'new user';
+			if( $body->user_pass != null && $body->user_pass != ''){
+				$newuser['user_pass'] = $body->user_pass;			
+			}
+
 			$newid = wp_insert_user(
 				$newuser
 			);
@@ -443,7 +447,10 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 				}	
 			}
 		} else {
-			$tmpResultCode = 'updated user';
+			$tmpResultCode = 'updated user ';
+			if( $body->user_pass != null && $body->user_pass != ''){
+				wp_set_password( $body->user_pass, $tmpPostID );			
+			}
 			
 			$tmpAddReply = wp_insert_user(
 				$newuser
@@ -770,7 +777,10 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 			$tmpID = $user->ID;
 			if( $tmpID != 1){
 				//$tmpAdminOptions = [];
-				$tmpRole = $user->roles[0];
+				foreach ( $user->roles as $iRole ) {
+					$tmpRole = $iRole;
+				}
+				
 				$tmpUserData = $user->data;
 				$tmpCaps = [];
 				$tmpAdminOptions = [];
