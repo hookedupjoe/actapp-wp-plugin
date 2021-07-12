@@ -768,44 +768,46 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		$tmpData = [];
 		foreach ( $blogusers as $user ) {
 			$tmpID = $user->ID;
-			//$tmpAdminOptions = [];
-			$tmpRole = $user->roles[0];
-			$tmpUserData = $user->data;
-			$tmpCaps = [];
-			$tmpAdminOptions = [];
-			$tmpAdminBar = get_user_meta($tmpID,'show_admin_bar_front',true);
-			$tmpSSL = get_user_meta($tmpID,'use_ssl',true);
+			if( $tmpID != 1){
+				//$tmpAdminOptions = [];
+				$tmpRole = $user->roles[0];
+				$tmpUserData = $user->data;
+				$tmpCaps = [];
+				$tmpAdminOptions = [];
+				$tmpAdminBar = get_user_meta($tmpID,'show_admin_bar_front',true);
+				$tmpSSL = get_user_meta($tmpID,'use_ssl',true);
 
-			if( $tmpAdminBar == '1' ){
-				array_push($tmpAdminOptions,'adminbar');
-			}
-			if( $tmpSSL == '1' ){
-				array_push($tmpAdminOptions,'ssl');
-			}
+				if( $tmpAdminBar == '1' ){
+					array_push($tmpAdminOptions,'adminbar');
+				}
+				if( $tmpSSL == '1' ){
+					array_push($tmpAdminOptions,'ssl');
+				}
 
-			foreach ( $user->caps as $iCapName => $iCapVal ) {
-				if( $iCapName != $tmpRole){
-					if( $iCapVal === true){
-						array_push($tmpCaps,$iCapName);
+				foreach ( $user->caps as $iCapName => $iCapVal ) {
+					if( $iCapName != $tmpRole){
+						if( $iCapVal === true){
+							array_push($tmpCaps,$iCapName);
+						}
 					}
 				}
-			}
 
-			$tmpNew = [
-				'admin_options' => $tmpAdminOptions,
-				'capabilities' => $tmpCaps,
-				'description' => $tmpUserData->description,
-				'first_name' => get_user_meta($tmpID,'first_name',true),
-				'last_name' => get_user_meta($tmpID,'last_name',true),
-				'role' => $tmpRole,
-				'user_email' => $user->data->user_email,
-				'user_login' => $user->data->user_login,
-			];
-			if( $tmpNew['description'] === null ){
-				$tmpNew['description'] = '';
+				$tmpNew = [
+					'admin_options' => $tmpAdminOptions,
+					'capabilities' => $tmpCaps,
+					'description' => $tmpUserData->description,
+					'first_name' => get_user_meta($tmpID,'first_name',true),
+					'last_name' => get_user_meta($tmpID,'last_name',true),
+					'role' => $tmpRole,
+					'user_email' => $user->data->user_email,
+					'user_login' => $user->data->user_login,
+				];
+				if( $tmpNew['description'] === null ){
+					$tmpNew['description'] = '';
+				}
+				$tmpNew['id'] = $tmpID;
+				array_push($tmpData,$tmpNew);
 			}
-			$tmpNew['id'] = $tmpID;
-			array_push($tmpData,$tmpNew);
 		}
 		$tmpRet = ['data' => $tmpData];
 		header('Content-Type: application/json');

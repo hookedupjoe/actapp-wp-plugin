@@ -84,11 +84,6 @@ License: MIT
 		//--- Only fire the process change event
 		var processChange = ActionAppCore.debounce(function (theEvent) {			
 			var tmpOnlyIfChanged = true;
-			//--- Below code makes it run twice, to force research - use button
-			// if( ( theEvent && theEvent.keyCode  && theEvent.keyCode == 13) ){
-			// 	tmpOnlyIfChanged = false;
-			// }
-
 			this.runSearch(tmpOnlyIfChanged);
 		}, 500).bind(this);
 		this.elSearch = this.getFieldEl('search');
@@ -99,7 +94,6 @@ License: MIT
 			if( ( theEvent && theEvent.keyCode  && theEvent.keyCode == 13) ){
 				this.runSearch(true);
 			}
-			
 		 }).bind(this));
 	}
 	
