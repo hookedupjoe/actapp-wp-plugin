@@ -79,6 +79,25 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	  );
 	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
 
+
+	  $path = 'users';
+	  $routeInfo = array(
+		'methods'             => 'GET',
+		'callback'            => array( $this, 'get_users' ),
+		'permission_callback' => array( $this, 'get_users_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
+
+
+	  $path = 'saveuser';
+	  $routeInfo = array(
+		'methods'             => 'POST',
+		'callback'            => array( $this, 'save_user' ),
+		'permission_callback' => array( $this, 'get_users_permissions_check' )
+	  );
+	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
+
 	  $path = 'savedoc';
 	  $routeInfo = array(
 		'methods'             => 'POST',
@@ -102,8 +121,6 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		'permission_callback' => array( $this, 'get_edit_permissions_check' )
 	  );
 	  register_rest_route( $namespace, '/' . $path, [$routeInfo]);     
-
-	  
 
 	  $path = 'get-ws-outline.json';
 	  $routeInfo = array(
@@ -144,6 +161,14 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 	public function get_edit_permissions_check($request) {
 		return true;
 	}
+	public function get_users_permissions_check($request) {
+		if( current_user_can('actappdesign')){
+			return true;
+		}
+		return false;
+	}
+	
+
 	public function get_design_permissions_check($request) {
 		if( current_user_can('actappdesign')){
 			return true;
@@ -359,32 +384,15 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		return $tmpRet[0];
 		
 	}
-	public function save_design($request) {
+
+	
+	public function save_user($request) {
+		//ToDo: Use wp user update / add caps instead
 		if( !current_user_can('actappdesign') ){
 			return new WP_Error('actapp_data_error', 'Not autorized', array('status' => 403));
 		}
-		//-- If using formSubmit = true then get field values like this
-		//--> $body = $request->get_body_params();
-		//--> $firstname = $body['firstname'];
-
-		//-- If using formSubmit = false or no formSubmit used,
-		// .... then get field values like this
 		$json = $request->get_body();
 		$body = json_decode($json);
-		//$firstname = $body->firstname;
-		
-
-		//--- If passing URL params in addition to json, 
-		// .... get them like this
-		$doctype = $body->__doctype;
-		if( !$doctype ){
-			$doctype = $_GET['doctype'];
-		}
-
-		$doctitle = $body->__doctitle;
-		if( !$doctitle ){
-			$doctitle = $_GET['doctitle'];
-		}
 
 		$tmpDocID = '';
 		$tmpPostID = false;
@@ -396,104 +404,98 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 				unset($body["id"]);
 			}			
 			$tmpDocID = (ActAppDesigner::getSUID() . '_' . uniqid('' . random_int(1000, 9999)));
-			if( $doctitle == ''){
-				$doctitle = $tmpDocID;
-			}
 			$body->__uid = $tmpDocID;
 			$body->__doctype = $doctype;
 			$body->__title = $doctitle;
 		}
-
 		
 		$jsonDoc = json_encode($body);
 		
 		$author_id = get_current_user_id();;
 		$newid = 0;
 
-		$newpost = array(
-			'comment_status'    =>   'closed',
-			'ping_status'       =>   'closed',
-			'post_author'       =>   $author_id,
-			'post_name'         =>   $tmpDocID,
-			'post_title'        =>   $doctitle,
-			'post_content'      =>   '',
-			'json' => $jsonDoc,
-			'body_topic' => $body->topic,
-			'post_status'       =>   'public',
-			'post_type'         =>   'actappdesigndoc'
+		$newuser = array(
+			'user_login'    =>   $body->user_login,
+			'user_email'       =>   $body->user_email,
+			'first_name'         =>   $body->first_name,
+			'last_name'        =>   $body->last_name,
+			'description'      =>   $body->description,
+			'show_admin_bar_front' => in_array('adminbar',$body->admin_options),
+			'use_ssl' => in_array('ssl',$body->admin_options),
+			'role'       =>   $body->role,
 		);
-
 		if( $tmpPostID ){
-			$newpost['id'] = $tmpPostID;
+			$newuser['ID'] = $tmpPostID;
 		}
 
 		
-		// $newbody = array();
-		// foreach($body as $iFN => $iVal) {
-		// 	$newbody[$iFN] = $iVal;
-		// }
-		
 		$tmpResultCode = '';
 		if( !$tmpPostID ){
-			$tmpResultCode = 'new doc';
-			$newid = wp_insert_post(
-				$newpost
+			$tmpResultCode = 'new user';
+			$newid = wp_insert_user(
+				$newuser
 			);
 			$body->id = $newid;
-			//$newbody["id"] = $newid;
-			//--- ToDo, Update all then Loop and update arrays only using single method??
-
-			wp_update_post(array(
-				'ID'        => $newid,
-				'meta_input'=> $body,	
-			));
-			//update_post_meta( $newid, 'doctype', $doctype );
+			$newWPUser = get_user_by('id', $newid);
+			if( is_array($body->capabilities) ){
+				foreach ($body->capabilities as $iCap) {
+					$newWPUser->add_cap($iCap);
+				}	
+			}
 		} else {
-			$tmpResultCode = 'updated json';
+			$tmpResultCode = 'updated user';
 			
-			wp_update_post(array(
-				'ID'        => $tmpPostID,
-				'meta_input'=> $body,
-			));
+			$tmpAddReply = wp_insert_user(
+				$newuser
+			);
+			$newWPUser = get_user_by('id', $tmpPostID);
+			//--- ToDo: Review for removal from capacity when not passed on update
+			if( is_array($body->capabilities) ){
+				foreach ($body->capabilities as $iCap) {
+					$newWPUser->add_cap($iCap);
+				}	
+			}
 		}
 
 		//--- Make return as array and encode it
 		$tmpRet = wp_json_encode(array(
-			'action' => 'savedesign',
+			'action' => 'saveuser',
+			'add_reply' => $tmpAddReply,
 			'post_id' => $newid ? $newid : $tmpPostID,
 			'full_id' => $body->id,
 			'new_id' => $newid,
 			'update_id' => $tmpPostID,
 			'doctype' => $doctype,
-			'newpost' => $newpost,
+			'newuser' => $newuser,
 			'result' => $tmpResultCode,
-			'body' => $body,
-			'base_url' => ActAppCommon::getRootPath(),
+			'body' => $body
 		));
 
 		//--- Standard JSON reply
 		header('Content-Type: application/json');
 		echo $tmpRet;
 		exit();
+	}
+
+	public function save_design($request) {
+		return self::save_doc($request,true);
 	}	
 	
-	public function save_doc($request) {
-		if( !current_user_can('actappapps') ){
-			return new WP_Error('actapp_data_error', 'Not autorized', array('status' => 403));
+	public function save_doc($request, $theIsDesign = false) {
+		$tmpPostType = 'actappdoc';
+		if( $theIsDesign === true){
+			$tmpPostType = 'actappdesigndoc';
+			if( !current_user_can('actappdesign') ){
+				return new WP_Error('actapp_data_error', 'Not autorized', array('status' => 403));
+			}
+		} else {
+			if( !current_user_can('actappapps') ){
+				return new WP_Error('actapp_data_error', 'Not autorized', array('status' => 403));
+			}
 		}
-		//-- If using formSubmit = true then get field values like this
-		//--> $body = $request->get_body_params();
-		//--> $firstname = $body['firstname'];
-
-		//-- If using formSubmit = false or no formSubmit used,
-		// .... then get field values like this
 		$json = $request->get_body();
 		$body = json_decode($json);
-		//$firstname = $body->firstname;
-		
 
-		//--- If passing URL params in addition to json, 
-		// .... get them like this
 		$doctype = $body->__doctype;
 		if( !$doctype ){
 			$doctype = $_GET['doctype'];
@@ -520,9 +522,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 			$body->__uid = $tmpDocID;
 			$body->__doctype = $doctype;
 			$body->__title = $doctitle;
-	
 		}
-
 		
 		$jsonDoc = json_encode($body);
 		
@@ -539,17 +539,12 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 			'json' => $jsonDoc,
 			'body_topic' => $body->topic,
 			'post_status'       =>   'publish',
-			'post_type'         =>   'actappdoc'
+			'post_type'         =>   $tmpPostType
 		);
 		if( $tmpPostID ){
 			$newpost['id'] = $tmpPostID;
 		}
 
-		
-		// $newbody = array();
-		// foreach($body as $iFN => $iVal) {
-		// 	$newbody[$iFN] = $iVal;
-		// }
 		
 		$tmpResultCode = '';
 		if( !$tmpPostID ){
@@ -558,14 +553,11 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 				$newpost
 			);
 			$body->id = $newid;
-			//$newbody["id"] = $newid;
-			//--- ToDo, Update all then Loop and update arrays only using single method??
 
 			wp_update_post(array(
 				'ID'        => $newid,
 				'meta_input'=> $body,	
 			));
-			//update_post_meta( $newid, 'doctype', $doctype );
 		} else {
 			$tmpResultCode = 'updated json';
 			
@@ -733,8 +725,10 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 			'meta_query' => $tmpQuery
 		);
 		$query = new WP_Query( $args );
-		$tmpQuery["design"] = $tmpDesignDoc;
-		$tmpRet = '{"q":' . json_encode($tmpQuery) .',"data":[';
+		//$tmpQuery["design"] = $tmpDesignDoc;
+		$tmpRet = '{"q":' . json_encode($tmpQuery);
+		$tmpRet .= ',"design":' . json_encode($tmpDesignDoc);
+		$tmpRet .= ',"data":[';
 		$tmpAdded = false;
 		if ( $query->have_posts() ) {
 			while ( $query->have_posts() ) {
@@ -768,6 +762,64 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 		exit();
 	}
 	
+
+	public function get_users($request) {
+		$blogusers = get_users( array( 'role__in' => array( 'administrator', 'author', 'editor' ) ) );
+		$tmpData = [];
+		foreach ( $blogusers as $user ) {
+			$tmpID = $user->ID;
+			//$tmpAdminOptions = [];
+			$tmpRole = $user->roles[0];
+			$tmpUserData = $user->data;
+			$tmpCaps = [];
+			$tmpAdminOptions = [];
+			$tmpAdminBar = get_user_meta($tmpID,'show_admin_bar_front',true);
+			$tmpSSL = get_user_meta($tmpID,'use_ssl',true);
+
+			if( $tmpAdminBar == '1' ){
+				array_push($tmpAdminOptions,'adminbar');
+			}
+			if( $tmpSSL == '1' ){
+				array_push($tmpAdminOptions,'ssl');
+			}
+
+			foreach ( $user->caps as $iCapName => $iCapVal ) {
+				if( $iCapName != $tmpRole){
+					if( $iCapVal === true){
+						array_push($tmpCaps,$iCapName);
+					}
+				}
+			}
+
+			$tmpNew = [
+				'admin_options' => $tmpAdminOptions,
+				'capabilities' => $tmpCaps,
+				'description' => $tmpUserData->description,
+				'first_name' => get_user_meta($tmpID,'first_name',true),
+				'last_name' => get_user_meta($tmpID,'last_name',true),
+				'role' => $tmpRole,
+				'user_email' => $user->data->user_email,
+				'user_login' => $user->data->user_login,
+			];
+			if( $tmpNew['description'] === null ){
+				$tmpNew['description'] = '';
+			}
+			$tmpNew['id'] = $tmpID;
+			array_push($tmpData,$tmpNew);
+		}
+		$tmpRet = ['data' => $tmpData];
+		header('Content-Type: application/json');
+		echo json_encode($tmpRet);
+		exit();
+	}
+
+	public function get_users_raw($request) {
+		$blogusers = get_users( array( 'role__in' => array( 'administrator', 'author', 'editor' ) ) );
+		$tmpRet = ['data' => $blogusers];
+		header('Content-Type: application/json');
+		echo json_encode($tmpRet);
+		exit();
+	}
 
 	public function get_people($request) {
 

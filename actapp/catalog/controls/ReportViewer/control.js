@@ -25,13 +25,15 @@
           classes: 'hidden',
           content:[{
             "ctl": "control",
-            "controlname": "/developer/demos/wp-content/plugins/actapp/catalog/controls/PersonForm",
+            "controlname": "PersonForm",
+            "catalog":"wordpress",
             "name": "personform"          
           }]
         },
         {
           "ctl": "control",
-          "controlname": "/developer/demos/wp-content/plugins/actapp/catalog/controls/SearchBar",
+          "controlname": "SearchBar",
+          "catalog":"wordpress",
           "name": "searchbar"
         },
 

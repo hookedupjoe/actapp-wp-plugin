@@ -30,7 +30,7 @@ class ActAppDesigner {
 	}
 
 	public static function getDataVersion(){
-		return 1.08;
+		return 1.09;
 	}
 
 	public static function actapp_block_category( $categories, $post ) {
@@ -217,7 +217,9 @@ class ActAppDesigner {
 			'catalogURL'=>self::baseURL() . '/catalog'
 		);
 		$tmpJson = json_encode($tmpConfig);
-		$tmpScript = 'window.ActionAppCore.DesignerConfig = ' . $tmpJson;
+		$tmpScript = 'window.ActionAppCore.DesignerConfig = ' . $tmpJson . ';';
+		$tmpScript .= 'ActionAppCore.dir.catalogs.designer = "' . self::baseURL() . '/catalog/' . '";';
+
 		ActAppCommon::setup_scripts($theHook);
 		wp_add_inline_script( 'app-only-preinit', $tmpScript );
 
@@ -264,6 +266,10 @@ class ActAppDesigner {
 		//--- Give all editors access to the applications interface (see see "my apps")
 		$role = get_role( 'editor' );
   		$role->add_cap( 'actappapps' );
+
+	    $role = get_role( 'administrator' );
+  		$role->add_cap( 'actappapps' );
+  		$role->add_cap( 'actappdesign' );
 	}
 
 	public static function init() {
@@ -316,16 +322,15 @@ class ActAppDesigner {
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
-		'capability_type' => 'actappdoc',
 		'capabilities' => array(
-			'publish_posts' => 'publish_actappdocs',
-			'edit_posts' => 'actappdoc',
-			'edit_others_posts' => 'actappdoc',
-			'read_private_posts' => 'read_private_actappdocs',
-			'edit_post' => 'actappdoc',
-			'delete_post' => 'delete_actappdocs',
-			'read_post' => 'actappdoc',
-		),
+			'edit_post' => 'actappdesign',
+			'edit_posts' => 'actappdesign',
+			'edit_others_posts' => 'actappdesign',
+			'publish_posts' => 'actappdesign',
+			'read_post' => 'actappdesign',
+			'read_private_posts' => 'actappdesign',
+			'delete_post' => 'actappdesign'
+			),
 		);
 
 		register_post_type( 'actappdoc', $args);
@@ -357,7 +362,15 @@ class ActAppDesigner {
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
-		'capability_type' => 'actappdesign'
+		'capabilities' => array(
+			'edit_post' => 'actappdesign',
+			'edit_posts' => 'actappdesign',
+			'edit_others_posts' => 'actappdesign',
+			'publish_posts' => 'actappdesign',
+			'read_post' => 'actappdesign',
+			'read_private_posts' => 'actappdesign',
+			'delete_post' => 'actappdesign'
+			),
 		);
 
 		register_post_type( 'actappelem', $args);
@@ -389,7 +402,15 @@ class ActAppDesigner {
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
-		'capability_type' => 'actappdesign'
+		'capabilities' => array(
+			'edit_post' => 'actappdesign',
+			'edit_posts' => 'actappdesign',
+			'edit_others_posts' => 'actappdesign',
+			'publish_posts' => 'actappdesign',
+			'read_post' => 'actappdesign',
+			'read_private_posts' => 'actappdesign',
+			'delete_post' => 'actappdesign'
+			),
 		);
 
 		register_post_type( 'actappdesign', $args);
@@ -422,16 +443,15 @@ class ActAppDesigner {
 		'show_in_admin_bar' => false,
 		'show_in_nav_menus' => false,
 		'query_var'         => true,
-		'capability_type' => 'actappdesign',
 		'capabilities' => array(
-			'publish_posts' => 'publish_actappdesigns',
-			'edit_posts' => 'edit_actappdesigns',
-			'edit_others_posts' => 'edit_others_actappdesigns',
-			'read_private_posts' => 'read_private_actappdesigns',
-			'edit_post' => 'edit_actappdesigns',
-			'delete_post' => 'delete_actappdesigns',
-			'read_post' => 'read_actappdesign',
-		),
+			'edit_post' => 'actappdesign',
+			'edit_posts' => 'actappdesign',
+			'edit_others_posts' => 'actappdesign',
+			'publish_posts' => 'actappdesign',
+			'read_post' => 'actappdesign',
+			'read_private_posts' => 'actappdesign',
+			'delete_post' => 'actappdesign'
+			),
 		);
 
 		register_post_type( 'actappdesigndoc', $args);
@@ -464,7 +484,7 @@ class ActAppDesigner {
 	public static function showUsers(){
 		
 		echo '<hr/><div class="ui header blue">Users</div>';
-		$blogusers = get_users( array( 'role__in' => array( 'author', 'editor' ) ) );
+		$blogusers = get_users( array( 'role__in' => array( 'administrator', 'author', 'editor' ) ) );
 		// Array of WP_User objects.
 		foreach ( $blogusers as $user ) {
 			$tmpID = $user->ID;
@@ -475,19 +495,19 @@ class ActAppDesigner {
 					echo "<hr/>Application Access";
 				} else {
 					echo "<hr/>No Application Access";
-					if( $tmpID == 5){
-						echo " (assigning)";
-						$user->add_cap('actappapps');
-					}
+					// if( $tmpID == 5){
+					// 	echo " (assigning)";
+					// 	$user->add_cap('actappapps');
+					// }
 				}
 				if( $user->has_cap('actappdesign')){
 					echo "<hr/>Design";
 				} else {
 					echo "<hr/>No Design";
-					if( $tmpID == 3){
-						echo " (assigning)";
-						$user->add_cap('actappdesign');
-					}
+					// if( $tmpID == 1){
+					// 	echo " (assigning)";
+					// 	$user->add_cap('actappdesign');
+					// }
 				}
 				
 
@@ -497,7 +517,7 @@ class ActAppDesigner {
 			echo '</div>';
 
 			echo '<div>';
-			//var_dump( $user);
+			var_dump( $user);
 			echo '</div>';
 
 		}
