@@ -413,8 +413,13 @@
     var tmpTotalCount = " " + (this.counts.all || "none") + " records.";
     var tmpSelCount = " (" + (this.counts.selected || "none")
       + " selected)";
-    var tmpFilterCount = " (" + (this.counts.filtered || "none")
-      + " filtered)";
+    var tmpFilterCount = "Search found " + (this.counts.filtered || "none");
+    if( this.counts.filtered == 0){
+      this.getItemEl('filtered-count').removeClass('green');
+      tmpFilterCount = ''
+    } else {
+      this.getItemEl('filtered-count').addClass('green');
+    }
     this.loadSpot('selected-count', tmpTotalCount + " " + tmpSelCount)
     this.loadSpot('filtered-count', tmpFilterCount);
     this.publish('selectionChange', [tmpCountChanged, this.counts, this]);
