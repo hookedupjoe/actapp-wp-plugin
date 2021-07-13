@@ -805,7 +805,7 @@ class ActAppDesignerDataController extends WP_REST_Controller {
 				$tmpNew = [
 					'admin_options' => $tmpAdminOptions,
 					'capabilities' => $tmpCaps,
-					'description' => $tmpUserData->description,
+					'description' => get_user_meta($tmpID,'description',true),
 					'first_name' => get_user_meta($tmpID,'first_name',true),
 					'last_name' => get_user_meta($tmpID,'last_name',true),
 					'role' => $tmpRole,
