@@ -69,7 +69,7 @@ License: MIT
           "name": "role",
           "label": "User Role",
           "default": "author",
-          "list": "Administrator|administrator,Editor|editor,Author|author,Contributor|contributor,Subscriber,subscriber",
+          "list": "Administrator|administrator,Editor|editor,Author|author,Contributor|contributor,Subscriber|subscriber",
           "req": true
         },
           {
